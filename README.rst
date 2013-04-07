@@ -20,3 +20,11 @@ To install pytest-instafail::
 Then run your tests with::
 
     $ py.test --instafail
+
+Resources
+---------
+
+- `Issue Tracker <http://github.com/jpvanhal/pytest-instafail/issues>`_
+- `Code <http://github.com/jpvanhal/pytest-instafail/>`_
+- `Development Version
+  <http://github.com/jpvanhal/pytest-instafail/zipball/master#egg=pytest-instafail-dev>`_
