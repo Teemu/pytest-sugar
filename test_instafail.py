@@ -4,14 +4,17 @@ pytest_plugins = "pytester"
 
 
 class Option(object):
-    def __init__(self, verbose=False):
+    def __init__(self, verbose=False, quiet=False):
         self.verbose = verbose
+        self.quiet = quiet
 
     @property
     def args(self):
         l = ['--instafail']
         if self.verbose:
             l.append('-v')
+        if self.quiet:
+            l.append('-q')
         return l
 
 
@@ -22,7 +25,7 @@ def pytest_generate_tests(metafunc):
         metafunc.addcall(id="verbose",
                          funcargs={'option': Option(verbose=True)})
         metafunc.addcall(id="quiet",
-                         funcargs={'option': Option(verbose=-1)})
+                         funcargs={'option': Option(quiet=True)})
 
 
 class TestInstafailingTerminalReporter(object):
@@ -38,6 +41,14 @@ class TestInstafailingTerminalReporter(object):
         if option.verbose:
             result.stdout.fnmatch_lines([
                 "*test_fail.py:2: *test_func*FAIL*",
+                "* test_func *",
+                "    def test_func():",
+                ">       assert 0",
+                "E       assert 0",
+            ])
+        elif option.quiet:
+            result.stdout.fnmatch_lines([
+                "F",
                 "* test_func *",
                 "    def test_func():",
                 ">       assert 0",
@@ -73,6 +84,19 @@ class TestInstafailingTerminalReporter(object):
                 "test_fail_fail.py:3: AssertionError",
                 "",
                 "*test_fail_fail.py:4: *test_func2*FAIL*",
+                "* test_func2 *",
+                "    def test_func2():",
+                ">       assert 0",
+                "E       assert 0",
+            ])
+        elif option.quiet:
+            result.stdout.fnmatch_lines([
+                "F",
+                "* test_func *",
+                "    def test_func():",
+                ">       assert 0",
+                "E       assert 0",
+                "F",
                 "* test_func2 *",
                 "    def test_func2():",
                 ">       assert 0",
@@ -119,6 +143,16 @@ class TestInstafailingTerminalReporter(object):
                 "*test_error_in_setup_then_pass.py:7: *test_zip*PASSED*",
                 "*1 error*",
             ])
+        elif option.quiet:
+            result.stdout.fnmatch_lines([
+                "E",
+                "*ERROR at setup of test_nada*",
+                "*setup_function(function):*",
+                "*setup func*",
+                "*assert 0*",
+                "test_error_in_setup_then_pass.py:4: AssertionError",
+                ".",
+            ])
         else:
             result.stdout.fnmatch_lines([
                 "*test_error_in_setup_then_pass.py E",
@@ -160,6 +194,16 @@ class TestInstafailingTerminalReporter(object):
                 "*test_error_in_teardown_then_pass.py:7: *test_zip*PASSED*",
                 "*1 error*",
             ])
+        elif option.quiet:
+            result.stdout.fnmatch_lines([
+                ".E",
+                "*ERROR at teardown of test_nada*",
+                "*teardown_function(function):*",
+                "*teardown func*",
+                "*assert 0*",
+                "test_error_in_teardown_then_pass.py:4: AssertionError",
+                ".",
+            ])
         else:
             result.stdout.fnmatch_lines([
                 "*test_error_in_teardown_then_pass.py .E",
@@ -182,5 +226,8 @@ class TestInstafailingTerminalReporter(object):
             "test_collect_error.py:1: in <module>",
             ">   raise ValueError(0)",
             "E   ValueError: 0",
-            "collected 0 items / 1 errors",
         ])
+        if not option.quiet:
+            result.stdout.fnmatch_lines([
+                "collected 0 items / 1 errors",
+            ])

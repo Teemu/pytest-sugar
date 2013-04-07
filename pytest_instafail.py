@@ -43,6 +43,8 @@ class InstafailingTerminalReporter(TerminalReporter):
         # instantly.
         TerminalReporter.pytest_runtest_logreport(self, report)
         if report.failed:
+            if self.verbosity <= 0:
+                self._tw.line()
             self.print_failure(report)
 
     def summary_failures(self):
