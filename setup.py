@@ -2,6 +2,8 @@ from setuptools import setup
 
 setup(
     name='pytest-instafail',
+    description='py.test plugin to show failures instantly',
+    long_description=open("README.rst").read(),
     version='0.1.0',
     url='https://github.com/jpvanhal/pytest-instafail',
     license='BSD',
