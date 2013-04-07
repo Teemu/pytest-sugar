@@ -13,10 +13,10 @@ failures and errors instantly instead of waiting until the end of test session.
 Installation
 ------------
 
-To install pytest-instafail:
+To install pytest-instafail::
 
     $ pip install pytest-instafail
 
-Then run your tests with:
+Then run your tests with::
 
     $ py.test --instafail
