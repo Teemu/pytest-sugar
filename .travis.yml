@@ -8,9 +8,6 @@ python:
   - pypy
 env:
   - PYTEST=2.3.4
-  - PYTEST=2.2.4
-  - PYTEST=2.1.3
-  - PYTEST=2.0.3
 install:
   - pip install -q pytest==$PYTEST --use-mirrors
   - pip install -q -e . --use-mirrors
