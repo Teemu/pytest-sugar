@@ -1,4 +1,13 @@
 # -*- coding: utf-8 -*-
+"""
+pytest_instafail
+~~~~~~~~~~~~~~~~
+
+py.test plugin to show failures instantly.
+
+:copyright: (c) 2013 by Janne Vanhala.
+:license: BSD, see LICENSE for more details.
+"""
 import pytest
 from _pytest.terminal import TerminalReporter
 
