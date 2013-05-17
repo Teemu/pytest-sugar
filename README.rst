@@ -10,6 +10,14 @@ pytest-instafail
 pytest-instafail is a plugin for `py.test <http://pytest.org>`_ that shows
 failures and errors instantly instead of waiting until the end of test session.
 
+Requirements
+------------
+
+You will need the following prerequisites in order to use pytest-instafail:
+
+- Python 2.5, 2.6, 2.7, 3.2, 3.3 or PyPy
+- pytest 2.3 or newer
+
 Installation
 ------------
 
