@@ -10,6 +10,7 @@ class Option(object):
 
     @property
     def args(self):
+        return ''
         l = ['--instafail']
         if self.verbose:
             l.append('-v')
