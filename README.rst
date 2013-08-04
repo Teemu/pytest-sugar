@@ -1,14 +1,14 @@
-pytest-instafail
+pytest-sugar
 ================
 
 |build status|_
 
-.. |build status| image:: https://secure.travis-ci.org/jpvanhal/pytest-instafail.png?branch=master
+.. |build status| image:: https://secure.travis-ci.org/Frozenball/pytest-sugar.png?branch=master
    :alt: Build Status
-.. _build status: http://travis-ci.org/jpvanhal/pytest-instafail
+.. _build status: http://travis-ci.org/Frozenball/pytest-sugar
 
-pytest-instafail is a plugin for `py.test <http://pytest.org>`_ that shows
-failures and errors instantly instead of waiting until the end of test session.
+pytest-sugar is a plugin for `py.test <http://pytest.org>`_ that shows
+failures and errors instantly and shows a progress bar.
 
 Requirements
 ------------
@@ -21,18 +21,10 @@ You will need the following prerequisites in order to use pytest-instafail:
 Installation
 ------------
 
-To install pytest-instafail::
+To install pytest-sugar::
 
-    $ pip install pytest-instafail
+    $ pip install pytest-sugar
 
 Then run your tests with::
 
-    $ py.test --instafail
-
-Resources
----------
-
-- `Issue Tracker <http://github.com/jpvanhal/pytest-instafail/issues>`_
-- `Code <http://github.com/jpvanhal/pytest-instafail/>`_
-- `Development Version
-  <http://github.com/jpvanhal/pytest-instafail/zipball/master#egg=pytest-instafail-dev>`_
+    $ py.test
