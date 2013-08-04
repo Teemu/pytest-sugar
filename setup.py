@@ -1,16 +1,16 @@
 from setuptools import setup
 
 setup(
-    name='pytest-instafail',
+    name='pytest-sugar',
     description='py.test plugin to show failures instantly',
     long_description=open("README.rst").read(),
     version='0.1.0',
-    url='https://github.com/jpvanhal/pytest-instafail',
+    url='https://github.com/Frozenball/pytest-sugar',
     license='BSD',
     author='Janne Vanhala',
     author_email='janne.vanhala@gmail.com',
-    py_modules=['pytest_instafail'],
-    entry_points={'pytest11': ['instafail = pytest_instafail']},
+    py_modules=['pytest_sugar'],
+    entry_points={'pytest11': ['sugar = pytest_sugar']},
     zip_safe=False,
     include_package_data=True,
     platforms='any',

@@ -2,4 +2,4 @@ include CHANGES.rst
 include README.rst
 include setup.py
 include LICENSE
-include test_instafail.py
+include test_sugar.py
