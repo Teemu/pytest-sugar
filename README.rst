@@ -1,6 +1,8 @@
 pytest-sugar
 ================
 
+Please see http://pivotfinland.com/pytest-sugar/
+
 |build status|_
 
 .. |build status| image:: https://secure.travis-ci.org/Frozenball/pytest-sugar.png?branch=master
