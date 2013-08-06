@@ -235,7 +235,7 @@ class InstafailingTerminalReporter(TerminalReporter):
             progressbar += bcolors.GRAY + blocks[0] * (length - floored) + bcolors.ENDC
             return progressbar
 
-        append_string = get_estimate()+ ", " + get_progress_bar()
+        append_string = get_progress_bar()
         return self.append_string(append_string)
 
     def append_string(self, append_string=''):
