@@ -2,10 +2,10 @@ from setuptools import setup
 
 setup(
     name='pytest-sugar',
-    description='py.test plugin to show failures instantly',
+    description=' py.test plugin that adds instafail, ETA and neat graphics',
     long_description=open("README.rst").read(),
-    version='0.1.0',
-    url='https://github.com/Frozenball/pytest-sugar',
+    version='0.2.1',
+    url='http://pivotfinland.com/pytest-sugar/',
     license='BSD',
     author='Teemu, Janne Vanhala',
     author_email='orkkiolento@gmail.com, janne.vanhala@gmail.com',
