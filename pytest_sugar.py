@@ -48,7 +48,6 @@ class EtaLogger:
                 open(self.settings_path).read()
             )
         except IOError:
-            print "FUCK"
             self.collected = {}
         #print "-----------------"
         #print self.collected
