@@ -101,8 +101,12 @@ def flatten(l):
 
 
 def pytest_collection_modifyitems(session, config, items):
-    for i in items:
-        config.pluginmanager.getplugin('terminalreporter').tests_count += 1
+    config.pluginmanager.getplugin('terminalreporter').tests_count += len(items)
+
+def pytest_deselected(items):
+    """ Update tests_count to not include deselected tests """
+    if len(items) > 0:
+        items[0].config.pluginmanager.getplugin('terminalreporter').tests_count -= len(items)
 
 def pytest_addoption(parser):
     group = parser.getgroup("terminal reporting", "reporting", after="general")
@@ -257,6 +261,7 @@ class InstafailingTerminalReporter(TerminalReporter):
             self.setup_timer = time.time()
         if report.when == 'teardown':
             self.tests_taken += 1
+            self.overwrite(self.insert_progress())
             path = os.path.join(os.getcwd(), report.location[0])
             time_taken = time.time() - self.setup_timer
             if not path in self.time_taken:
@@ -281,7 +286,7 @@ class InstafailingTerminalReporter(TerminalReporter):
             cat, letter, word = res
             self.current_line = self.current_line + letter
 
-            self.overwrite(self.insert_progress())
+
 
             self.stats.setdefault(cat, []).append(rep)
             if not letter and not word:
