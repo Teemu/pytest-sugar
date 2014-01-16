@@ -254,7 +254,7 @@ class InstafailingTerminalReporter(TerminalReporter):
     def pytest_runtest_logreport(self, report):
         self.reports.append(report)
         if report.outcome == 'failed':
-            print ""
+            print("")
             self.print_failure(report)
             # Ignore other reports or it will cause duplicated letters
         if report.when == 'setup':
@@ -279,7 +279,7 @@ class InstafailingTerminalReporter(TerminalReporter):
                     report.fspath[-len(basename):] +
                     u" "
                 )
-                print ""
+                print("")
 
             rep = report
             res = pytest_report_teststatus(report=report)
@@ -323,7 +323,7 @@ class InstafailingTerminalReporter(TerminalReporter):
 
         self.eta_logger.save_session(self.time_taken, session_duration)
 
-        print "\nResults (%.2fs):" % round(session_duration,2)
+        print("\nResults (%.2fs):" % round(session_duration,2))
         if self.count('passed') > 0:
             self.write_line(
                 "   %d passed" % self.count('passed') + 
@@ -338,9 +338,9 @@ class InstafailingTerminalReporter(TerminalReporter):
             )
             for report in self.reports:
                 if report.outcome == 'failed':
-                    print "      - %s" % (
+                    print("      - %s" % (
                         self._getcrashline(report)
-                    )
+                    ))
 
         if self.count('skipped') > 0:
             self.write_line(
