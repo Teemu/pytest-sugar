@@ -248,7 +248,7 @@ class InstafailingTerminalReporter(TerminalReporter):
         return full_line  
 
     def overwrite(self, line):
-        sys.stdout.write("\r" + self.append_string(line))
+        sys.stdout.write("\r" + self.append_string(line).encode('utf-8'))
         sys.stdout.flush()
 
     def pytest_runtest_logreport(self, report):
