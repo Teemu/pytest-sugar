@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-pytest_instafail
-~~~~~~~~~~~~~~~~
+pytest_sugar
+~~~~~~~~~~~~
 
 py.test plugin to show failures instantly.
 
