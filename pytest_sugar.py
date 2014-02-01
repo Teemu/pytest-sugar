@@ -101,7 +101,8 @@ def flatten(l):
 
 
 def pytest_collection_modifyitems(session, config, items):
-    config.pluginmanager.getplugin('terminalreporter').tests_count += len(items)
+    if config.option.sugar:
+        config.pluginmanager.getplugin('terminalreporter').tests_count += len(items)
 
 def pytest_deselected(items):
     """ Update tests_count to not include deselected tests """
@@ -133,15 +134,18 @@ def real_string_length(string):
 
 @pytest.mark.trylast
 def pytest_configure(config):
+    global pytest_report_teststatus
+
     if config.option.sugar:
         # Get the standard terminal reporter plugin and replace it with our
         standard_reporter = config.pluginmanager.getplugin('terminalreporter')
         sugar_reporter = InstafailingTerminalReporter(standard_reporter)
         config.pluginmanager.unregister(standard_reporter)
         config.pluginmanager.register(sugar_reporter, 'terminalreporter')
+        pytest_report_teststatus = _pytest_report_teststatus
 
 
-def pytest_report_teststatus(report):
+def _pytest_report_teststatus(report):
     if report.passed:
         letter = bcolors.OKGREEN+u'✓'+bcolors.ENDC
     elif report.skipped:
