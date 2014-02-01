@@ -19,6 +19,14 @@ import re
 from _pytest.terminal import TerminalReporter
 
 
+if sys.version_info > (3, ):
+    def u(s):
+        return s
+else:
+    def u(s):
+        return unicode(s, 'utf-8')
+
+
 class TerminalColors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -147,13 +155,13 @@ def pytest_configure(config):
 
 def _pytest_report_teststatus(report):
     if report.passed:
-        letter = bcolors.OKGREEN+u'✓'+bcolors.ENDC
+        letter = bcolors.OKGREEN+u('✓')+bcolors.ENDC
     elif report.skipped:
-        letter = bcolors.OKBLUE+u's'+bcolors.ENDC
+        letter = bcolors.OKBLUE+'s'+bcolors.ENDC
     elif report.failed:
-        letter = bcolors.FAIL+u'⨯'+bcolors.ENDC
+        letter = bcolors.FAIL+u('⨯')+bcolors.ENDC
         if report.when != "call":
-            letter = bcolors.FAIL+u'ₓ'+bcolors.ENDC
+            letter = bcolors.FAIL+u('ₓ')+bcolors.ENDC
     return report.outcome, letter, report.outcome.upper()
 
 class InstafailingTerminalReporter(TerminalReporter):
@@ -165,7 +173,7 @@ class InstafailingTerminalReporter(TerminalReporter):
         self.paths_left = []
         self.tests_count = 0
         self.tests_taken = 0
-        self.current_line = u''
+        self.current_line = ''
         self.currentfspath2 = ''
         self.time_taken = {}
         self.reports = []
@@ -215,26 +223,26 @@ class InstafailingTerminalReporter(TerminalReporter):
 
         def get_progress_bar():
             blocks = [
-                u'█',
-                u'▉',
-                u'▉',
-                u'▊',
-                u'▊',
-                u'▋',
-                u'▋',
-                u'▌',
-                u'▌',
-                u'▍',
-                u'▍',
-                u'▎',
-                u'▎',
-                u'▏',
-                u'▏'
+                u('█'),
+                u('▉'),
+                u('▉'),
+                u('▊'),
+                u('▊'),
+                u('▋'),
+                u('▋'),
+                u('▌'),
+                u('▌'),
+                u('▍'),
+                u('▍'),
+                u('▎'),
+                u('▎'),
+                u('▏'),
+                u('▏')
             ]
             length = 10
             p = float(self.tests_taken) / self.tests_count
             floored = int(round(p * length))
-            progressbar = u''
+            progressbar = ''
             progressbar += "%i%% " % round(p*100)
             progressbar += bcolors.OKGREEN
             progressbar += blocks[0] * floored
@@ -275,12 +283,12 @@ class InstafailingTerminalReporter(TerminalReporter):
                 self.currentfspath2 = report.fspath
                 basename = os.path.basename(report.fspath)
                 self.current_line = (
-                    u"   " +
+                    "   " +
                     bcolors.GRAY +
                     report.fspath[0:-len(basename)] +
                     bcolors.ENDC +
                     report.fspath[-len(basename):] +
-                    u" "
+                    " "
                 )
                 print("")
 
@@ -384,5 +392,5 @@ class InstafailingTerminalReporter(TerminalReporter):
                 elif report.when == "teardown":
                     msg = "ERROR at teardown of " + msg
                 self.write_line('')
-                self.write_sep(u"―", msg)
+                self.write_sep("―", msg)
                 self._outrep_summary(report)
