@@ -6,7 +6,9 @@ python:
   - 3.3
   - pypy
 env:
-  - PYTEST=2.3.4
+  - PYTEST=2.3.5
+  - PYTEST=2.4.2
+  - PYTEST=2.5.2
 install:
   - pip install -q pytest==$PYTEST --use-mirrors
   - pip install -q -e . --use-mirrors
