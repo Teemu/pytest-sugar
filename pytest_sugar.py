@@ -20,6 +20,9 @@ import re
 from _pytest.terminal import TerminalReporter
 
 
+__version__ = '0.2.4'
+
+
 class TerminalColors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -205,8 +208,9 @@ class InstafailingTerminalReporter(TerminalReporter):
         self._sessionstarttime = py.std.time.time()
         verinfo = ".".join(map(str, sys.version_info[:3]))
         self.write_line(
-            "Test session starts (%s, %s)" % (
-                sys.platform, verinfo
+            "Test session starts "
+            "(platform: %s, Python %s, pytest %s, pytest-sugar %s)" % (
+                sys.platform, verinfo, pytest.__version__, __version__,
             ), bold=True
         )
         lines = self.config.hook.pytest_report_header(config=self.config)

@@ -1,10 +1,11 @@
 from setuptools import setup
+from pytest_sugar import __version__
 
 setup(
     name='pytest-sugar',
     description=' py.test plugin that adds instafail, ETA and neat graphics',
     long_description=open("README.rst").read(),
-    version='0.2.4',
+    version=__version__,
     url='http://pivotfinland.com/pytest-sugar/',
     license='BSD',
     author='Teemu, Janne Vanhala',
