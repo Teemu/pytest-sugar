@@ -9,7 +9,7 @@ py.test plugin to show failures instantly.
 :license: BSD, see LICENSE for more details.
 """
 import pytest
-import pytest, py
+import py
 import sys
 import random
 import os
@@ -39,6 +39,7 @@ class TerminalColors:
 
 
 bcolors = TerminalColors()
+
 
 class EtaLogger:
     def __init__(self):
@@ -83,7 +84,6 @@ class EtaLogger:
         )
         self.save()
 
-
     def save(self):
         #print "WRITING TO ",self.settings_path
         fp = open(self.settings_path, 'w')
@@ -102,12 +102,17 @@ def flatten(l):
 
 def pytest_collection_modifyitems(session, config, items):
     if config.option.sugar:
-        config.pluginmanager.getplugin('terminalreporter').tests_count += len(items)
+        terminal_reporter = config.pluginmanager.getplugin('terminalreporter')
+        terminal_reporter.tests_count += len(items)
+
 
 def pytest_deselected(items):
     """ Update tests_count to not include deselected tests """
     if len(items) > 0:
-        items[0].config.pluginmanager.getplugin('terminalreporter').tests_count -= len(items)
+        pluginmanager = items[0].config.pluginmanager
+        terminal_reporter = pluginmanager.getplugin('terminalreporter')
+        terminal_reporter.tests_count -= len(items)
+
 
 def pytest_addoption(parser):
     group = parser.getgroup("terminal reporting", "reporting", after="general")
@@ -132,6 +137,7 @@ def real_string_length(string):
         string = string.replace(color, '')
     return len(string)
 
+
 @pytest.mark.trylast
 def pytest_configure(config):
     global pytest_report_teststatus
@@ -155,6 +161,7 @@ def _pytest_report_teststatus(report):
         if report.when != "call":
             letter = bcolors.FAIL+u'ₓ'+bcolors.ENDC
     return report.outcome, letter, report.outcome.upper()
+
 
 class InstafailingTerminalReporter(TerminalReporter):
     def __init__(self, reporter):
@@ -196,7 +203,11 @@ class InstafailingTerminalReporter(TerminalReporter):
     def pytest_sessionstart(self, session):
         self._sessionstarttime = py.std.time.time()
         verinfo = ".".join(map(str, sys.version_info[:3]))
-        self.write_line("Test session starts (%s, %s)" % (sys.platform, verinfo), bold=True)
+        self.write_line(
+            "Test session starts (%s, %s)" % (
+                sys.platform, verinfo
+            ), bold=True
+        )
         lines = self.config.hook.pytest_report_header(config=self.config)
         lines.reverse()
         for line in flatten(lines):
@@ -209,8 +220,8 @@ class InstafailingTerminalReporter(TerminalReporter):
         def get_estimate():
             #return str(round(self.get_estimate(),2))
             seconds = int(round(self.get_estimate()))
-            minutes = seconds/60
-            seconds = seconds%60
+            minutes = seconds / 60
+            seconds = seconds % 60
             return "%im %is" % (minutes, seconds)
 
         def get_progress_bar():
@@ -239,7 +250,9 @@ class InstafailingTerminalReporter(TerminalReporter):
             progressbar += bcolors.OKGREEN
             progressbar += blocks[0] * floored
             progressbar += bcolors.ENDC
-            progressbar += bcolors.GRAY + blocks[0] * (length - floored) + bcolors.ENDC
+            progressbar += bcolors.GRAY
+            progressbar += blocks[0] * (length - floored)
+            progressbar += bcolors.ENDC
             return progressbar
 
         append_string = get_progress_bar()
@@ -247,9 +260,10 @@ class InstafailingTerminalReporter(TerminalReporter):
 
     def append_string(self, append_string=''):
         console_width = self._tw.fullwidth
-        full_line = self.current_line + " " * (console_width  - real_string_length(self.current_line))
+        num_spaces = console_width - real_string_length(self.current_line)
+        full_line = self.current_line + " " * num_spaces
         full_line = full_line[0:-(len(append_string)-15)] + append_string
-        return full_line  
+        return full_line
 
     def overwrite(self, line):
         self.writer.write("\r" + self.append_string(line))
@@ -289,8 +303,6 @@ class InstafailingTerminalReporter(TerminalReporter):
             cat, letter, word = res
             self.current_line = self.current_line + letter
 
-
-
             self.stats.setdefault(cat, []).append(rep)
             if not letter and not word:
                 return
@@ -299,11 +311,11 @@ class InstafailingTerminalReporter(TerminalReporter):
                     word, markup = word
                 else:
                     if rep.passed:
-                        markup = {'green':True}
+                        markup = {'green': True}
                     elif rep.failed:
-                        markup = {'red':True}
+                        markup = {'red': True}
                     elif rep.skipped:
-                        markup = {'yellow':True}
+                        markup = {'yellow': True}
                 line = self._locationline(str(rep.fspath), *rep.location)
                 if not hasattr(rep, 'node'):
                     self.write_ensure_prefix(line, word, **markup)
@@ -326,17 +338,17 @@ class InstafailingTerminalReporter(TerminalReporter):
 
         self.eta_logger.save_session(self.time_taken, session_duration)
 
-        print("\nResults (%.2fs):" % round(session_duration,2))
+        print("\nResults (%.2fs):" % round(session_duration, 2))
         if self.count('passed') > 0:
             self.write_line(
-                "   %d passed" % self.count('passed') + 
+                "   %d passed" % self.count('passed') +
                 bcolors.ENDC
             )
 
         if self.count('failed') > 0:
             self.write_line(
-                bcolors.FAIL+
-                "   %d failed" % self.count('failed') + 
+                bcolors.FAIL +
+                "   %d failed" % self.count('failed') +
                 bcolors.ENDC
             )
             for report in self.reports:
@@ -347,18 +359,17 @@ class InstafailingTerminalReporter(TerminalReporter):
 
         if self.count('skipped') > 0:
             self.write_line(
-                bcolors.GRAY+
-                "   %d skipped" % self.count('skipped') + 
+                bcolors.GRAY +
+                "   %d skipped" % self.count('skipped') +
                 bcolors.ENDC
             )
 
         if self.count('deselected') > 0:
             self.write_line(
-                bcolors.GRAY+
-                "   %d deselected" % self.count('deselected') + 
+                bcolors.GRAY +
+                "   %d deselected" % self.count('deselected') +
                 bcolors.ENDC
             )
-
 
     def summary_failures(self):
         # Prevent failure summary from being shown since we already
