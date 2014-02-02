@@ -15,7 +15,6 @@ setup(
     include_package_data=True,
     platforms='any',
     install_requires=['pytest>=2.3'],
-    use_2to3=True,
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
@@ -27,7 +26,6 @@ setup(
         'Topic :: Software Development :: Libraries',
         'Topic :: Utilities',
         'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.5',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
