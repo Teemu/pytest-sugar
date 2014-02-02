@@ -22,6 +22,12 @@ from _pytest.terminal import TerminalReporter
 
 __version__ = '0.2.4'
 
+LEN_RIGHT_MARGIN = 5
+LEN_PROGRESS_BAR = 10
+LEN_SPACE_BETWEEN_PERCENT_AND_PROGRESS_BAR = 1
+LEN_PERCENT = 3
+LEN_SPACE_BETWEEN_TEST_STATUS_AND_PERCENT = 4
+
 
 class TerminalColors:
     HEADER = '\033[95m'
@@ -273,6 +279,33 @@ class InstafailingTerminalReporter(TerminalReporter):
     def overwrite(self, line):
         self.writer.write("\r" + self.append_string(line))
 
+    def begin_new_line(self, report, print_filename):
+        basename = os.path.basename(report.fspath)
+        if print_filename:
+            self.current_line = (
+                "   " +
+                bcolors.GRAY +
+                report.fspath[0:-len(basename)] +
+                bcolors.ENDC +
+                report.fspath[-len(basename):] +
+                " "
+            )
+        else:
+            self.current_line = " " * (4 + len(report.fspath))
+        print("")
+
+    def reached_last_column_for_test_status(self):
+        max_column_for_test_status = (
+            self._tw.fullwidth
+            - LEN_RIGHT_MARGIN
+            - LEN_PROGRESS_BAR
+            - LEN_SPACE_BETWEEN_PERCENT_AND_PROGRESS_BAR
+            - LEN_PERCENT
+            - LEN_SPACE_BETWEEN_TEST_STATUS_AND_PERCENT
+        )
+        len_line = real_string_length(self.current_line)
+        return len_line == max_column_for_test_status
+
     def pytest_runtest_logreport(self, report):
         self.reports.append(report)
         if report.outcome == 'failed':
@@ -289,19 +322,12 @@ class InstafailingTerminalReporter(TerminalReporter):
             if not path in self.time_taken:
                 self.time_taken[path] = 0
             self.time_taken[path] += time_taken
+            if self.reached_last_column_for_test_status():
+                self.begin_new_line(report, print_filename=False)
         if report.when == 'call':
             if report.fspath != self.currentfspath2:
                 self.currentfspath2 = report.fspath
-                basename = os.path.basename(report.fspath)
-                self.current_line = (
-                    "   " +
-                    bcolors.GRAY +
-                    report.fspath[0:-len(basename)] +
-                    bcolors.ENDC +
-                    report.fspath[-len(basename):] +
-                    " "
-                )
-                print("")
+                self.begin_new_line(report, print_filename=True)
 
             rep = report
             res = pytest_report_teststatus(report=report)
