@@ -32,67 +32,8 @@ class TerminalColors:
     FAIL = '\033[91m'
     ENDC = '\033[0m'
 
-    def disable(self):
-        self.HEADER = ''
-        self.OKBLUE = ''
-        self.OKGREEN = ''
-        self.WARNING = ''
-        self.FAIL = ''
-        self.ENDC = ''
-        self.GRAY = ''
-
 
 bcolors = TerminalColors()
-
-
-class EtaLogger:
-    def __init__(self):
-        self.settings_path = os.path.expanduser("~/.pytest-sugar.json")
-        try:
-            self.collected = json.loads(
-                open(self.settings_path).read()
-            )
-        except IOError:
-            self.collected = {}
-        #print "-----------------"
-        #print self.collected
-
-    def collect(self, time, filename=None, hash=None):
-        self.collected[filename] = time
-        self.save()
-
-    def estimate(self, paths):
-        estimated_time = 0
-        for path in paths:
-            if path in self.collected:
-                estimated_time += self.collected[path]
-        return estimated_time
-
-    def save_session(
-        self,
-        tests_duration,
-        session_duration
-    ):
-        tests_sum = 0
-        for path, time in tests_duration.items():
-            self.collect(
-                filename=path,
-                time=time
-            )
-            tests_sum += time
-
-        extra_time = session_duration - tests_sum
-        self.collect(
-            filename=os.getcwd(),
-            time=extra_time
-        )
-        self.save()
-
-    def save(self):
-        #print "WRITING TO ",self.settings_path
-        fp = open(self.settings_path, 'w')
-        fp.write(json.dumps(self.collected))
-        fp.close()
 
 
 def flatten(l):
@@ -172,7 +113,6 @@ class InstafailingTerminalReporter(TerminalReporter):
         #pytest_collectreport = self.pytest_collectreport
         TerminalReporter.__init__(self, reporter.config)
         self.writer = self._tw
-        self.eta_logger = EtaLogger()
         self.paths_left = []
         self.tests_count = 0
         self.tests_taken = 0
@@ -181,15 +121,6 @@ class InstafailingTerminalReporter(TerminalReporter):
         self.time_taken = {}
         self.reports = []
         self.unreported_errors = []
-
-    def get_estimate(self):
-        session_duration = py.std.time.time() - self._sessionstarttime
-
-        estimate = 0
-        estimate += self.eta_logger.estimate(self.paths_left)
-        estimate += self.eta_logger.estimate([os.getcwd()])
-        estimate -= session_duration
-        return estimate
 
     def report_collect(self, final=False):
         pass
@@ -222,13 +153,6 @@ class InstafailingTerminalReporter(TerminalReporter):
         return
 
     def insert_progress(self):
-        def get_estimate():
-            #return str(round(self.get_estimate(),2))
-            seconds = int(round(self.get_estimate()))
-            minutes = seconds / 60
-            seconds = seconds % 60
-            return "%im %is" % (minutes, seconds)
-
         def get_progress_bar():
             blocks = [
                 '█',
@@ -340,8 +264,6 @@ class InstafailingTerminalReporter(TerminalReporter):
 
     def summary_stats(self):
         session_duration = py.std.time.time() - self._sessionstarttime
-
-        self.eta_logger.save_session(self.time_taken, session_duration)
 
         print("\nResults (%.2fs):" % round(session_duration, 2))
         if self.count('passed') > 0:
