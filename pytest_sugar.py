@@ -52,7 +52,7 @@ class EtaLogger:
             self.collected = json.loads(
                 open(self.settings_path).read()
             )
-        except IOError:
+        except (IOError, ValueError):
             self.collected = {}
         #print "-----------------"
         #print self.collected
