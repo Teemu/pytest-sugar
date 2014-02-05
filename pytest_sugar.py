@@ -28,6 +28,7 @@ class TerminalColors:
     OKBLUE = '\033[94m'
     OKGREEN = '\033[92m'
     GRAY = '\033[1;30m'
+    GRAY_BG = '\033[100m'
     WARNING = '\033[93m'
     FAIL = '\033[91m'
     ENDC = '\033[0m'
@@ -249,14 +250,20 @@ class InstafailingTerminalReporter(TerminalReporter):
             ]
             length = 10
             p = float(self.tests_taken) / self.tests_count
-            floored = int(round(p * length))
+
+            floored = int(p * length)
+            rem = int(round((p * length - floored) * 13))
             progressbar = ''
             progressbar += "%i%% " % round(p*100)
-            progressbar += bcolors.OKGREEN
-            progressbar += blocks[0] * floored
+            progressbar += bcolors.OKGREEN + bcolors.GRAY_BG
+            progressbar += blocks[1] * floored
+            if p == 1.0:
+                progressbar += blocks[1]
+            else:
+                progressbar += blocks[14 - rem]
             progressbar += bcolors.ENDC
-            progressbar += bcolors.GRAY
-            progressbar += blocks[0] * (length - floored)
+            progressbar += bcolors.GRAY + bcolors.GRAY_BG
+            progressbar += blocks[1] * (length - floored)
             progressbar += bcolors.ENDC
             return progressbar
 
