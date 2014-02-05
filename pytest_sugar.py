@@ -28,21 +28,16 @@ LEN_PROGRESS_BAR = 10
 LEN_SPACE_BETWEEN_PERCENT_AND_PROGRESS_BAR = 1
 LEN_PERCENT = 3
 LEN_SPACE_BETWEEN_TEST_STATUS_AND_PERCENT = 4
-
-
-class TerminalColors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    GRAY = '\033[1;30m'
-    GRAY_BG = '\033[100m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-
-
-bcolors = TerminalColors()
-
+TERMINAL_COLORS = {
+    'header': '\033[95m',
+    'okblue': '\033[94m',
+    'okgreen': '\033[92m',
+    'gray': '\033[1;30m',
+    'gray_bg': '\033[100m',
+    'warning': '\033[93m',
+    'fail': '\033[91m',
+    'endc': '\033[0m'
+}
 
 def flatten(l):
     for x in l:
@@ -78,16 +73,8 @@ def pytest_addoption(parser):
 
 
 def real_string_length(string):
-    for color in [
-        bcolors.HEADER,
-        bcolors.OKBLUE,
-        bcolors.OKGREEN,
-        bcolors.GRAY,
-        bcolors.WARNING,
-        bcolors.FAIL,
-        bcolors.ENDC
-    ]:
-        string = string.replace(color, '')
+    for color_name, color_string in TERMINAL_COLORS.items():
+        string = string.replace(color_string, '')
     return len(string)
 
 
@@ -106,13 +93,13 @@ def pytest_configure(config):
 
 def _pytest_report_teststatus(report):
     if report.passed:
-        letter = bcolors.OKGREEN+'✓'+bcolors.ENDC
+        letter = TERMINAL_COLORS['okgreen']+'✓'+TERMINAL_COLORS['endc']
     elif report.skipped:
-        letter = bcolors.OKBLUE+'s'+bcolors.ENDC
+        letter = TERMINAL_COLORS['okblue']+'s'+TERMINAL_COLORS['endc']
     elif report.failed:
-        letter = bcolors.FAIL+'⨯'+bcolors.ENDC
+        letter = TERMINAL_COLORS['fail']+'⨯'+TERMINAL_COLORS['endc']
         if report.when != "call":
-            letter = bcolors.FAIL+'ₓ'+bcolors.ENDC
+            letter = TERMINAL_COLORS['fail']+'ₓ'+TERMINAL_COLORS['endc']
     return report.outcome, letter, report.outcome.upper()
 
 
@@ -186,16 +173,16 @@ class InstafailingTerminalReporter(TerminalReporter):
             rem = int(round((p * length - floored) * 13))
             progressbar = ''
             progressbar += "%i%% " % round(p*100)
-            progressbar += bcolors.OKGREEN + bcolors.GRAY_BG
+            progressbar += TERMINAL_COLORS['okgreen'] + TERMINAL_COLORS['gray_bg']
             progressbar += blocks[1] * floored
             if p == 1.0:
                 progressbar += blocks[1]
             else:
                 progressbar += blocks[14 - rem]
-            progressbar += bcolors.ENDC
-            progressbar += bcolors.GRAY + bcolors.GRAY_BG
+            progressbar += TERMINAL_COLORS['endc']
+            progressbar += TERMINAL_COLORS['gray'] + TERMINAL_COLORS['gray_bg']
             progressbar += blocks[1] * (length - floored)
-            progressbar += bcolors.ENDC
+            progressbar += TERMINAL_COLORS['endc']
             return progressbar
 
         append_string = get_progress_bar()
@@ -216,9 +203,9 @@ class InstafailingTerminalReporter(TerminalReporter):
         if print_filename:
             self.current_line = (
                 "   " +
-                bcolors.GRAY +
+                TERMINAL_COLORS['gray'] +
                 report.fspath[0:-len(basename)] +
-                bcolors.ENDC +
+                TERMINAL_COLORS['endc'] +
                 report.fspath[-len(basename):] +
                 " "
             )
@@ -303,14 +290,14 @@ class InstafailingTerminalReporter(TerminalReporter):
         if self.count('passed') > 0:
             self.write_line(
                 "   %d passed" % self.count('passed') +
-                bcolors.ENDC
+                TERMINAL_COLORS['endc']
             )
 
         if self.count('failed') > 0:
             self.write_line(
-                bcolors.FAIL +
+                TERMINAL_COLORS['fail'] +
                 "   %d failed" % self.count('failed') +
-                bcolors.ENDC
+                TERMINAL_COLORS['endc']
             )
             for report in self.reports:
                 if report.outcome == 'failed':
@@ -320,16 +307,16 @@ class InstafailingTerminalReporter(TerminalReporter):
 
         if self.count('skipped') > 0:
             self.write_line(
-                bcolors.GRAY +
+                TERMINAL_COLORS['fail'] +
                 "   %d skipped" % self.count('skipped') +
-                bcolors.ENDC
+                TERMINAL_COLORS['endc']
             )
 
         if self.count('deselected') > 0:
             self.write_line(
-                bcolors.GRAY +
+                TERMINAL_COLORS['fail'] +
                 "   %d deselected" % self.count('deselected') +
-                bcolors.ENDC
+                TERMINAL_COLORS['endc']
             )
 
     def summary_failures(self):
