@@ -19,6 +19,7 @@ setup(
     zip_safe=False,
     include_package_data=True,
     platforms='any',
+    setup_requires=['setuptools_git'],
     install_requires=['pytest>=2.3'],
     classifiers=[
         'Development Status :: 3 - Alpha',
