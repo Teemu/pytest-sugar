@@ -11,11 +11,8 @@ py.test plugin to show failures instantly.
 from __future__ import unicode_literals
 import py
 import sys
-import random
 import os
-import json
 import time
-import re
 
 import pytest
 from _pytest.terminal import TerminalReporter
@@ -38,6 +35,7 @@ TERMINAL_COLORS = {
     'fail': '\033[91m',
     'endc': '\033[0m'
 }
+
 
 def flatten(l):
     for x in l:
@@ -173,7 +171,8 @@ class SugarTerminalReporter(TerminalReporter):
             rem = int(round((p * length - floored) * 13))
             progressbar = ''
             progressbar += "%i%% " % round(p*100)
-            progressbar += TERMINAL_COLORS['okgreen'] + TERMINAL_COLORS['gray_bg']
+            progressbar += TERMINAL_COLORS['okgreen']
+            progressbar += TERMINAL_COLORS['gray_bg']
             progressbar += blocks[1] * floored
             if p == 1.0:
                 progressbar += blocks[1]
