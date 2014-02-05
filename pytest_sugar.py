@@ -85,7 +85,7 @@ def pytest_configure(config):
     if config.option.sugar:
         # Get the standard terminal reporter plugin and replace it with our
         standard_reporter = config.pluginmanager.getplugin('terminalreporter')
-        sugar_reporter = InstafailingTerminalReporter(standard_reporter)
+        sugar_reporter = SugarTerminalReporter(standard_reporter)
         config.pluginmanager.unregister(standard_reporter)
         config.pluginmanager.register(sugar_reporter, 'terminalreporter')
         pytest_report_teststatus = _pytest_report_teststatus
@@ -103,7 +103,7 @@ def _pytest_report_teststatus(report):
     return report.outcome, letter, report.outcome.upper()
 
 
-class InstafailingTerminalReporter(TerminalReporter):
+class SugarTerminalReporter(TerminalReporter):
     def __init__(self, reporter):
         #pytest_collectreport = self.pytest_collectreport
         TerminalReporter.__init__(self, reporter.config)
