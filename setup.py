@@ -3,12 +3,16 @@ from pytest_sugar import __version__
 
 setup(
     name='pytest-sugar',
-    description=' py.test plugin that adds instafail, ETA and neat graphics',
+    description=(
+        'py.test is a plugin for py.test that changes the default look'
+        ' and feel of py.test (e.g. progressbar, show tests that fail'
+        ' instantly).'
+    ),
     long_description=open("README.rst").read(),
     version=__version__,
     url='http://pivotfinland.com/pytest-sugar/',
     license='BSD',
-    author='Teemu, Janne Vanhala',
+    author='Teemu, Janne Vanhala and others',
     author_email='orkkiolento@gmail.com, janne.vanhala@gmail.com',
     py_modules=['pytest_sugar'],
     entry_points={'pytest11': ['sugar = pytest_sugar']},

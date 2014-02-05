@@ -3,7 +3,8 @@
 pytest_sugar
 ~~~~~~~~~~~~
 
-py.test plugin to show failures instantly.
+py.test is a plugin for py.test that changes the default look
+and feel of py.test (progressbar, show tests that fail instantly).
 
 :copyright: see LICENSE for details
 :license: BSD, see LICENSE for more details.
