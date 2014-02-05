@@ -4,7 +4,7 @@ pytest_sugar
 ~~~~~~~~~~~~
 
 py.test is a plugin for py.test that changes the default look
-and feel of py.test (progressbar, show tests that fail instantly).
+and feel of py.test (e.g. progressbar, show tests that fail instantly).
 
 :copyright: see LICENSE for details
 :license: BSD, see LICENSE for more details.
@@ -36,6 +36,10 @@ TERMINAL_COLORS = {
     'fail': '\033[91m',
     'endc': '\033[0m'
 }
+PROGRESS_BAR_BLOCKS = [
+    '█', '▉', '▉', '▊', '▊', '▋', '▋', '▌',
+    '▌', '▍', '▍', '▎', '▎', '▏', '▏'
+]
 
 
 def flatten(l):
@@ -148,24 +152,7 @@ class SugarTerminalReporter(TerminalReporter):
 
     def insert_progress(self):
         def get_progress_bar():
-            blocks = [
-                '█',
-                '▉',
-                '▉',
-                '▊',
-                '▊',
-                '▋',
-                '▋',
-                '▌',
-                '▌',
-                '▍',
-                '▍',
-                '▎',
-                '▎',
-                '▏',
-                '▏'
-            ]
-            length = 10
+            length = LEN_PROGRESS_BAR
             p = float(self.tests_taken) / self.tests_count
 
             floored = int(p * length)
@@ -174,14 +161,14 @@ class SugarTerminalReporter(TerminalReporter):
             progressbar += "%i%% " % round(p*100)
             progressbar += TERMINAL_COLORS['okgreen']
             progressbar += TERMINAL_COLORS['gray_bg']
-            progressbar += blocks[1] * floored
+            progressbar += PROGRESS_BAR_BLOCKS[1] * floored
             if p == 1.0:
-                progressbar += blocks[1]
+                progressbar += PROGRESS_BAR_BLOCKS[1]
             else:
-                progressbar += blocks[14 - rem]
+                progressbar += PROGRESS_BAR_BLOCKS[14 - rem]
             progressbar += TERMINAL_COLORS['endc']
             progressbar += TERMINAL_COLORS['gray'] + TERMINAL_COLORS['gray_bg']
-            progressbar += blocks[1] * (length - floored)
+            progressbar += PROGRESS_BAR_BLOCKS[1] * (length - floored)
             progressbar += TERMINAL_COLORS['endc']
             return progressbar
 
