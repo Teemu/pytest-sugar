@@ -9,7 +9,6 @@ py.test plugin to show failures instantly.
 :license: BSD, see LICENSE for more details.
 """
 from __future__ import unicode_literals
-import pytest
 import py
 import sys
 import random
@@ -17,6 +16,8 @@ import os
 import json
 import time
 import re
+
+import pytest
 from _pytest.terminal import TerminalReporter
 
 
