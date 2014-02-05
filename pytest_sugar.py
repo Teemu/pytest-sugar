@@ -108,7 +108,6 @@ def _pytest_report_teststatus(report):
 
 class SugarTerminalReporter(TerminalReporter):
     def __init__(self, reporter):
-        #pytest_collectreport = self.pytest_collectreport
         TerminalReporter.__init__(self, reporter.config)
         self.writer = self._tw
         self.paths_left = []
@@ -154,7 +153,6 @@ class SugarTerminalReporter(TerminalReporter):
         def get_progress_bar():
             length = LEN_PROGRESS_BAR
             p = float(self.tests_taken) / self.tests_count
-
             floored = int(p * length)
             rem = int(round((p * length - floored) * 13))
             progressbar = ''
