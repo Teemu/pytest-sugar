@@ -177,7 +177,7 @@ class SugarTerminalReporter(TerminalReporter):
         console_width = self._tw.fullwidth
         num_spaces = console_width - real_string_length(self.current_line)
         full_line = self.current_line + " " * num_spaces
-        full_line = full_line[0:-(len(append_string)-15)] + append_string
+        full_line = full_line[0:-(len(append_string) - 28)] + append_string
         return full_line
 
     def overwrite(self, line):
