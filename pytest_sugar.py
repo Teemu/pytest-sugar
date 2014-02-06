@@ -10,11 +10,11 @@ and feel of py.test (e.g. progressbar, show tests that fail instantly).
 :license: BSD, see LICENSE for more details.
 """
 from __future__ import unicode_literals
-import py
-import sys
 import os
+import sys
 import time
 
+import py
 import pytest
 from _pytest.terminal import TerminalReporter
 
