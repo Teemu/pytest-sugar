@@ -1,1 +1,3 @@
-include README.rst
+include README.rst CONTRIBUTORS.rst CHANGES.rst LICENSE
+include test_sugar.py
+include tox.ini
