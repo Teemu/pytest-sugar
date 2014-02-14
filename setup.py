@@ -1,5 +1,22 @@
 from setuptools import setup
-from pytest_sugar import __version__
+
+
+# Copied from (and hacked):
+# https://github.com/pypa/virtualenv/blob/develop/setup.py#L42
+def get_version(filename):
+    import os
+    import re
+
+    here = os.path.dirname(os.path.abspath(__file__))
+    f = open(os.path.join(here, filename))
+    version_file = f.read()
+    f.close()
+    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
+                              version_file, re.M)
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError("Unable to find version string.")
+
 
 setup(
     name='pytest-sugar',
@@ -9,7 +26,7 @@ setup(
         ' instantly).'
     ),
     long_description=open("README.rst").read(),
-    version=__version__,
+    version=get_version('pytest_sugar.py'),
     url='http://pivotfinland.com/pytest-sugar/',
     license='BSD',
     author='Teemu, Janne Vanhala and others',
