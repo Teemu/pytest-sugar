@@ -19,7 +19,7 @@ import pytest
 from _pytest.terminal import TerminalReporter
 
 
-__version__ = '0.3.2'
+__version__ = '0.3.3'
 
 LEN_RIGHT_MARGIN = 5
 LEN_PROGRESS_BAR = 10
