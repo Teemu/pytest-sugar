@@ -3,6 +3,11 @@ Changelog
 
 A list of changes between each release.
 
+0.3.3 (2014-6-06)
+^^^^^^^^^^^^^^^^^^^
+
+- Fix problem with PyPi package.
+
 0.3.2 (2014-6-06)
 ^^^^^^^^^^^^^^^^^^^
 
