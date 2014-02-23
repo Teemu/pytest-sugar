@@ -103,6 +103,13 @@ def _pytest_report_teststatus(report):
         letter = TERMINAL_COLORS['fail']+'⨯'+TERMINAL_COLORS['endc']
         if report.when != "call":
             letter = TERMINAL_COLORS['fail']+'ₓ'+TERMINAL_COLORS['endc']
+
+    if hasattr(report, "wasxfail"):
+        if report.skipped:
+            return "xfailed", "x", "xfail"
+        elif report.failed:
+            return "xpassed", "X", "XPASS"
+
     return report.outcome, letter, report.outcome.upper()
 
 
@@ -278,6 +285,18 @@ class SugarTerminalReporter(TerminalReporter):
                 TERMINAL_COLORS['endc']
             )
 
+        if self.count('xpassed') > 0:
+            self.write_line(
+                "   %d xpassed" % self.count('xpassed') +
+                TERMINAL_COLORS['endc']
+            )
+
+        if self.count('xfailed') > 0:
+            self.write_line(
+                "   %d xfailed" % self.count('xfailed') +
+                TERMINAL_COLORS['endc']
+            )
+
         if self.count('failed') > 0:
             self.write_line(
                 TERMINAL_COLORS['fail'] +
@@ -315,6 +334,10 @@ class SugarTerminalReporter(TerminalReporter):
         pass
 
     def print_failure(self, report):
+        # https://github.com/Frozenball/pytest-sugar/issues/34
+        if hasattr(report, 'wasxfail'):
+            return
+
         if self.config.option.tbstyle != "no":
             if self.config.option.tbstyle == "line":
                 line = self._getcrashline(report)
