@@ -8,7 +8,7 @@ failures and errors instantly and shows a progress bar. Please see the live vide
 
 |pytest-sugar|
 
-.. |pytest-sugar| image:: http://f.cl.ly/items/043N14230E0x1q0F090T/pytest-sugar_2_800x600.png
+.. |pytest-sugar| image:: http://pivotfinland.com/pytest-sugar/img/terminal.png
    :alt: Screenshot
 .. _pytest-sugar: http://pivotfinland.com/pytest-sugar/
 .. |Build Status| image:: https://travis-ci.org/Frozenball/pytest-sugar.png?branch=master
