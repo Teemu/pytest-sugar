@@ -4,7 +4,7 @@ pytest-sugar
 |Build Status| |Version Status| |Downloads|
 
 pytest-sugar is a plugin for `py.test <http://pytest.org>`_ that shows
-failures and errors instantly and shows a progress bar. Please see the live video at http://pivotfinland.com/pytest-sugar/
+failures and errors instantly and shows a progress bar.
 
 |pytest-sugar|
 
