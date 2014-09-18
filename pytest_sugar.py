@@ -311,7 +311,7 @@ class SugarTerminalReporter(TerminalReporter):
 
         if self.count('skipped') > 0:
             self.write_line(
-                TERMINAL_COLORS['fail'] +
+                TERMINAL_COLORS['okblue'] +
                 "   %d skipped" % self.count('skipped') +
                 TERMINAL_COLORS['endc']
             )
