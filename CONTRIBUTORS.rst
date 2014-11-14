@@ -7,3 +7,4 @@ The following people have contributed to pytest-sugar:
 * Mahdi Yusuf
 * dscerri
 * Mounier Florian
+* Balthazar Rouberol
