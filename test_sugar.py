@@ -4,6 +4,7 @@ pytest_plugins = "pytester"
 
 
 class Option(object):
+
     def __init__(self, verbose=False, quiet=False):
         self.verbose = verbose
         self.quiet = quiet
@@ -30,6 +31,7 @@ def pytest_generate_tests(metafunc):
 
 
 class TestInstafailingTerminalReporter(object):
+
     def test_fail(self, testdir, option):
         testdir.makepyfile(
             """
@@ -74,13 +76,11 @@ class TestInstafailingTerminalReporter(object):
         result = testdir.runpytest(*option.args)
         if option.verbose:
             result.stdout.fnmatch_lines([
-                "* test_func *",
                 "    def test_func():",
                 ">       assert 0",
                 "E       assert 0",
                 "test_fail_fail.py:3: AssertionError",
                 "",
-                "* test_func2 *",
                 "    def test_func2():",
                 ">       assert 0",
                 "E       assert 0",
@@ -123,17 +123,7 @@ class TestInstafailingTerminalReporter(object):
         )
         result = testdir.runpytest(*option.args)
 
-        if option.verbose:
-            result.stdout.fnmatch_lines([
-                "*ERROR at setup of test_nada*",
-                "*setup_function(function):*",
-                "*setup func*",
-                "*assert 0*",
-                "test_error_in_setup_then_pass.py:4: AssertionError",
-                "",
-                "*1 passed*",
-            ])
-        elif option.quiet:
+        if option.quiet:
             result.stdout.fnmatch_lines([
                 "*ERROR at setup of test_nada*",
                 "*setup_function(function):*",
@@ -143,12 +133,24 @@ class TestInstafailingTerminalReporter(object):
             ])
         else:
             result.stdout.fnmatch_lines([
+                "*test session starts*",
+                "platform *",
+                "collected 2 items",
+                "",
+                "test_error_in_setup_then_pass.py *",
+                "",
+                "*ERRORS*",
                 "*ERROR at setup of test_nada*",
+                "",
+                "function = <function test_nada at *",
+                "",
                 "*setup_function(function):*",
                 "*setup func*",
+                "*if function is test_nada:*",
                 "*assert 0*",
                 "test_error_in_setup_then_pass.py:4: AssertionError",
-                "",
+                "*Captured stdout setup*",
+                "*setup func*",
                 "*1 passed*",
             ])
         assert result.ret != 0
@@ -168,17 +170,7 @@ class TestInstafailingTerminalReporter(object):
         )
         result = testdir.runpytest(*option.args)
 
-        if option.verbose:
-            result.stdout.fnmatch_lines([
-                #"*test_error_in_teardown_then_pass.py:5: *test_nada*ERROR*",
-                "*ERROR at teardown of test_nada*",
-                "*teardown_function(function):*",
-                "*teardown func*",
-                "*assert 0*",
-                "test_error_in_teardown_then_pass.py:4: AssertionError",
-                "*2 passed*",
-            ])
-        elif option.quiet:
+        if option.quiet:
             result.stdout.fnmatch_lines([
                 "*ERROR at teardown of test_nada*",
                 "*teardown_function(function):*",
@@ -188,12 +180,25 @@ class TestInstafailingTerminalReporter(object):
             ])
         else:
             result.stdout.fnmatch_lines([
-                "*ERROR at teardown of test_nada*",
-                "*teardown_function(function):*",
-                "*teardown func*",
-                "*assert 0*",
-                "test_error_in_teardown_then_pass.py:4: AssertionError",
+                "*test session starts*",
+                "platform *",
+                "collected 2 items",
                 "",
+                "test_error_in_teardown_then_pass.py *",
+                "",
+                "*ERRORS*",
+                "*ERROR at teardown of test_nada*",
+                "",
+                "function = <function test_nada at*",
+                "",
+                "*def teardown_function(function):*",
+                "*teardown func*",
+                "*if function is test_nada*",
+                ">*assert 0*",
+                "E*assert 0*",
+                "test_error_in_teardown_then_pass.py:4: AssertionError",
+                "*Captured stdout teardown*",
+                "teardown func",
                 "*2 passed*",
             ])
         assert result.ret != 0
@@ -204,6 +209,6 @@ class TestInstafailingTerminalReporter(object):
         result.stdout.fnmatch_lines([
             "*ERROR collecting test_collect_error.py*",
             "test_collect_error.py:1: in <module>",
-            ">   raise ValueError(0)",
+            "    raise ValueError(0)",
             "E   ValueError: 0",
         ])
