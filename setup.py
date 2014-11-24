@@ -6,9 +6,10 @@ from setuptools import setup
 def get_version(filename):
     import os
     import re
+    import codecs
 
     here = os.path.dirname(os.path.abspath(__file__))
-    f = open(os.path.join(here, filename))
+    f = codecs.open(os.path.join(here, filename))
     version_file = f.read()
     f.close()
     version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
