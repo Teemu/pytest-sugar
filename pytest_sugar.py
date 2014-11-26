@@ -192,15 +192,15 @@ class SugarTerminalReporter(TerminalReporter):
 
     def begin_new_line(self, report, print_filename):
         basename = os.path.basename(report.fspath)
+        if self.showlongtestinfo:
+            test_location = report.location[0]
+            test_name = report.location[2]
+        else:
+            test_location = report.fspath[0:-len(basename)]
+            test_name = report.fspath[-len(basename):]
         if print_filename:
-            self.current_line = (
-                "   " +
-                TERMINAL_COLORS['gray'] +
-                report.fspath[0:-len(basename)] +
-                TERMINAL_COLORS['endc'] +
-                report.fspath[-len(basename):] +
-                " "
-            )
+            self.current_line = ("   " + TERMINAL_COLORS['gray'] + test_location +
+                                 TERMINAL_COLORS['endc'] + test_name + " ")
         else:
             self.current_line = " " * (4 + len(report.fspath))
         print("")
@@ -216,6 +216,11 @@ class SugarTerminalReporter(TerminalReporter):
         )
         len_line = real_string_length(self.current_line)
         return len_line == max_column_for_test_status
+
+    def pytest_runtest_logstart(self, nodeid, location):
+        # Prevent locationline from being printed since we already
+        # show the module_name & in verbose mode the test name.
+        pass
 
     def pytest_runtest_logreport(self, report):
         self.reports.append(report)
@@ -236,8 +241,9 @@ class SugarTerminalReporter(TerminalReporter):
             if self.reached_last_column_for_test_status():
                 self.begin_new_line(report, print_filename=False)
         if report.when == 'call':
-            if report.fspath != self.currentfspath2:
-                self.currentfspath2 = report.fspath
+            path = report.location if self.showlongtestinfo else report.fspath
+            if path != self.currentfspath2:
+                self.currentfspath2 = path
                 self.begin_new_line(report, print_filename=True)
 
             rep = report
@@ -259,9 +265,7 @@ class SugarTerminalReporter(TerminalReporter):
                     elif rep.skipped:
                         markup = {'yellow': True}
                 line = self._locationline(str(rep.fspath), *rep.location)
-                if not hasattr(rep, 'node'):
-                    self.write_ensure_prefix(line, word, **markup)
-                else:
+                if hasattr(rep, 'node'):
                     self.ensure_newline()
                     if hasattr(rep, 'node'):
                         self._tw.write("[%s] " % rep.node.gateway.id)
