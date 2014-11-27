@@ -9,7 +9,7 @@ def get_version(filename):
     import codecs
 
     here = os.path.dirname(os.path.abspath(__file__))
-    f = codecs.open(os.path.join(here, filename))
+    f = codecs.open(os.path.join(here, filename), encoding='utf-8')
     version_file = f.read()
     f.close()
     version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
