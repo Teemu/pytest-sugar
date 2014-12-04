@@ -133,13 +133,6 @@ class TestInstafailingTerminalReporter(object):
             ])
         else:
             result.stdout.fnmatch_lines([
-                "*test session starts*",
-                "platform *",
-                "collected 2 items",
-                "",
-                "test_error_in_setup_then_pass.py *",
-                "",
-                "*ERRORS*",
                 "*ERROR at setup of test_nada*",
                 "",
                 "function = <function test_nada at *",
@@ -180,13 +173,6 @@ class TestInstafailingTerminalReporter(object):
             ])
         else:
             result.stdout.fnmatch_lines([
-                "*test session starts*",
-                "platform *",
-                "collected 2 items",
-                "",
-                "test_error_in_teardown_then_pass.py *",
-                "",
-                "*ERRORS*",
                 "*ERROR at teardown of test_nada*",
                 "",
                 "function = <function test_nada at*",
