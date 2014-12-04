@@ -1,12 +1,11 @@
 from setuptools import setup
-
+import codecs
 
 # Copied from (and hacked):
 # https://github.com/pypa/virtualenv/blob/develop/setup.py#L42
 def get_version(filename):
     import os
     import re
-    import codecs
 
     here = os.path.dirname(os.path.abspath(__file__))
     f = codecs.open(os.path.join(here, filename), encoding='utf-8')
@@ -26,7 +25,7 @@ setup(
         ' and feel of py.test (e.g. progressbar, show tests that fail'
         ' instantly).'
     ),
-    long_description=open("README.rst").read(),
+    long_description=codecs.open("README.rst", encoding='utf-8').read(),
     version=get_version('pytest_sugar.py'),
     url='http://pivotfinland.com/pytest-sugar/',
     license='BSD',
