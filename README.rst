@@ -23,7 +23,7 @@ Requirements
 
 You will need the following prerequisites in order to use pytest-sugar:
 
-- Python 2.7 or 3.4
+- Python 2.6, 2.7, 3.3 or 3.4
 - pytest 2.6.4 or newer
 
 Installation
