@@ -41,27 +41,29 @@ class TestInstafailingTerminalReporter(object):
             """
         )
         result = testdir.runpytest(*option.args)
-        if option.verbose:
-            result.stdout.fnmatch_lines([
-                "* test_func *",
-                "    def test_func():",
-                ">       assert 0",
-                "E       assert 0",
-            ])
-        elif option.quiet:
-            result.stdout.fnmatch_lines([
-                "* test_func *",
-                "    def test_func():",
-                ">       assert 0",
-                "E       assert 0",
-            ])
-        else:
-            result.stdout.fnmatch_lines([
-                "* test_func *",
-                "    def test_func():",
-                ">       assert 0",
-                "E       assert 0",
-            ])
+        result.stdout.fnmatch_lines([
+            "* test_func *",
+            "    def test_func():",
+            ">       assert 0",
+            "E       assert 0",
+        ])
+
+    def test_fail_unicode_crashline(self, testdir, option):
+        testdir.makepyfile(
+            """
+            # -*- coding: utf-8 -*-
+            import pytest
+            def test_func():
+                assert b'hello' == b'Bj\\xc3\\xb6rk Gu\\xc3\\xb0mundsd\\xc3\\xb3ttir'
+            """
+        )
+        result = testdir.runpytest(*option.args)
+        result.stdout.fnmatch_lines([
+            "* test_func *",
+            "    def test_func():",
+            ">       assert * == *",
+            "E       assert * == *",
+        ])
 
     def test_fail_fail(self, testdir, option):
         testdir.makepyfile(

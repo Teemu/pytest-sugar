@@ -10,6 +10,7 @@ and feel of py.test (e.g. progressbar, show tests that fail instantly).
 :license: BSD, see LICENSE for more details.
 """
 from __future__ import unicode_literals
+import locale
 import os
 import sys
 import time
@@ -310,9 +311,8 @@ class SugarTerminalReporter(TerminalReporter):
             )
             for report in self.reports:
                 if report.outcome == 'failed':
-                    print("      - %s" % (
-                        self._getcrashline(report)
-                    ))
+                    crashline = self._get_decoded_crashline(report)
+                    print( "      - %s" % crashline)
 
         if self.count('skipped') > 0:
             self.write_line(
@@ -327,6 +327,17 @@ class SugarTerminalReporter(TerminalReporter):
                 "   %d deselected" % self.count('deselected') +
                 TERMINAL_COLORS['endc']
             )
+
+    def _get_decoded_crashline(self, report):
+        crashline = self._getcrashline(report)
+
+        if hasattr(crashline, 'decode'):
+            encoding = locale.getpreferredencoding()
+            try:
+                crashline = crashline.decode(encoding)
+            except UnicodeDecodeError:
+                encoding = 'utf-8'
+                crashline = crashline.decode(encoding, errors='replace')
 
     def summary_failures(self):
         # Prevent failure summary from being shown since we already
