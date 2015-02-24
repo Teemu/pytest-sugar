@@ -300,7 +300,7 @@ class SugarTerminalReporter(TerminalReporter):
             for report in self.reports:
                 if report.outcome == 'failed':
                     crashline = self._get_decoded_crashline(report)
-                    print( "      - %s" % crashline)
+                    print( "         - %s" % crashline)
 
         if self.count('xfailed') > 0:
             self.write_line(colored("   % 5d xfailed" % self.count('xfailed'), THEME['fail']))
