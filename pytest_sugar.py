@@ -24,7 +24,7 @@ from _pytest.terminal import TerminalReporter
 
 __version__ = '0.3.6'
 
-LEN_RIGHT_MARGIN = 1
+LEN_RIGHT_MARGIN = 0
 LEN_PROGRESS_BAR = 10
 LEN_PROGRESS_PERCENTAGE = 5
 THEME = {
