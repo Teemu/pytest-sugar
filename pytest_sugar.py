@@ -187,13 +187,13 @@ class SugarTerminalReporter(TerminalReporter):
 
     def append_string(self, append_string=''):
         console_width = self._tw.fullwidth
-        num_spaces = console_width - real_string_length(self.current_line)
+        num_spaces = console_width - real_string_length(self.current_line) - real_string_length(append_string)
         full_line = self.current_line + " " * num_spaces
-        full_line = full_line[0:-(len(append_string) - 28)] + append_string
+        full_line += append_string
         return full_line
 
     def overwrite(self, line):
-        self.writer.write("\r" + self.append_string(line))
+        self.writer.write("\r" + line)
 
     def begin_new_line(self, report, print_filename):
         basename = os.path.basename(report.fspath)
