@@ -12,8 +12,10 @@ and feel of py.test (e.g. progressbar, show tests that fail instantly).
 from __future__ import unicode_literals
 import locale
 import os
+import re
 import sys
 import time
+from termcolor import colored
 
 import py
 import pytest
@@ -27,15 +29,16 @@ LEN_PROGRESS_BAR = 10
 LEN_SPACE_BETWEEN_PERCENT_AND_PROGRESS_BAR = 1
 LEN_PERCENT = 3
 LEN_SPACE_BETWEEN_TEST_STATUS_AND_PERCENT = 4
-TERMINAL_COLORS = {
-    'header': '\033[35m',
-    'okblue': '\033[34m',
-    'okgreen': '\033[32m',
-    'gray': '\033[1;30m',
-    'gray_bg': '\033[100m',
-    'warning': '\033[33m',
-    'fail': '\033[31m',
-    'endc': '\033[0m'
+THEME = {
+    'header': 'magenta',
+    'skipped': 'blue',
+    'success': 'green',
+    'warning': 'yellow',
+    'fail': 'red',
+    'progressbar': 'green',
+    'progressbar_background': 'grey',
+    'path': 'grey',
+    'name': None,
 }
 PROGRESS_BAR_BLOCKS = [
     '█', '▉', '▉', '▊', '▊', '▋', '▋', '▌',
@@ -77,10 +80,14 @@ def pytest_addoption(parser):
     )
 
 
+def strip_colors(text):
+    ansi_escape = re.compile(r'\x1b[^m]*m')
+    stripped = ansi_escape.sub('', text)
+    return stripped
+
+
 def real_string_length(string):
-    for color_name, color_string in TERMINAL_COLORS.items():
-        string = string.replace(color_string, '')
-    return len(string)
+    return len(strip_colors(string))
 
 
 @pytest.mark.trylast
@@ -98,13 +105,13 @@ def pytest_configure(config):
 
 def _pytest_report_teststatus(report):
     if report.passed:
-        letter = TERMINAL_COLORS['okgreen']+'✓'+TERMINAL_COLORS['endc']
+        letter = colored('✓', THEME['success'])
     elif report.skipped:
-        letter = TERMINAL_COLORS['okblue']+'⚫'+TERMINAL_COLORS['endc']
+        letter = colored('⚫', THEME['skipped'])
     elif report.failed:
-        letter = TERMINAL_COLORS['fail']+'⨯'+TERMINAL_COLORS['endc']
+        letter = colored('⨯', THEME['fail'])
         if report.when != "call":
-            letter = TERMINAL_COLORS['fail']+'ₓ'+TERMINAL_COLORS['endc']
+            letter = colored('ₓ', THEME['fail'])
 
     if hasattr(report, "wasxfail"):
         if report.skipped:
@@ -201,8 +208,9 @@ class SugarTerminalReporter(TerminalReporter):
             test_location = report.fspath[0:-len(basename)]
             test_name = report.fspath[-len(basename):]
         if print_filename:
-            self.current_line = ("   " + TERMINAL_COLORS['gray'] + test_location +
-                                 TERMINAL_COLORS['endc'] + test_name + " ")
+            self.current_line = ("   " +
+                                 colored(test_location, THEME['path']) +
+                                 colored(test_name, THEME['name']) + " ")
         else:
             self.current_line = " " * (4 + len(report.fspath))
         print("")
@@ -286,47 +294,26 @@ class SugarTerminalReporter(TerminalReporter):
 
         print("\nResults (%.2fs):" % round(session_duration, 2))
         if self.count('passed') > 0:
-            self.write_line(
-                "   %d passed" % self.count('passed') +
-                TERMINAL_COLORS['endc']
-            )
+            self.write_line(colored("   % 5d passed" % self.count('passed'), THEME['success']))
 
         if self.count('xpassed') > 0:
-            self.write_line(
-                "   %d xpassed" % self.count('xpassed') +
-                TERMINAL_COLORS['endc']
-            )
-
-        if self.count('xfailed') > 0:
-            self.write_line(
-                "   %d xfailed" % self.count('xfailed') +
-                TERMINAL_COLORS['endc']
-            )
+            self.write_line(colored("   % 5d xpassed" % self.count('xpassed'), THEME['success']))
 
         if self.count('failed') > 0:
-            self.write_line(
-                TERMINAL_COLORS['fail'] +
-                "   %d failed" % self.count('failed') +
-                TERMINAL_COLORS['endc']
-            )
+            self.write_line(colored("   % 5d failed" % self.count('failed'), THEME['fail']))
             for report in self.reports:
                 if report.outcome == 'failed':
                     crashline = self._get_decoded_crashline(report)
                     print( "      - %s" % crashline)
 
+        if self.count('xfailed') > 0:
+            self.write_line(colored("   % 5d xfailed" % self.count('xfailed'), THEME['fail']))
+
         if self.count('skipped') > 0:
-            self.write_line(
-                TERMINAL_COLORS['okblue'] +
-                "   %d skipped" % self.count('skipped') +
-                TERMINAL_COLORS['endc']
-            )
+            self.write_line(colored("   % 5d skipped" % self.count('skipped'), THEME['skipped']))
 
         if self.count('deselected') > 0:
-            self.write_line(
-                TERMINAL_COLORS['fail'] +
-                "   %d deselected" % self.count('deselected') +
-                TERMINAL_COLORS['endc']
-            )
+            self.write_line(colored("   % 5d deselected" % self.count('deselected'), THEME['warning']))
 
     def _get_decoded_crashline(self, report):
         crashline = self._getcrashline(report)
