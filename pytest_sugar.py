@@ -28,13 +28,13 @@ LEN_SPACE_BETWEEN_PERCENT_AND_PROGRESS_BAR = 1
 LEN_PERCENT = 3
 LEN_SPACE_BETWEEN_TEST_STATUS_AND_PERCENT = 4
 TERMINAL_COLORS = {
-    'header': '\033[95m',
-    'okblue': '\033[94m',
-    'okgreen': '\033[92m',
+    'header': '\033[35m',
+    'okblue': '\033[34m',
+    'okgreen': '\033[32m',
     'gray': '\033[1;30m',
     'gray_bg': '\033[100m',
-    'warning': '\033[93m',
-    'fail': '\033[91m',
+    'warning': '\033[33m',
+    'fail': '\033[31m',
     'endc': '\033[0m'
 }
 PROGRESS_BAR_BLOCKS = [
