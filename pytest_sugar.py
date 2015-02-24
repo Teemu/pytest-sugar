@@ -41,8 +41,7 @@ THEME = {
     'name': None,
 }
 PROGRESS_BAR_BLOCKS = [
-    '█', '▉', '▉', '▊', '▊', '▋', '▋', '▌',
-    '▌', '▍', '▍', '▎', '▎', '▏', '▏'
+    ' ', '▏', '▎', '▎', '▍', '▍', '▌', '▌', '▋', '▋', '▊', '▊', '▉', '▉', '█',
 ]
 
 
@@ -170,20 +169,17 @@ class SugarTerminalReporter(TerminalReporter):
             length = LEN_PROGRESS_BAR
             p = float(self.tests_taken) / self.tests_count
             floored = int(p * length)
-            rem = int(round((p * length - floored) * 13))
+            rem = int(round((p * length - floored) * (len(PROGRESS_BAR_BLOCKS) - 1)))
             progressbar = ''
-            progressbar += "%i%% " % round(p*100)
-            progressbar += TERMINAL_COLORS['okgreen']
-            progressbar += TERMINAL_COLORS['gray_bg']
-            progressbar += PROGRESS_BAR_BLOCKS[1] * floored
-            if p == 1.0:
-                progressbar += PROGRESS_BAR_BLOCKS[1]
-            else:
-                progressbar += PROGRESS_BAR_BLOCKS[14 - rem]
-            progressbar += TERMINAL_COLORS['endc']
-            progressbar += TERMINAL_COLORS['gray'] + TERMINAL_COLORS['gray_bg']
-            progressbar += PROGRESS_BAR_BLOCKS[1] * (length - floored)
-            progressbar += TERMINAL_COLORS['endc']
+            progressbar += "% 3i%% " % round(p*100)
+            bar = PROGRESS_BAR_BLOCKS[-1] * floored
+            if rem > 0:
+                bar += PROGRESS_BAR_BLOCKS[rem]
+            bar += ' ' * (LEN_PROGRESS_BAR - len(bar))
+            progressbar += colored(bar,
+                                   THEME['progressbar'],
+                                   'on_' + THEME['progressbar_background'])
+
             return progressbar
 
         append_string = get_progress_bar()
