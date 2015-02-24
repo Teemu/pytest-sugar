@@ -100,7 +100,7 @@ def _pytest_report_teststatus(report):
     if report.passed:
         letter = TERMINAL_COLORS['okgreen']+'✓'+TERMINAL_COLORS['endc']
     elif report.skipped:
-        letter = TERMINAL_COLORS['okblue']+'s'+TERMINAL_COLORS['endc']
+        letter = TERMINAL_COLORS['okblue']+'⚫'+TERMINAL_COLORS['endc']
     elif report.failed:
         letter = TERMINAL_COLORS['fail']+'⨯'+TERMINAL_COLORS['endc']
         if report.when != "call":
