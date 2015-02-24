@@ -24,11 +24,9 @@ from _pytest.terminal import TerminalReporter
 
 __version__ = '0.3.6'
 
-LEN_RIGHT_MARGIN = 5
+LEN_RIGHT_MARGIN = 1
 LEN_PROGRESS_BAR = 10
-LEN_SPACE_BETWEEN_PERCENT_AND_PROGRESS_BAR = 1
-LEN_PERCENT = 3
-LEN_SPACE_BETWEEN_TEST_STATUS_AND_PERCENT = 4
+LEN_PROGRESS_PERCENTAGE = 5
 THEME = {
     'header': 'magenta',
     'skipped': 'blue',
@@ -171,7 +169,7 @@ class SugarTerminalReporter(TerminalReporter):
             floored = int(p * length)
             rem = int(round((p * length - floored) * (len(PROGRESS_BAR_BLOCKS) - 1)))
             progressbar = ''
-            progressbar += "% 3i%% " % round(p*100)
+            progressbar += "%i%% " % round(p*100)
             bar = PROGRESS_BAR_BLOCKS[-1] * floored
             if rem > 0:
                 bar += PROGRESS_BAR_BLOCKS[rem]
@@ -187,7 +185,8 @@ class SugarTerminalReporter(TerminalReporter):
 
     def append_string(self, append_string=''):
         console_width = self._tw.fullwidth
-        num_spaces = console_width - real_string_length(self.current_line) - real_string_length(append_string)
+        num_spaces = console_width - real_string_length(self.current_line) - \
+            real_string_length(append_string) - LEN_RIGHT_MARGIN
         full_line = self.current_line + " " * num_spaces
         full_line += append_string
         return full_line
@@ -204,24 +203,22 @@ class SugarTerminalReporter(TerminalReporter):
             test_location = report.fspath[0:-len(basename)]
             test_name = report.fspath[-len(basename):]
         if print_filename:
-            self.current_line = ("   " +
+            self.current_line = (" " +
                                  colored(test_location, THEME['path']) +
                                  colored(test_name, THEME['name']) + " ")
         else:
-            self.current_line = " " * (4 + len(report.fspath))
+            self.current_line = " " * (2 + len(report.fspath))
         print("")
 
     def reached_last_column_for_test_status(self):
         max_column_for_test_status = (
             self._tw.fullwidth
-            - LEN_RIGHT_MARGIN
+            - LEN_PROGRESS_PERCENTAGE
             - LEN_PROGRESS_BAR
-            - LEN_SPACE_BETWEEN_PERCENT_AND_PROGRESS_BAR
-            - LEN_PERCENT
-            - LEN_SPACE_BETWEEN_TEST_STATUS_AND_PERCENT
+            - LEN_RIGHT_MARGIN
         )
         len_line = real_string_length(self.current_line)
-        return len_line == max_column_for_test_status
+        return len_line >= max_column_for_test_status
 
     def pytest_runtest_logstart(self, nodeid, location):
         # Prevent locationline from being printed since we already
