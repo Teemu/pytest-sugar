@@ -106,18 +106,15 @@ def real_string_length(string):
 
 @pytest.mark.trylast
 def pytest_configure(config):
-    global pytest_report_teststatus
-
     if config.option.sugar:
         # Get the standard terminal reporter plugin and replace it with our
         standard_reporter = config.pluginmanager.getplugin('terminalreporter')
         sugar_reporter = SugarTerminalReporter(standard_reporter)
         config.pluginmanager.unregister(standard_reporter)
         config.pluginmanager.register(sugar_reporter, 'terminalreporter')
-        pytest_report_teststatus = _pytest_report_teststatus
 
 
-def _pytest_report_teststatus(report):
+def pytest_report_teststatus(report):
     if report.passed:
         letter = colored('✓', THEME['success'])
     elif report.skipped:
