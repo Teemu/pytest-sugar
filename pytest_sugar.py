@@ -208,31 +208,37 @@ class SugarTerminalReporter(TerminalReporter):
     def overwrite(self, line):
         self.writer.write("\r" + line)
 
-    def begin_new_line(self, report, print_filename):
-        basename = os.path.basename(report.fspath)
-        if self.showlongtestinfo:
-            test_location = report.location[0]
-            test_name = report.location[2]
-        else:
-            test_location = report.fspath[0:-len(basename)]
-            test_name = report.fspath[-len(basename):]
-        if print_filename:
-            self.current_line = (" " +
-                                 colored(test_location, THEME['path']) +
-                                 colored(test_name, THEME['name']) + " ")
-        else:
-            self.current_line = " " * (2 + len(report.fspath))
-        print("")
-
-    def reached_last_column_for_test_status(self):
-        max_column_for_test_status = (
+    def get_max_column_for_test_status(self):
+        return (
             self._tw.fullwidth
             - LEN_PROGRESS_PERCENTAGE
             - LEN_PROGRESS_BAR
             - LEN_RIGHT_MARGIN
         )
+
+    def begin_new_line(self, report, print_filename):
+        if len(report.fspath) > self.get_max_column_for_test_status() - 5:
+            fspath = '...' + report.fspath[-(self.get_max_column_for_test_status() - 5 - 5):]
+        else:
+            fspath = report.fspath
+        basename = os.path.basename(fspath)
+        if self.showlongtestinfo:
+            test_location = report.location[0]
+            test_name = report.location[2]
+        else:
+            test_location = fspath[0:-len(basename)]
+            test_name = fspath[-len(basename):]
+        if print_filename:
+            self.current_line = (" " +
+                                 colored(test_location, THEME['path']) +
+                                 colored(test_name, THEME['name']) + " ")
+        else:
+            self.current_line = " " * (2 + len(fspath))
+        print("")
+
+    def reached_last_column_for_test_status(self):
         len_line = real_string_length(self.current_line)
-        return len_line >= max_column_for_test_status
+        return len_line >= self.get_max_column_for_test_status()
 
     def pytest_runtest_logstart(self, nodeid, location):
         # Prevent locationline from being printed since we already
