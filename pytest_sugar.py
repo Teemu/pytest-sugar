@@ -10,12 +10,16 @@ and feel of py.test (e.g. progressbar, show tests that fail instantly).
 :license: BSD, see LICENSE for more details.
 """
 from __future__ import unicode_literals
-import ConfigParser
 import locale
 import os
 import re
 import sys
 import time
+try:
+    from configparser import ConfigParser
+except ImportError:
+    from ConfigParser import ConfigParser
+
 from termcolor import colored
 
 import py
@@ -79,7 +83,7 @@ def pytest_addoption(parser):
 
 
 def pytest_sessionstart(session):
-    config = ConfigParser.ConfigParser()
+    config = ConfigParser()
     config.read(['pytest-sugar.conf', os.path.expanduser('~/.pytest-sugar.conf')])
 
     for key in THEME:
