@@ -265,13 +265,13 @@ class SugarTerminalReporter(TerminalReporter):
             if not path in self.time_taken:
                 self.time_taken[path] = 0
             self.time_taken[path] += time_taken
-            if self.reached_last_column_for_test_status():
-                self.begin_new_line(report, print_filename=False)
         if report.when == 'call':
             path = report.location if self.showlongtestinfo else report.fspath
             if path != self.currentfspath2:
                 self.currentfspath2 = path
                 self.begin_new_line(report, print_filename=True)
+            elif self.reached_last_column_for_test_status():
+                self.begin_new_line(report, print_filename=False)
 
             rep = report
             res = pytest_report_teststatus(report=report)
