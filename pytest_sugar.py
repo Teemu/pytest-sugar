@@ -357,9 +357,9 @@ class SugarTerminalReporter(TerminalReporter):
         if self.count('failed') > 0:
             self.write_line(colored("   % 5d failed" % self.count('failed'), THEME['fail']))
             for report in self.reports:
-                if report.outcome == 'failed':
+                if report.failed:
                     crashline = self._get_decoded_crashline(report)
-                    print( "         - %s" % crashline)
+                    self.write_line("         - %s" % crashline)
 
         if self.count('xfailed') > 0:
             self.write_line(colored("   % 5d xfailed" % self.count('xfailed'), THEME['fail']))
@@ -380,6 +380,8 @@ class SugarTerminalReporter(TerminalReporter):
             except UnicodeDecodeError:
                 encoding = 'utf-8'
                 crashline = crashline.decode(encoding, errors='replace')
+
+        return crashline
 
     def summary_failures(self):
         # Prevent failure summary from being shown since we already
