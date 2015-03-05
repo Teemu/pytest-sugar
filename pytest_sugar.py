@@ -194,6 +194,9 @@ class SugarTerminalReporter(TerminalReporter):
             floored = int(p * length)
             rem = int(round((p * length - floored) * (len(PROGRESS_BAR_BLOCKS) - 1)))
             progressbar = "%i%% " % round(p*100)
+            # make sure we only report 100% at the last test
+            if progressbar == "100% " and self.tests_taken < self.tests_count:
+                progressbar = "99% "
             if self.failed_progress:
                 progressbar = colored(progressbar, THEME['fail'])
 
