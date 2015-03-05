@@ -30,8 +30,9 @@ from _pytest.terminal import TerminalReporter
 __version__ = '0.3.6'
 
 LEN_RIGHT_MARGIN = 0
-LEN_PROGRESS_BAR = 10
 LEN_PROGRESS_PERCENTAGE = 5
+LEN_PROGRESS_BAR_SETTING = '10'
+LEN_PROGRESS_BAR = None
 THEME = {
     'header': 'magenta',
     'skipped': 'blue',
@@ -84,19 +85,23 @@ def pytest_addoption(parser):
 
 
 def pytest_sessionstart(session):
+    global LEN_PROGRESS_BAR_SETTING
     config = ConfigParser()
     config.read(['pytest-sugar.conf', os.path.expanduser('~/.pytest-sugar.conf')])
 
     for key in THEME:
-        if not config.has_option('sugar', key):
+        if not config.has_option('theme', key):
             continue
 
-        value = config.get("sugar", key)
+        value = config.get("theme", key)
         value = value.lower()
         if value in ('', 'none'):
             value = None
 
         THEME[key] = value
+
+    if config.has_option('sugar', 'progressbar_length'):
+        LEN_PROGRESS_BAR_SETTING = config.get('sugar', 'progressbar_length')
 
 
 def strip_colors(text):
@@ -268,6 +273,13 @@ class SugarTerminalReporter(TerminalReporter):
         pass
 
     def pytest_runtest_logreport(self, report):
+        global LEN_PROGRESS_BAR_SETTING, LEN_PROGRESS_BAR
+        if not LEN_PROGRESS_BAR:
+            if LEN_PROGRESS_BAR_SETTING.endswith('%'):
+                LEN_PROGRESS_BAR = self._tw.fullwidth * int(LEN_PROGRESS_BAR_SETTING[:-1]) // 100
+            else:
+                LEN_PROGRESS_BAR = int(LEN_PROGRESS_BAR_SETTING)
+
         self.reports.append(report)
         if report.outcome == 'failed':
             print("")
