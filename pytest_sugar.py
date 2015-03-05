@@ -292,7 +292,7 @@ class SugarTerminalReporter(TerminalReporter):
             self.overwrite(self.insert_progress())
             path = os.path.join(os.getcwd(), report.location[0])
             time_taken = time.time() - self.setup_timer
-            if not path in self.time_taken:
+            if path not in self.time_taken:
                 self.time_taken[path] = 0
             self.time_taken[path] += time_taken
         if report.when == 'call':
