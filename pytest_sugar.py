@@ -39,6 +39,7 @@ THEME = {
     'warning': 'yellow',
     'fail': 'red',
     'progressbar': 'green',
+    'progressbar_fail': 'red',
     'progressbar_background': 'grey',
     'path': 'grey',
     'name': None,
@@ -149,6 +150,7 @@ class SugarTerminalReporter(TerminalReporter):
         self.time_taken = {}
         self.reports = []
         self.unreported_errors = []
+        self.failed_progress = []
 
     def report_collect(self, final=False):
         pass
@@ -186,15 +188,31 @@ class SugarTerminalReporter(TerminalReporter):
             p = float(self.tests_taken) / self.tests_count
             floored = int(p * length)
             rem = int(round((p * length - floored) * (len(PROGRESS_BAR_BLOCKS) - 1)))
-            progressbar = ''
-            progressbar += "%i%% " % round(p*100)
+            progressbar = "%i%% " % round(p*100)
+            if self.failed_progress:
+                progressbar = colored(progressbar, THEME['fail'])
+
             bar = PROGRESS_BAR_BLOCKS[-1] * floored
             if rem > 0:
                 bar += PROGRESS_BAR_BLOCKS[rem]
             bar += ' ' * (LEN_PROGRESS_BAR - len(bar))
-            progressbar += colored(bar,
-                                   THEME['progressbar'],
-                                   'on_' + THEME['progressbar_background'])
+
+            last = 0
+            for block in self.failed_progress:
+                if last < block:
+                    progressbar += colored(bar[last:block],
+                                           THEME['progressbar'],
+                                           'on_' + THEME['progressbar_background'])
+
+                progressbar += colored(bar[block],
+                                       THEME['progressbar_fail'],
+                                       'on_' + THEME['progressbar_background'])
+                last = block + 1
+
+            if last < len(bar):
+                progressbar += colored(bar[last:len(bar)],
+                                       THEME['progressbar'],
+                                       'on_' + THEME['progressbar_background'])
 
             return progressbar
 
@@ -277,6 +295,11 @@ class SugarTerminalReporter(TerminalReporter):
             res = pytest_report_teststatus(report=report)
             cat, letter, word = res
             self.current_line = self.current_line + letter
+
+            if report.failed:
+                block = int(float(self.tests_taken) * LEN_PROGRESS_BAR / self.tests_count)
+                if not self.failed_progress or self.failed_progress[-1] != block:
+                    self.failed_progress.append(block)
 
             self.stats.setdefault(cat, []).append(rep)
             if not letter and not word:
