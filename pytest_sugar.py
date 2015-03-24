@@ -42,7 +42,7 @@ THEME = {
     'progressbar': 'green',
     'progressbar_fail': 'red',
     'progressbar_background': 'grey',
-    'path': 'grey',
+    'path': 'cyan',
     'name': None,
 }
 PROGRESS_BAR_BLOCKS = [
