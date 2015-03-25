@@ -3,6 +3,20 @@ Changelog
 
 A list of changes between each release.
 
+0.4.0 (2015-03-25)
+^^^^^^^^^^^^^^^^^^^
+
+Thanks to or:
+
+- Configurable colors
+- Handling of long file paths
+- Red progressbar in case of failures
+- Using termcolor for much easier coloration and configuration
+- Simplify the progressbar maths code
+- Change the 's' for skipped tests to a circle
+- Simplify the space filling logic of full_line
+- Reduce the right margin to 0, so the blinking cursor is hidden
+
 0.3.6 (2014-12-12)
 ^^^^^^^^^^^^^^^^^^^
 
