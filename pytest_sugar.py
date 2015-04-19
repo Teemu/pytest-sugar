@@ -290,6 +290,12 @@ class SugarTerminalReporter(TerminalReporter):
             # Ignore other reports or it will cause duplicated letters
         if report.when == 'setup':
             self.setup_timer = time.time()
+            path = report.location if self.showlongtestinfo else report.fspath
+            if path != self.currentfspath2:
+                self.currentfspath2 = path
+                self.begin_new_line(report, print_filename=True)
+                self.overwrite(self.insert_progress())
+
         if report.when == 'teardown':
             self.tests_taken += 1
             self.overwrite(self.insert_progress())
