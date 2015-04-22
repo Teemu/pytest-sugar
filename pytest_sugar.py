@@ -70,7 +70,8 @@ def pytest_deselected(items):
     if len(items) > 0:
         pluginmanager = items[0].config.pluginmanager
         terminal_reporter = pluginmanager.getplugin('terminalreporter')
-        if terminal_reporter.tests_count > 0:
+        if (hasattr(terminal_reporter, 'tests_count')
+                and terminal_reporter.tests_count > 0):
             terminal_reporter.tests_count -= len(items)
 
 
