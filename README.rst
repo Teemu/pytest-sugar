@@ -36,3 +36,7 @@ To install pytest-sugar::
 Then run your tests with::
 
     $ py.test
+
+If you would like more detailed output (one test per line), then you may use the verbose option::
+
+    $ py.test --verbose 
