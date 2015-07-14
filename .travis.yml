@@ -10,7 +10,7 @@ python:
   - pypy
 env:
   - PYTEST=2.6.4
-  - PYTES=2.7.2
+  - PYTEST=2.7.2
 install:
   - travis_retry pip install -q pytest==$PYTEST
   - travis_retry pip install -q -e .
