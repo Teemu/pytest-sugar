@@ -119,7 +119,7 @@ def real_string_length(string):
 
 @pytest.mark.trylast
 def pytest_configure(config):
-    if config.option.sugar:
+    if config.option.sugar and not config.slaveinput:
         # Get the standard terminal reporter plugin and replace it with our
         standard_reporter = config.pluginmanager.getplugin('terminalreporter')
         sugar_reporter = SugarTerminalReporter(standard_reporter)
