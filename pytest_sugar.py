@@ -15,6 +15,7 @@ import os
 import re
 import sys
 import time
+
 try:
     from configparser import ConfigParser
 except ImportError:
@@ -64,7 +65,8 @@ def flatten(l):
 def pytest_collection_modifyitems(session, config, items):
     if config.option.sugar:
         terminal_reporter = config.pluginmanager.getplugin('terminalreporter')
-        terminal_reporter.tests_count += len(items)
+        if terminal_reporter:
+            terminal_reporter.tests_count += len(items)
 
 
 def pytest_deselected(items):
@@ -198,10 +200,10 @@ class SugarTerminalReporter(TerminalReporter):
     def insert_progress(self):
         def get_progress_bar():
             length = LEN_PROGRESS_BAR
-            p = float(self.tests_taken) / self.tests_count
+            p = float(self.tests_taken) / self.tests_count if self.tests_count else 0
             floored = int(p * length)
             rem = int(round((p * length - floored) * (len(PROGRESS_BAR_BLOCKS) - 1)))
-            progressbar = "%i%% " % round(p*100)
+            progressbar = "%i%% " % round(p * 100)
             # make sure we only report 100% at the last test
             if progressbar == "100% " and self.tests_taken < self.tests_count:
                 progressbar = "99% "
@@ -249,7 +251,7 @@ class SugarTerminalReporter(TerminalReporter):
     def append_string(self, append_string=''):
         console_width = self._tw.fullwidth
         num_spaces = console_width - real_string_length(self.current_line) - \
-            real_string_length(append_string) - LEN_RIGHT_MARGIN
+                     real_string_length(append_string) - LEN_RIGHT_MARGIN
         full_line = self.current_line + " " * num_spaces
         full_line += append_string
         return full_line
