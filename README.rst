@@ -13,9 +13,9 @@ failures and errors instantly and shows a progress bar.
 .. _pytest-sugar: http://pivotfinland.com/pytest-sugar/
 .. |Build Status| image:: https://travis-ci.org/Frozenball/pytest-sugar.png?branch=master
    :target: https://travis-ci.org/Frozenball/pytest-sugar
-.. |Version Status| image:: https://pypip.in/v/pytest-sugar/badge.png
+.. |Version Status| image:: https://img.shields.io/pypi/v/pytest-sugar.svg
    :target: https://crate.io/packages/pytest-sugar/
-.. |Downloads| image:: https://pypip.in/d/pytest-sugar/badge.png
+.. |Downloads| image:: https://img.shields.io/pypi/dw/pytest-sugar.svg
    :target: https://crate.io/packages/pytest-sugar/
 
 Requirements
