@@ -9,7 +9,7 @@ and feel of py.test (e.g. progressbar, show tests that fail instantly).
 :copyright: see LICENSE for details
 :license: BSD, see LICENSE for more details.
 """
-from __future__ import unicode_literals
+from __future__ import unicode_literals, print_function
 import locale
 import os
 import re

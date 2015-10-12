@@ -2,3 +2,4 @@
 *.pyc
 .tox
 dist/
+.cache/
