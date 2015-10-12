@@ -27,7 +27,7 @@ import pytest
 from _pytest.terminal import TerminalReporter
 
 
-__version__ = '0.5.0'
+__version__ = '0.5.1'
 
 LEN_RIGHT_MARGIN = 0
 LEN_PROGRESS_PERCENTAGE = 5
@@ -124,10 +124,10 @@ def pytest_configure(config):
         config.pluginmanager.unregister(standard_reporter)
         config.pluginmanager.register(sugar_reporter, 'terminalreporter')
     else:
-        print colored(
+        print(colored(
             'WARNING: --nosugar is deprecated, please use -p no:sugar instead.',
             'yellow'
-        )
+        ))
 
 
 def pytest_report_teststatus(report):

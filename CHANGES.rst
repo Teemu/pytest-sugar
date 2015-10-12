@@ -3,6 +3,11 @@ Changelog
 
 A list of changes between each release.
 
+0.5.1 (2015-10-12)
+^^^^^^^^^^^^^^^^^^^
+
+- Fix Python 3 support
+
 0.5.0 (2015-10-12)
 ^^^^^^^^^^^^^^^^^^^
 
