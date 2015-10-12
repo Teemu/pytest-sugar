@@ -1,4 +1,7 @@
 language: python
+cache:
+  directories:
+    - $HOME/.cache/pip
 python:
   - 2.6
   - 2.7
@@ -7,8 +10,9 @@ python:
   - pypy
 env:
   - PYTEST=2.6.4
+  - PYTEST=2.7.2
 install:
-  - pip install -q pytest==$PYTEST --use-mirrors
-  - pip install -q -e . --use-mirrors
+  - travis_retry pip install -q pytest==$PYTEST
+  - travis_retry pip install -q -e .
 script:
   - py.test
