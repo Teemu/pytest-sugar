@@ -3,6 +3,13 @@ Changelog
 
 A list of changes between each release.
 
+0.5.0 (2015-10-12)
+^^^^^^^^^^^^^^^^^^^
+
+- Colour progressbar correctly for low number of tests
+- Fix error case when deactivating pytest-sugar using --lf together with --nosugar
+- --nosugar deprecated, use -p no:sugar
+
 0.4.0 (2015-03-25)
 ^^^^^^^^^^^^^^^^^^^
 
