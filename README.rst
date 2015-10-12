@@ -39,4 +39,8 @@ Then run your tests with::
 
 If you would like more detailed output (one test per line), then you may use the verbose option::
 
-    $ py.test --verbose 
+    $ py.test --verbose
+
+If you would like to run tests without pytest-sugar, use::
+
+    $ py.test -p no:sugar
