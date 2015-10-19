@@ -196,6 +196,9 @@ class SugarTerminalReporter(TerminalReporter):
     def insert_progress(self):
         def get_progress_bar():
             length = LEN_PROGRESS_BAR
+            if not length:
+                return ''
+            
             p = float(self.tests_taken) / self.tests_count
             floored = int(p * length)
             rem = int(round((p * length - floored) * (len(PROGRESS_BAR_BLOCKS) - 1)))
