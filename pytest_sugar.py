@@ -142,9 +142,9 @@ def pytest_report_teststatus(report):
 
     if hasattr(report, "wasxfail"):
         if report.skipped:
-            return "xfailed", "x", "xfail"
+            return "xfailed", colored('x', THEME['success']), "xfail"
         elif report.failed:
-            return "xpassed", "X", "XPASS"
+            return "xpassed", colored('X', THEME['fail']), "XPASS"
 
     return report.outcome, letter, report.outcome.upper()
 
