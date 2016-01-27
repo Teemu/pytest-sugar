@@ -380,7 +380,7 @@ class SugarTerminalReporter(TerminalReporter):
             self.write_line(colored("   % 5d passed" % self.count('passed'), THEME['success']))
 
         if self.count('xpassed') > 0:
-            self.write_line(colored("   % 5d xpassed" % self.count('xpassed'), THEME['success']))
+            self.write_line(colored("   % 5d xpassed" % self.count('xpassed'), THEME['fail']))
 
         if self.count('failed') > 0:
             self.write_line(colored("   % 5d failed" % self.count('failed'), THEME['fail']))
@@ -390,7 +390,7 @@ class SugarTerminalReporter(TerminalReporter):
                     self.write_line("         - %s" % crashline)
 
         if self.count('xfailed') > 0:
-            self.write_line(colored("   % 5d xfailed" % self.count('xfailed'), THEME['fail']))
+            self.write_line(colored("   % 5d xfailed" % self.count('xfailed'), THEME['success']))
 
         if self.count('skipped') > 0:
             self.write_line(colored("   % 5d skipped" % self.count('skipped'), THEME['skipped']))
