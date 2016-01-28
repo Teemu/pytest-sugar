@@ -39,6 +39,8 @@ THEME = {
     'success': 'green',
     'warning': 'yellow',
     'fail': 'red',
+    'xfailed': 'green',
+    'xpassed': 'red',
     'progressbar': 'green',
     'progressbar_fail': 'red',
     'progressbar_background': 'grey',
@@ -142,9 +144,9 @@ def pytest_report_teststatus(report):
 
     if hasattr(report, "wasxfail"):
         if report.skipped:
-            return "xfailed", colored('x', THEME['success']), "xfail"
+            return "xfailed", colored('x', THEME['xfailed']), "xfail"
         elif report.failed:
-            return "xpassed", colored('X', THEME['fail']), "XPASS"
+            return "xpassed", colored('X', THEME['xpassed']), "XPASS"
 
     return report.outcome, letter, report.outcome.upper()
 
@@ -380,7 +382,7 @@ class SugarTerminalReporter(TerminalReporter):
             self.write_line(colored("   % 5d passed" % self.count('passed'), THEME['success']))
 
         if self.count('xpassed') > 0:
-            self.write_line(colored("   % 5d xpassed" % self.count('xpassed'), THEME['fail']))
+            self.write_line(colored("   % 5d xpassed" % self.count('xpassed'), THEME['xpassed']))
 
         if self.count('failed') > 0:
             self.write_line(colored("   % 5d failed" % self.count('failed'), THEME['fail']))
@@ -390,7 +392,7 @@ class SugarTerminalReporter(TerminalReporter):
                     self.write_line("         - %s" % crashline)
 
         if self.count('xfailed') > 0:
-            self.write_line(colored("   % 5d xfailed" % self.count('xfailed'), THEME['success']))
+            self.write_line(colored("   % 5d xfailed" % self.count('xfailed'), THEME['xfailed']))
 
         if self.count('skipped') > 0:
             self.write_line(colored("   % 5d skipped" % self.count('skipped'), THEME['skipped']))
