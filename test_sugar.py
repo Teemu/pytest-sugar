@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import pytest
 
 pytest_plugins = "pytester"
 
@@ -200,3 +201,17 @@ class TestInstafailingTerminalReporter(object):
             "    raise ValueError(0)",
             "E   ValueError: 0",
         ])
+
+    def test_xdist(self, testdir, option):
+        pytest.importorskip("xdist")
+        testdir.makepyfile(
+            """
+            def test_nada():
+                pass
+            def test_zip():
+                pass
+            """
+        )
+        result = testdir.runpytest('-n2')
+
+        assert result.ret == 0, result.stderr.str()

@@ -67,6 +67,19 @@ def pytest_collection_modifyitems(session, config, items):
         terminal_reporter = config.pluginmanager.getplugin('terminalreporter')
         if terminal_reporter:
             terminal_reporter.tests_count += len(items)
+try:
+    import xdist
+except ImportError:
+    pass
+else:
+    from distutils.version import LooseVersion
+    xdist_version = LooseVersion(xdist.__version__)
+    if xdist_version >= LooseVersion("1.14"):
+        def pytest_xdist_node_collection_finished(node, ids):
+            if node.config.option.sugar:
+                terminal_reporter = node.config.pluginmanager.getplugin('terminalreporter')
+                if terminal_reporter:
+                    terminal_reporter.tests_count = len(ids)
 
 
 def pytest_deselected(items):
@@ -338,7 +351,7 @@ class SugarTerminalReporter(TerminalReporter):
             cat, letter, word = res
             self.current_line = self.current_line + letter
 
-            block = int(float(self.tests_taken) * LEN_PROGRESS_BAR / self.tests_count)
+            block = int(float(self.tests_taken) * LEN_PROGRESS_BAR / self.tests_count if self.tests_count else 0)
             if report.failed:
                 if not self.progress_blocks or self.progress_blocks[-1][0] != block:
                     self.progress_blocks.append([block, False])
