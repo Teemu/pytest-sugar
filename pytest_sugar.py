@@ -47,6 +47,12 @@ THEME = {
     'progressbar_background': 'grey',
     'path': 'cyan',
     'name': None,
+    'symbol_passed': '✓',
+    'symbol_skipped': 's',
+    'symbol_failed': '⨯',
+    'symbol_failed_not_call': 'ₓ',
+    'symbol_xfailed_skipped': 'x',
+    'symbol_xfailed_failed': 'X',
 }
 PROGRESS_BAR_BLOCKS = [
     ' ', '▏', '▎', '▎', '▍', '▍', '▌', '▌', '▋', '▋', '▊', '▊', '▉', '▉', '█',
@@ -149,19 +155,19 @@ def pytest_configure(config):
 
 def pytest_report_teststatus(report):
     if report.passed:
-        letter = colored('✓', THEME['success'])
+        letter = colored(THEME['symbol_passed'], THEME['success'])
     elif report.skipped:
-        letter = colored('⚫', THEME['skipped'])
+        letter = colored(THEME['symbol_skipped'], THEME['skipped'])
     elif report.failed:
-        letter = colored('⨯', THEME['fail'])
+        letter = colored(THEME['symbol_failed'], THEME['fail'])
         if report.when != "call":
-            letter = colored('ₓ', THEME['fail'])
+            letter = colored(THEME['symbol_failed_not_call'], THEME['fail'])
 
     if hasattr(report, "wasxfail"):
         if report.skipped:
-            return "xfailed", colored('x', THEME['xfailed']), "xfail"
+            return "xfailed", colored(THEME['symbol_xfailed_skipped'], THEME['xfailed']), "xfail"
         elif report.failed:
-            return "xpassed", colored('X', THEME['xpassed']), "XPASS"
+            return "xpassed", colored(THEME['symbol_xfailed_failed'], THEME['xpassed']), "XPASS"
 
     return report.outcome, letter, report.outcome.upper()
 
