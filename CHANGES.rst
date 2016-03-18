@@ -3,6 +3,12 @@ Changelog
 
 A list of changes between each release.
 
+0.6.0 (2016-3-18)
+^^^^^^^^^^^^^^^^^^^
+
+- pytest-xdist support
+- Turn off progress meter when progressbar_length=0
+
 0.5.1 (2015-10-12)
 ^^^^^^^^^^^^^^^^^^^
 
