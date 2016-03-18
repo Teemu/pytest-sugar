@@ -15,6 +15,7 @@ import os
 import re
 import sys
 import time
+
 try:
     from configparser import ConfigParser
 except ImportError:
@@ -39,6 +40,8 @@ THEME = {
     'success': 'green',
     'warning': 'yellow',
     'fail': 'red',
+    'xfailed': 'green',
+    'xpassed': 'red',
     'progressbar': 'green',
     'progressbar_fail': 'red',
     'progressbar_background': 'grey',
@@ -62,7 +65,21 @@ def flatten(l):
 def pytest_collection_modifyitems(session, config, items):
     if config.option.sugar:
         terminal_reporter = config.pluginmanager.getplugin('terminalreporter')
-        terminal_reporter.tests_count += len(items)
+        if terminal_reporter:
+            terminal_reporter.tests_count += len(items)
+try:
+    import xdist
+except ImportError:
+    pass
+else:
+    from distutils.version import LooseVersion
+    xdist_version = LooseVersion(xdist.__version__)
+    if xdist_version >= LooseVersion("1.14"):
+        def pytest_xdist_node_collection_finished(node, ids):
+            if node.config.option.sugar:
+                terminal_reporter = node.config.pluginmanager.getplugin('terminalreporter')
+                if terminal_reporter:
+                    terminal_reporter.tests_count = len(ids)
 
 
 def pytest_deselected(items):
@@ -117,7 +134,7 @@ def real_string_length(string):
 
 @pytest.mark.trylast
 def pytest_configure(config):
-    if config.option.sugar:
+    if config.option.sugar and not getattr(config, 'slaveinput', None):
         # Get the standard terminal reporter plugin and replace it with our
         standard_reporter = config.pluginmanager.getplugin('terminalreporter')
         sugar_reporter = SugarTerminalReporter(standard_reporter)
@@ -142,9 +159,9 @@ def pytest_report_teststatus(report):
 
     if hasattr(report, "wasxfail"):
         if report.skipped:
-            return "xfailed", "x", "xfail"
+            return "xfailed", colored('x', THEME['xfailed']), "xfail"
         elif report.failed:
-            return "xpassed", "X", "XPASS"
+            return "xpassed", colored('X', THEME['xpassed']), "XPASS"
 
     return report.outcome, letter, report.outcome.upper()
 
@@ -196,10 +213,13 @@ class SugarTerminalReporter(TerminalReporter):
     def insert_progress(self):
         def get_progress_bar():
             length = LEN_PROGRESS_BAR
-            p = float(self.tests_taken) / self.tests_count
+            if not length:
+                return ''
+
+            p = float(self.tests_taken) / self.tests_count if self.tests_count else 0
             floored = int(p * length)
             rem = int(round((p * length - floored) * (len(PROGRESS_BAR_BLOCKS) - 1)))
-            progressbar = "%i%% " % round(p*100)
+            progressbar = "%i%% " % round(p * 100)
             # make sure we only report 100% at the last test
             if progressbar == "100% " and self.tests_taken < self.tests_count:
                 progressbar = "99% "
@@ -247,7 +267,7 @@ class SugarTerminalReporter(TerminalReporter):
     def append_string(self, append_string=''):
         console_width = self._tw.fullwidth
         num_spaces = console_width - real_string_length(self.current_line) - \
-            real_string_length(append_string) - LEN_RIGHT_MARGIN
+                     real_string_length(append_string) - LEN_RIGHT_MARGIN
         full_line = self.current_line + " " * num_spaces
         full_line += append_string
         return full_line
@@ -334,7 +354,7 @@ class SugarTerminalReporter(TerminalReporter):
             cat, letter, word = res
             self.current_line = self.current_line + letter
 
-            block = int(float(self.tests_taken) * LEN_PROGRESS_BAR / self.tests_count)
+            block = int(float(self.tests_taken) * LEN_PROGRESS_BAR / self.tests_count if self.tests_count else 0)
             if report.failed:
                 if not self.progress_blocks or self.progress_blocks[-1][0] != block:
                     self.progress_blocks.append([block, False])
@@ -380,7 +400,7 @@ class SugarTerminalReporter(TerminalReporter):
             self.write_line(colored("   % 5d passed" % self.count('passed'), THEME['success']))
 
         if self.count('xpassed') > 0:
-            self.write_line(colored("   % 5d xpassed" % self.count('xpassed'), THEME['success']))
+            self.write_line(colored("   % 5d xpassed" % self.count('xpassed'), THEME['xpassed']))
 
         if self.count('failed') > 0:
             self.write_line(colored("   % 5d failed" % self.count('failed'), THEME['fail']))
@@ -390,7 +410,7 @@ class SugarTerminalReporter(TerminalReporter):
                     self.write_line("         - %s" % crashline)
 
         if self.count('xfailed') > 0:
-            self.write_line(colored("   % 5d xfailed" % self.count('xfailed'), THEME['fail']))
+            self.write_line(colored("   % 5d xfailed" % self.count('xfailed'), THEME['xfailed']))
 
         if self.count('skipped') > 0:
             self.write_line(colored("   % 5d skipped" % self.count('skipped'), THEME['skipped']))

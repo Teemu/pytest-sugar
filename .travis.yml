@@ -1,18 +1,31 @@
 language: python
-cache:
-  directories:
-    - $HOME/.cache/pip
+sudo: false
+cache: pip
 python:
-  - 2.6
-  - 2.7
-  - 3.3
-  - 3.4
-  - pypy
+  - 3.5
 env:
-  - PYTEST=2.6.4
-  - PYTEST=2.7.2
-install:
-  - travis_retry pip install -q pytest==$PYTEST
-  - travis_retry pip install -q -e .
+  - TOXENV=py26-pytest26-supported-xdist
+  - TOXENV=py26-pytest27-supported-xdist
+  - TOXENV=py26-pytest28-supported-xdist
+  - TOXENV=py27-pytest26-supported-xdist
+  - TOXENV=py27-pytest27-supported-xdist
+  - TOXENV=py27-pytest28-supported-xdist
+  - TOXENV=py27-pytest26-unsupported-xdist
+  - TOXENV=py27-pytest27-unsupported-xdist
+  - TOXENV=py27-pytest28-unsupported-xdist
+  - TOXENV=py33-pytest26-supported-xdist
+  - TOXENV=py33-pytest27-supported-xdist
+  - TOXENV=py33-pytest28-supported-xdist
+  - TOXENV=py34-pytest26-supported-xdist
+  - TOXENV=py34-pytest27-supported-xdist
+  - TOXENV=py34-pytest28-supported-xdist
+  - TOXENV=py35-pytest27-supported-xdist
+  - TOXENV=py35-pytest28-supported-xdist
+  - TOXENV=py35-pytest27-unsupported-xdist
+  - TOXENV=py35-pytest28-unsupported-xdist
+  - TOXENV=pypy-pytest26-supported-xdist
+  - TOXENV=pypy-pytest27-supported-xdist
+  - TOXENV=pypy-pytest28-supported-xdist
+install: pip install -U tox
 script:
-  - py.test
+  - tox
