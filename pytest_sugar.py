@@ -189,7 +189,6 @@ class SugarTerminalReporter(TerminalReporter):
         self.tests_taken = 0
         self.current_line = ''
         self.currentfspath2 = ''
-        self.time_taken = {}
         self.reports = []
         self.unreported_errors = []
         self.progress_blocks = []
@@ -339,23 +338,12 @@ class SugarTerminalReporter(TerminalReporter):
             print("")
             self.print_failure(report)
             # Ignore other reports or it will cause duplicated letters
-        if report.when == 'setup':
-            self.setup_timer = time.time()
-            path = report.location if self.showlongtestinfo else report.fspath
-            if path != self.currentfspath2:
-                self.currentfspath2 = path
-                self.begin_new_line(report, print_filename=True)
-                self.overwrite(self.insert_progress())
-
         if report.when == 'teardown':
             self.tests_taken += 1
             self.overwrite(self.insert_progress())
             path = os.path.join(os.getcwd(), report.location[0])
-            time_taken = time.time() - self.setup_timer
-            if path not in self.time_taken:
-                self.time_taken[path] = 0
-            self.time_taken[path] += time_taken
-        if report.when == 'call':
+
+        if report.when == 'call' or report.skipped:
             path = report.location if self.showlongtestinfo else report.fspath
             if path != self.currentfspath2:
                 self.currentfspath2 = path
