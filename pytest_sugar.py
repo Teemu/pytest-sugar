@@ -66,7 +66,7 @@ def pytest_collection_modifyitems(session, config, items):
     if config.option.sugar:
         terminal_reporter = config.pluginmanager.getplugin('terminalreporter')
         if terminal_reporter:
-            terminal_reporter.tests_count += len(items)
+            terminal_reporter.tests_count = len(items)
 try:
     import xdist
 except ImportError:
