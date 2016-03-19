@@ -435,8 +435,8 @@ class SugarTerminalReporter(TerminalReporter):
         if self.count('xfailed') > 0:
             self.write_line(colored("   % 5d xfailed" % self.count('xfailed'), THEME['xfailed']))
 
-        if self.count('skipped') > 0:
-            self.write_line(colored("   % 5d skipped" % self.count('skipped'), THEME['skipped']))
+        if self.count('skipped', when=['call', 'setup', 'teardown']) > 0:
+            self.write_line(colored("   % 5d skipped" % self.count('skipped', when=['call', 'setup', 'teardown']), THEME['skipped']))
 
         if self.count('rerun') > 0:
             self.write_line(colored("   % 5d rerun" % self.count('rerun'), THEME['rerun']))
