@@ -3,6 +3,16 @@ Changelog
 
 A list of changes between each release.
 
+0.7.0 (2016-3-29)
+^^^^^^^^^^^^^^^^^^^
+
+- Show skipped tests
+- Changed failed test summary (try `--new-summary` option to test it out)
+- Show teardown errors
+- Add support for pytest-rerunfailedtests
+- Make test symbols customizable
+- Remove deprecated `--nosugar`.
+
 0.6.0 (2016-3-18)
 ^^^^^^^^^^^^^^^^^^^
 

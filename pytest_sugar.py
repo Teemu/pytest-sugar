@@ -28,7 +28,7 @@ import pytest
 from _pytest.terminal import TerminalReporter
 
 
-__version__ = '0.6.0'
+__version__ = '0.7.0'
 
 LEN_RIGHT_MARGIN = 0
 LEN_PROGRESS_PERCENTAGE = 5
