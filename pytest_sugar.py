@@ -328,6 +328,11 @@ class SugarTerminalReporter(TerminalReporter):
 
     def pytest_runtest_logreport(self, report):
         global LEN_PROGRESS_BAR_SETTING, LEN_PROGRESS_BAR
+
+        res = pytest_report_teststatus(report=report)
+        cat, letter, word = res
+        self.stats.setdefault(cat, []).append(report)
+
         if not LEN_PROGRESS_BAR:
             if LEN_PROGRESS_BAR_SETTING.endswith('%'):
                 LEN_PROGRESS_BAR = self._tw.fullwidth * int(LEN_PROGRESS_BAR_SETTING[:-1]) // 100
@@ -378,7 +383,6 @@ class SugarTerminalReporter(TerminalReporter):
                 if not self.progress_blocks or self.progress_blocks[-1][0] != block:
                     self.progress_blocks.append([block, True])
 
-            self.stats.setdefault(cat, []).append(rep)
             if not letter and not word:
                 return
             if self.verbosity > 0:
@@ -400,9 +404,11 @@ class SugarTerminalReporter(TerminalReporter):
                     self._tw.write(" " + line)
                     self.currentfspath = -2
 
-    def count(self, key):
+    def count(self, key, when=('call',)):
         if self.stats.get(key):
-            return len(self.stats.get(key))
+            return len(
+              [x for x in self.stats.get(key) if x.when in when]
+            )
         else:
             return 0
 
@@ -416,12 +422,11 @@ class SugarTerminalReporter(TerminalReporter):
         if self.count('xpassed') > 0:
             self.write_line(colored("   % 5d xpassed" % self.count('xpassed'), THEME['xpassed']))
 
-        if self.count('failed') > 0:
+        if self.count('failed', when=['call', 'setup', 'teardown']) > 0:
             self.write_line(colored("   % 5d failed" % self.count('failed'), THEME['fail']))
-            for report in self.reports:
-                if report.failed:
-                    crashline = self._get_decoded_crashline(report)
-                    self.write_line("         - %s" % crashline)
+            for report in self.stats['failed']:
+                crashline = self._get_decoded_crashline(report)
+                self.write_line("         - %s" % crashline)
 
         if self.count('xfailed') > 0:
             self.write_line(colored("   % 5d xfailed" % self.count('xfailed'), THEME['xfailed']))
