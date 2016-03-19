@@ -110,6 +110,13 @@ def pytest_addoption(parser):
             "disable pytest-sugar"
         )
     )
+    group._addoption(
+        '--new-summary', action="store_false",
+        dest="tb_summary", default=True,
+        help=(
+            "Show tests that failed instead of one-line tracebacks"
+        )
+    )
 
 
 def pytest_sessionstart(session):
@@ -413,7 +420,16 @@ class SugarTerminalReporter(TerminalReporter):
         if self.count('failed', when=['call', 'setup', 'teardown']) > 0:
             self.write_line(colored("   % 5d failed" % self.count('failed'), THEME['fail']))
             for report in self.stats['failed']:
-                crashline = self._get_decoded_crashline(report)
+                if self.config.option.tb_summary:
+                    crashline = self._get_decoded_crashline(report)
+                else:
+                    path, name = report.location[0].rsplit('/', 1)
+                    crashline = '%s/%s:%s %s' % (
+                      colored(path, THEME['path']),
+                      colored(name, THEME['name']),
+                      report.location[1] + 1,
+                      colored(report.location[2], THEME['fail'])
+                    )
                 self.write_line("         - %s" % crashline)
 
         if self.count('xfailed') > 0:
