@@ -53,6 +53,10 @@ THEME = {
     'symbol_failed_not_call': 'ₓ',
     'symbol_xfailed_skipped': 'x',
     'symbol_xfailed_failed': 'X',
+    'symbol_unknown': '?',
+    'unknown': 'blue',
+    'symbol_rerun': 'R',
+    'rerun': 'blue',
 }
 PROGRESS_BAR_BLOCKS = [
     ' ', '▏', '▎', '▎', '▍', '▍', '▌', '▌', '▋', '▋', '▊', '▊', '▉', '▉', '█',
@@ -162,6 +166,10 @@ def pytest_report_teststatus(report):
         letter = colored(THEME['symbol_failed'], THEME['fail'])
         if report.when != "call":
             letter = colored(THEME['symbol_failed_not_call'], THEME['fail'])
+    elif report.outcome == 'rerun':
+        letter = colored(THEME['symbol_rerun'], THEME['rerun'])
+    else:
+        letter = colored(THEME['symbol_unknown'], THEME['unknown'])
 
     if hasattr(report, "wasxfail"):
         if report.skipped:
@@ -420,6 +428,9 @@ class SugarTerminalReporter(TerminalReporter):
 
         if self.count('skipped') > 0:
             self.write_line(colored("   % 5d skipped" % self.count('skipped'), THEME['skipped']))
+
+        if self.count('rerun') > 0:
+            self.write_line(colored("   % 5d rerun" % self.count('rerun'), THEME['rerun']))
 
         if self.count('deselected') > 0:
             self.write_line(colored("   % 5d deselected" % self.count('deselected'), THEME['warning']))
