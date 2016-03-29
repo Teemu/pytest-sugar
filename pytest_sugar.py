@@ -73,10 +73,9 @@ def flatten(l):
 
 
 def pytest_collection_modifyitems(session, config, items):
-    if config.option.sugar:
-        terminal_reporter = config.pluginmanager.getplugin('terminalreporter')
-        if terminal_reporter:
-            terminal_reporter.tests_count = len(items)
+    terminal_reporter = config.pluginmanager.getplugin('terminalreporter')
+    if terminal_reporter:
+        terminal_reporter.tests_count = len(items)
 try:
     import xdist
 except ImportError:
@@ -86,10 +85,9 @@ else:
     xdist_version = LooseVersion(xdist.__version__)
     if xdist_version >= LooseVersion("1.14"):
         def pytest_xdist_node_collection_finished(node, ids):
-            if node.config.option.sugar:
-                terminal_reporter = node.config.pluginmanager.getplugin('terminalreporter')
-                if terminal_reporter:
-                    terminal_reporter.tests_count = len(ids)
+            terminal_reporter = node.config.pluginmanager.getplugin('terminalreporter')
+            if terminal_reporter:
+                terminal_reporter.tests_count = len(ids)
 
 
 def pytest_deselected(items):
@@ -104,12 +102,6 @@ def pytest_deselected(items):
 
 def pytest_addoption(parser):
     group = parser.getgroup("terminal reporting", "reporting", after="general")
-    group._addoption(
-        '--nosugar', action="store_false", dest="sugar", default=True,
-        help=(
-            "disable pytest-sugar"
-        )
-    )
     group._addoption(
         '--new-summary', action="store_false",
         dest="tb_summary", default=True,
@@ -151,7 +143,7 @@ def real_string_length(string):
 
 @pytest.mark.trylast
 def pytest_configure(config):
-    if config.option.sugar and not getattr(config, 'slaveinput', None):
+    if not getattr(config, 'slaveinput', None):
         # Get the standard terminal reporter plugin and replace it with our
         standard_reporter = config.pluginmanager.getplugin('terminalreporter')
         sugar_reporter = SugarTerminalReporter(standard_reporter)
