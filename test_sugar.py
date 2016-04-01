@@ -5,6 +5,18 @@ pytest_plugins = "pytester"
 
 
 class TestTerminalReporter(object):
+    def test_skipping_tests(self, testdir):
+        testdir.makepyfile(
+            """
+            import pytest
+            @pytest.mark.skipif(True, reason='This must be skipped.')
+            def test_skip_this_if():
+                assert True
+            """
+        )
+        result = testdir.runpytest()
+        result.stdout.fnmatch_lines(['*1 skipped*'])
+
     def test_deselecting_tests(self, testdir):
         testdir.makepyfile(
             """
