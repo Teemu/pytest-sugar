@@ -5,6 +5,37 @@ pytest_plugins = "pytester"
 
 
 class TestTerminalReporter(object):
+    def test_xpass_and_xfail(self, testdir):
+        testdir.makepyfile(
+            """
+            import pytest
+
+            @pytest.mark.xfail
+            def test_xfail_true():
+                assert True
+
+            @pytest.mark.xfail
+            def test_xfail_false():
+                assert False
+
+            @pytest.mark.xpass
+            def test_xpass_true():
+                assert True
+
+            @pytest.mark.xpass
+            def test_xpass_false():
+                assert False
+            """
+        )
+        result = testdir.runpytest()
+        result.stdout.fnmatch_lines([
+          '*test_xpass_false*',
+          '*1 passed*',
+          '*1 xpassed*',
+          '*1 failed*',
+          '*1 xfailed*'
+        ])
+
     def test_teardown_errors(self, testdir):
         testdir.makepyfile(
             """
