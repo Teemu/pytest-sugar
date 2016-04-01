@@ -3,6 +3,11 @@ Changelog
 
 A list of changes between each release.
 
+0.7.1 (2016-4-1)
+^^^^^^^^^^^^^^^^^^^
+
+- Fix issue with deselected tests
+
 0.7.0 (2016-3-29)
 ^^^^^^^^^^^^^^^^^^^
 
