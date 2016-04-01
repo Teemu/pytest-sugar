@@ -32,6 +32,20 @@ def pytest_generate_tests(metafunc):
 
 
 class TestInstafailingTerminalReporter(object):
+    def test_deselecting_tests(self, testdir):
+        testdir.makepyfile(
+            """
+            import pytest
+            @pytest.mark.example
+            def test_func():
+                assert True
+
+            def test_should_be():
+                assert False
+            """
+        )
+        result = testdir.runpytest('-m', 'example')
+        result.stdout.fnmatch_lines(['*1 passed*', '*1 deselected*'])
 
     def test_fail(self, testdir, option):
         testdir.makepyfile(

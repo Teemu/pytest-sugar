@@ -393,9 +393,10 @@ class SugarTerminalReporter(TerminalReporter):
 
     def count(self, key, when=('call',)):
         if self.stats.get(key):
-            return len(
-              [x for x in self.stats.get(key) if x.when in when]
-            )
+            return len([
+              x for x in self.stats.get(key)
+              if not hasattr(x, 'when') or x.when in when
+            ])
         else:
             return 0
 
