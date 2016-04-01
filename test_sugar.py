@@ -5,6 +5,27 @@ pytest_plugins = "pytester"
 
 
 class TestTerminalReporter(object):
+    def test_flaky_test(self, testdir):
+        pytest.importorskip('pytest_rerunfailures')
+        testdir.makepyfile(
+            """
+            import pytest
+
+            COUNT = 0
+
+            @pytest.mark.flaky(reruns=10)
+            def test_flaky_test():
+                global COUNT
+                COUNT += 1
+                assert COUNT >= 7
+            """
+        )
+        result = testdir.runpytest()
+        result.stdout.fnmatch_lines([
+          '*1 passed*',
+          '*6 rerun*'
+        ])
+
     def test_xpass_and_xfail(self, testdir):
         testdir.makepyfile(
             """
