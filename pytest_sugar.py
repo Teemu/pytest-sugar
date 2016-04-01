@@ -411,7 +411,7 @@ class SugarTerminalReporter(TerminalReporter):
             self.write_line(colored("   % 5d xpassed" % self.count('xpassed'), THEME['xpassed']))
 
         if self.count('failed', when=['call', 'setup', 'teardown']) > 0:
-            self.write_line(colored("   % 5d failed" % self.count('failed'), THEME['fail']))
+            self.write_line(colored("   % 5d failed" % self.count('failed', when=['call', 'setup', 'teardown']), THEME['fail']))
             for report in self.stats['failed']:
                 if self.config.option.tb_summary:
                     crashline = self._get_decoded_crashline(report)

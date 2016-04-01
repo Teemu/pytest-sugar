@@ -5,6 +5,26 @@ pytest_plugins = "pytester"
 
 
 class TestTerminalReporter(object):
+    def test_teardown_errors(self, testdir):
+        testdir.makepyfile(
+            """
+            import pytest
+            @pytest.yield_fixture
+            def fixt():
+                yield
+                raise Exception
+
+            def test_foo(fixt):
+                pass
+            """
+        )
+        result = testdir.runpytest()
+        result.stdout.fnmatch_lines([
+          '*ERROR at teardown of test_foo*',
+          '*1 passed*',
+          '*1 failed*'
+        ])
+
     def test_skipping_tests(self, testdir):
         testdir.makepyfile(
             """
