@@ -249,6 +249,13 @@ class SugarTerminalReporter(TerminalReporter):
 
             last = 0
             last_theme = None
+
+            progressbar_background = THEME['progressbar_background']
+            if progressbar_background is None:
+                on_color = None
+            else:
+                on_color = 'on_' + progressbar_background
+
             for block, success in self.progress_blocks:
                 if success:
                     theme = THEME['progressbar']
@@ -258,18 +265,18 @@ class SugarTerminalReporter(TerminalReporter):
                 if last < block:
                     progressbar += colored(bar[last:block],
                                            last_theme,
-                                           'on_' + THEME['progressbar_background'])
+                                           on_color)
 
                 progressbar += colored(bar[block],
                                        theme,
-                                       'on_' + THEME['progressbar_background'])
+                                       on_color)
                 last = block + 1
                 last_theme = theme
 
             if last < len(bar):
                 progressbar += colored(bar[last:len(bar)],
                                        last_theme,
-                                       'on_' + THEME['progressbar_background'])
+                                       on_color)
 
             return progressbar
 
