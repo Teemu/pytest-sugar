@@ -26,6 +26,22 @@ class TestTerminalReporter(object):
           '*6 rerun*'
         ])
 
+    def test_report_header(self, testdir):
+        testdir.makeconftest(
+            """
+            def pytest_report_header(startdir):
+                pass
+            """
+        )
+        testdir.makepyfile(
+            """
+            def test():
+                pass
+            """
+        )
+        result = testdir.runpytest()
+        assert result.ret == 0, result.stderr.str()
+
     def test_xpass_and_xfail(self, testdir):
         testdir.makepyfile(
             """

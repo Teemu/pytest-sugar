@@ -214,7 +214,8 @@ class SugarTerminalReporter(TerminalReporter):
                 sys.platform, verinfo, pytest.__version__, __version__,
             ), bold=True
         )
-        lines = self.config.hook.pytest_report_header(config=self.config)
+        lines = self.config.hook.pytest_report_header(
+            config=self.config, startdir=self.startdir)
         lines.reverse()
         for line in flatten(lines):
             self.write_line(line)
