@@ -51,10 +51,27 @@ class TestTerminalReporter(object):
         result = testdir.runpytest()
         result.stdout.fnmatch_lines([
           '*test_xpass_false*',
-          '*1 passed*',
-          '*1 xpassed*',
+          '*2 passed*',
           '*1 failed*',
+          '*test_xpass_and_xfail.py:17: assert False*',
           '*1 xfailed*'
+        ])
+
+    def test_xpass_strict(self, testdir):
+        testdir.makepyfile(
+            """
+            import pytest
+
+            @pytest.mark.xfail(strict=True)
+            def test_xpass():
+                assert True
+            """
+        )
+        result = testdir.runpytest()
+        result.stdout.fnmatch_lines([
+          '*test_xpass*',
+          '*1 failed*',
+          '*XPASS(strict)*',
         ])
 
     def test_teardown_errors(self, testdir):
