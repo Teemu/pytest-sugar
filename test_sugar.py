@@ -176,7 +176,7 @@ class TestTerminalReporter(object):
         result.stdout.fnmatch_lines([
           '*ERROR at teardown of test_foo*',
           '*1 passed*',
-          '*1 failed*'
+          '*1 error*'
         ])
 
     def test_skipping_tests(self, testdir):
