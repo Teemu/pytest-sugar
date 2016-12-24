@@ -1,10 +1,128 @@
 # -*- coding: utf-8 -*-
 import pytest
+import re
+from pprint import pformat
+from pytest_sugar import strip_colors
 
 pytest_plugins = "pytester"
 
 
+def get_counts(stdout):
+    output = strip_colors(stdout)
+
+    def _get(x):
+        m = re.search('\d %s' % x, output)
+        if m:
+            return m.group()[0]
+        else:
+            return 'n/a'
+
+    return {
+        x: _get(x)
+        for x in (
+            'passed',
+            'xpassed',
+            'failed',
+            'xfailed',
+            'deselected',
+            'error',
+            'rerun',
+            'skipped'
+        )
+    }
+
+def assert_count(testdir):
+    """Assert that n passed, n failed, ... matches"""
+    without_plugin = testdir.runpytest('-p', 'no:sugar').stdout.str()
+    with_plugin = testdir.runpytest().stdout.str()
+
+    count_without = get_counts(without_plugin)
+    count_with = get_counts(with_plugin)
+
+    assert count_without == count_with, (
+        "When running test with and without plugin, "
+        "the resulting output differs.\n\n"
+        "Without plugin: %s\n"
+        "With plugin: %s\n" % (
+            ", ".join('%s %s' % (v, k) for k, v in count_without.items()),
+            ", ".join('%s %s' % (v, k) for k, v in count_with.items()),
+        )
+    )
+
+
 class TestTerminalReporter(object):
+    def test_xfail_true(self, testdir):
+        testdir.makepyfile(
+            """
+            import pytest
+
+            @pytest.mark.xfail
+            def test_sample():
+                assert True
+            """
+        )
+        assert_count(testdir)
+
+    def test_xfail_false(self, testdir):
+        testdir.makepyfile(
+            """
+            import pytest
+
+            @pytest.mark.xfail
+            def test_sample():
+                assert False
+            """
+        )
+        assert_count(testdir)
+
+    def test_xfail_strict_true(self, testdir):
+        testdir.makepyfile(
+            """
+            import pytest
+
+            @pytest.mark.xfail(strict=True)
+            def test_sample():
+                assert True
+            """
+        )
+        assert_count(testdir)
+
+    def test_xfail_strict_false(self, testdir):
+        testdir.makepyfile(
+            """
+            import pytest
+
+            @pytest.mark.xfail(strict=True)
+            def test_sample():
+                assert False
+            """
+        )
+        assert_count(testdir)
+
+    def test_xpass_true(self, testdir):
+        testdir.makepyfile(
+            """
+            import pytest
+
+            @pytest.mark.xpass
+            def test_sample():
+                assert True
+            """
+        )
+        assert_count(testdir)
+
+    def test_xpass_false(self, testdir):
+        testdir.makepyfile(
+            """
+            import pytest
+
+            @pytest.mark.xpass
+            def test_sample():
+                assert False
+            """
+        )
+        assert_count(testdir)
+
     def test_flaky_test(self, testdir):
         pytest.importorskip('pytest_rerunfailures')
         testdir.makepyfile(
@@ -20,42 +138,7 @@ class TestTerminalReporter(object):
                 assert COUNT >= 7
             """
         )
-        result = testdir.runpytest()
-        result.stdout.fnmatch_lines([
-          '*1 passed*',
-          '*6 rerun*'
-        ])
-
-    def test_xpass_and_xfail(self, testdir):
-        testdir.makepyfile(
-            """
-            import pytest
-
-            @pytest.mark.xfail
-            def test_xfail_true():
-                assert True
-
-            @pytest.mark.xfail
-            def test_xfail_false():
-                assert False
-
-            @pytest.mark.xpass
-            def test_xpass_true():
-                assert True
-
-            @pytest.mark.xpass
-            def test_xpass_false():
-                assert False
-            """
-        )
-        result = testdir.runpytest()
-        result.stdout.fnmatch_lines([
-          '*test_xpass_false*',
-          '*2 passed*',
-          '*1 failed*',
-          '*test_xpass_and_xfail.py:17: assert False*',
-          '*1 xfailed*'
-        ])
+        assert_count(testdir)
 
     def test_xpass_strict(self, testdir):
         testdir.makepyfile(
@@ -87,6 +170,8 @@ class TestTerminalReporter(object):
                 pass
             """
         )
+        assert_count(testdir)
+        
         result = testdir.runpytest()
         result.stdout.fnmatch_lines([
           '*ERROR at teardown of test_foo*',
@@ -103,8 +188,7 @@ class TestTerminalReporter(object):
                 assert True
             """
         )
-        result = testdir.runpytest()
-        result.stdout.fnmatch_lines(['*1 skipped*'])
+        assert_count(testdir)
 
     def test_deselecting_tests(self, testdir):
         testdir.makepyfile(
@@ -118,8 +202,7 @@ class TestTerminalReporter(object):
                 assert False
             """
         )
-        result = testdir.runpytest('-m', 'example')
-        result.stdout.fnmatch_lines(['*1 passed*', '*1 deselected*'])
+        assert_count(testdir)
 
     def test_fail(self, testdir):
         testdir.makepyfile(
@@ -164,6 +247,7 @@ class TestTerminalReporter(object):
                 assert 0
             """
         )
+        assert_count(testdir)
         result = testdir.runpytest()
         result.stdout.fnmatch_lines([
             "* test_func *",
@@ -189,6 +273,7 @@ class TestTerminalReporter(object):
                 pass
             """
         )
+        assert_count(testdir)
         result = testdir.runpytest()
 
         result.stdout.fnmatch_lines([
@@ -220,6 +305,7 @@ class TestTerminalReporter(object):
                 pass
             """
         )
+        assert_count(testdir)
         result = testdir.runpytest()
 
         result.stdout.fnmatch_lines([
@@ -241,6 +327,7 @@ class TestTerminalReporter(object):
 
     def test_collect_error(self, testdir):
         testdir.makepyfile("""raise ValueError(0)""")
+        assert_count(testdir)
         result = testdir.runpytest()
         result.stdout.fnmatch_lines([
             "*ERROR collecting test_collect_error.py*",
