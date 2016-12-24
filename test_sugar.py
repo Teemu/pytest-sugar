@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import pytest
 import re
-from pprint import pformat
 from pytest_sugar import strip_colors
 
 pytest_plugins = "pytester"
@@ -30,6 +29,7 @@ def get_counts(stdout):
             'skipped'
         )
     }
+
 
 def assert_count(testdir):
     """Assert that n passed, n failed, ... matches"""
@@ -152,9 +152,9 @@ class TestTerminalReporter(object):
         )
         result = testdir.runpytest()
         result.stdout.fnmatch_lines([
-          '*test_xpass*',
-          '*1 failed*',
-          '*XPASS(strict)*',
+            '*test_xpass*',
+            '*1 failed*',
+            '*XPASS(strict)*',
         ])
 
     def test_teardown_errors(self, testdir):
@@ -171,12 +171,12 @@ class TestTerminalReporter(object):
             """
         )
         assert_count(testdir)
-        
+
         result = testdir.runpytest()
         result.stdout.fnmatch_lines([
-          '*ERROR at teardown of test_foo*',
-          '*1 passed*',
-          '*1 error*'
+            '*ERROR at teardown of test_foo*',
+            '*1 passed*',
+            '*1 error*'
         ])
 
     def test_skipping_tests(self, testdir):
@@ -226,7 +226,7 @@ class TestTerminalReporter(object):
             # -*- coding: utf-8 -*-
             import pytest
             def test_func():
-                assert b'hello' == b'Bj\\xc3\\xb6rk Gu\\xc3\\xb0mundsd\\xc3\\xb3ttir'
+                assert b'hello' == b'Bj\\xc3\\xb6rk Gu\\xc3\\xb0mundsd'
             """
         )
         result = testdir.runpytest()
