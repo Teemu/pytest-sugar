@@ -26,7 +26,7 @@ setup(
         ' and feel of py.test (e.g. progressbar, show tests that fail'
         ' instantly).'
     ),
-    long_description=codecs.open("README.rst", encoding='utf-8').read(),
+    long_description=codecs.open("README.md", encoding='utf-8').read(),
     version=get_version('pytest_sugar.py'),
     url='http://pivotfinland.com/pytest-sugar/',
     license='BSD',
