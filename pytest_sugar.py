@@ -164,6 +164,9 @@ def pytest_configure(config):
 
 
 def pytest_report_teststatus(report):
+    if report.when in ('setup', 'teardown'):
+        return
+
     if report.passed:
         letter = colored(THEME['symbol_passed'], THEME['success'])
     elif report.skipped:
@@ -359,7 +362,7 @@ class SugarTerminalReporter(TerminalReporter):
     def pytest_runtest_logreport(self, report):
         global LEN_PROGRESS_BAR_SETTING, LEN_PROGRESS_BAR
 
-        res = pytest_report_teststatus(report=report)
+        res = self.config.hook.pytest_report_teststatus(report=report)
         cat, letter, word = res
         self.stats.setdefault(cat, []).append(report)
 
@@ -390,9 +393,6 @@ class SugarTerminalReporter(TerminalReporter):
             elif self.reached_last_column_for_test_status():
                 self.begin_new_line(report, print_filename=False)
 
-            rep = report
-            res = pytest_report_teststatus(report=report)
-            cat, letter, word = res
             self.current_line = self.current_line + letter
 
             block = int(
@@ -423,17 +423,17 @@ class SugarTerminalReporter(TerminalReporter):
                 if isinstance(word, tuple):
                     word, markup = word
                 else:
-                    if rep.passed:
+                    if report.passed:
                         markup = {'green': True}
-                    elif rep.failed:
+                    elif report.failed:
                         markup = {'red': True}
-                    elif rep.skipped:
+                    elif report.skipped:
                         markup = {'yellow': True}
-                line = self._locationline(str(rep.fspath), *rep.location)
-                if hasattr(rep, 'node'):
+                line = self._locationline(str(report.fspath), *report.location)
+                if hasattr(report, 'node'):
                     self.ensure_newline()
-                    if hasattr(rep, 'node'):
-                        self._tw.write("[%s] " % rep.node.gateway.id)
+                    if hasattr(report, 'node'):
+                        self._tw.write("[%s] " % report.node.gateway.id)
                     self._tw.write(word, **markup)
                     self._tw.write(" " + line)
                     self.currentfspath = -2
