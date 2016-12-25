@@ -75,6 +75,22 @@ class TestTerminalReporter(object):
         )
         assert_count(testdir)
 
+    def test_report_header(self, testdir):
+        testdir.makeconftest(
+            """
+            def pytest_report_header(startdir):
+                pass
+            """
+        )
+        testdir.makepyfile(
+            """
+            def test():
+                pass
+            """
+        )
+        result = testdir.runpytest()
+        assert result.ret == 0, result.stderr.str()
+
     def test_xfail_strict_true(self, testdir):
         testdir.makepyfile(
             """
