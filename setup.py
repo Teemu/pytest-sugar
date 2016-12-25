@@ -1,6 +1,7 @@
 from setuptools import setup
 import codecs
 
+
 # Copied from (and hacked):
 # https://github.com/pypa/virtualenv/blob/develop/setup.py#L42
 def get_version(filename):
