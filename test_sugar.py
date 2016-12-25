@@ -31,10 +31,10 @@ def get_counts(stdout):
     }
 
 
-def assert_count(testdir):
+def assert_count(testdir, *args):
     """Assert that n passed, n failed, ... matches"""
-    without_plugin = testdir.runpytest('-p', 'no:sugar').stdout.str()
-    with_plugin = testdir.runpytest().stdout.str()
+    without_plugin = testdir.runpytest('-p', 'no:sugar', *args).stdout.str()
+    with_plugin = testdir.runpytest(*args).stdout.str()
 
     count_without = get_counts(without_plugin)
     count_with = get_counts(with_plugin)
@@ -351,6 +351,35 @@ class TestTerminalReporter(object):
             "    raise ValueError(0)",
             "E   ValueError: 0",
         ])
+
+    def test_verbose(self, testdir):
+        testdir.makepyfile(
+            """
+            import pytest
+
+            def test_true():
+                assert True
+
+            def test_true2():
+                assert True
+
+            def test_false():
+                assert False
+
+            @pytest.mark.skip
+            def test_skip():
+                assert False
+
+            @pytest.mark.xpass
+            def test_xpass():
+                assert True
+
+            @pytest.mark.xfail
+            def test_xfail():
+                assert True
+            """
+        )
+        assert_count(testdir, '--verbose')
 
     def test_xdist(self, testdir):
         pytest.importorskip("xdist")
