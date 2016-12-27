@@ -3,6 +3,17 @@ Changelog
 
 A list of changes between each release.
 
+0.8.0 (2016-x-x)
+^^^^^^^^^^^^^^^^^^^
+
+- Release as an universal wheel
+- Pytest3 compatibility
+- Treat setup/teardown failures as errors
+- Fix path issue in --new-summary
+- Disable sugar output when not in terminal, should help with testing other pytest plugins
+- Add double colons when in verbose mode
+- Make --new-summary default
+
 0.7.1 (2016-4-1)
 ^^^^^^^^^^^^^^^^^^^
 
