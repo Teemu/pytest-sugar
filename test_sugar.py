@@ -51,6 +51,18 @@ def assert_count(testdir, *args):
 
 
 class TestTerminalReporter(object):
+    def test_new_summary(self, testdir):
+        testdir.makepyfile(
+            """
+            import pytest
+
+            def test_sample():
+                assert False
+            """
+        )
+        output = testdir.runpytest('--new-summary').stdout.str()
+        assert 'test_new_summary.py:3 test_sample' in strip_colors(output)
+
     def test_xfail_true(self, testdir):
         testdir.makepyfile(
             """
