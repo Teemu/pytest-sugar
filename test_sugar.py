@@ -395,6 +395,22 @@ class TestTerminalReporter(object):
         )
         assert_count(testdir, '--verbose')
 
+    def test_verbose_has_double_colon(self, testdir):
+        testdir.makepyfile(
+            """
+            import pytest
+
+            def test_true():
+                assert True
+            """
+        )
+        output = testdir.runpytest(
+            '--force-sugar', '--verbose'
+        ).stdout.str()
+        assert 'test_verbose_has_double_colon.py::test_true' in strip_colors(
+            output
+        )
+
     def test_xdist(self, testdir):
         pytest.importorskip("xdist")
         testdir.makepyfile(

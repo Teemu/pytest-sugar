@@ -353,6 +353,7 @@ class SugarTerminalReporter(TerminalReporter):
             self.current_line = (
                 " " +
                 colored(test_location, THEME['path']) +
+                ("::" if self.verbosity > 0 else "") +
                 colored(test_name, THEME['name']) +
                 " "
             )
