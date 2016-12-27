@@ -113,6 +113,13 @@ def pytest_addoption(parser):
             "Show tests that failed instead of one-line tracebacks"
         )
     )
+    group._addoption(
+        '--force-sugar', action="store_true",
+        dest="force_sugar", default=False,
+        help=(
+            "Force pytest-sugar output even when not in real terminal"
+        )
+    )
 
 
 def pytest_sessionstart(session):
@@ -148,22 +155,28 @@ def real_string_length(string):
     return len(strip_colors(string))
 
 
+IS_SUGAR_ENABLED = False
+
+
 @pytest.mark.trylast
 def pytest_configure(config):
-    if not getattr(config, 'slaveinput', None):
+    global IS_SUGAR_ENABLED
+
+    if sys.stdout.isatty() or config.getvalue('force_sugar'):
+        IS_SUGAR_ENABLED = True
+
+    if IS_SUGAR_ENABLED and not getattr(config, 'slaveinput', None):
         # Get the standard terminal reporter plugin and replace it with our
         standard_reporter = config.pluginmanager.getplugin('terminalreporter')
         sugar_reporter = SugarTerminalReporter(standard_reporter)
         config.pluginmanager.unregister(standard_reporter)
         config.pluginmanager.register(sugar_reporter, 'terminalreporter')
-    else:
-        print(colored(
-            'WARNING: --nosugar is deprecated, please use -p no:sugar instead',
-            'yellow'
-        ))
 
 
 def pytest_report_teststatus(report):
+    if not IS_SUGAR_ENABLED:
+        return
+
     if report.passed:
         letter = colored(THEME['symbol_passed'], THEME['success'])
     elif report.skipped:
