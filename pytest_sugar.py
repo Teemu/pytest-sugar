@@ -107,8 +107,8 @@ def pytest_deselected(items):
 def pytest_addoption(parser):
     group = parser.getgroup("terminal reporting", "reporting", after="general")
     group._addoption(
-        '--new-summary', action="store_false",
-        dest="tb_summary", default=True,
+        '--old-summary', action="store_true",
+        dest="tb_summary", default=False,
         help=(
             "Show tests that failed instead of one-line tracebacks"
         )
@@ -479,6 +479,8 @@ class SugarTerminalReporter(TerminalReporter):
                 THEME['fail']
             ))
             for report in self.stats['failed']:
+                if report.when != 'call':
+                    continue
                 if self.config.option.tb_summary:
                     crashline = self._get_decoded_crashline(report)
                 else:
