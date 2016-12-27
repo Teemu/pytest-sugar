@@ -267,6 +267,28 @@ class TestTerminalReporter(object):
             "E       assert * == *",
         ])
 
+    def test_fail_in_fixture_and_test(self, testdir):
+        testdir.makepyfile(
+            """
+            import pytest
+            def test_func():
+                assert False
+
+            def test_func2():
+                assert False
+
+            @pytest.fixture
+            def failure():
+                return 3/0
+
+            def test_lol(failure):
+                assert True
+            """
+        )
+        assert_count(testdir)
+        output = strip_colors(testdir.runpytest('--force-sugar').stdout.str())
+        assert output.count('         -') == 2
+
     def test_fail_fail(self, testdir):
         testdir.makepyfile(
             """

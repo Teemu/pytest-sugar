@@ -479,6 +479,8 @@ class SugarTerminalReporter(TerminalReporter):
                 THEME['fail']
             ))
             for report in self.stats['failed']:
+                if report.when != 'call':
+                    continue
                 if self.config.option.tb_summary:
                     crashline = self._get_decoded_crashline(report)
                 else:
