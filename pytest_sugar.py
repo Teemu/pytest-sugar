@@ -33,7 +33,8 @@ LEN_RIGHT_MARGIN = 0
 LEN_PROGRESS_PERCENTAGE = 5
 LEN_PROGRESS_BAR_SETTING = '10'
 LEN_PROGRESS_BAR = None
-THEME = {
+
+DEFAULT_THEME = {
     'header': 'magenta',
     'skipped': 'blue',
     'success': 'green',
@@ -45,6 +46,7 @@ THEME = {
     'progressbar': 'green',
     'progressbar_fail': 'red',
     'progressbar_background': 'grey',
+    'progressbar_delimiters': '',
     'path': 'cyan',
     'name': None,
     'symbol_passed': '✓',
@@ -57,10 +59,52 @@ THEME = {
     'unknown': 'blue',
     'symbol_rerun': 'R',
     'rerun': 'blue',
+    'progress_bar': 'block'
 }
-PROGRESS_BAR_BLOCKS = [
-    ' ', '▏', '▎', '▎', '▍', '▍', '▌', '▌', '▋', '▋', '▊', '▊', '▉', '▉', '█',
-]
+
+NO_COLOR_THEME = {
+    'header': None,
+    'skipped': None,
+    'success': None,
+    'warning': None,
+    'fail': None,
+    'xfailed': None,
+    'xpassed': None,
+    'progressbar': None,
+    'progressbar_fail': None,
+    'progressbar_background': None,
+    'progressbar_delimiters': "[]",
+    'path': None,
+    'name': None,
+    'symbol_passed': ".",
+    'symbol_skipped': "s",
+    'symbol_failed': 'x',
+    'symbol_failed_not_call': 'x',
+    'symbol_xfailed_skipped': "Xs",
+    'symbol_xfailed_failed': "Xf",
+    'symbol_unknown': '?',
+    'unknown': None,
+    'symbol_rerun': 'R',
+    'rerun': None,
+    'progress_bar': 'equal'
+}
+
+THEMES = {
+    'no-color': NO_COLOR_THEME,
+    'default': DEFAULT_THEME
+    }
+
+THEME = THEMES['default']
+
+PROGRESS_BAR_BLOCKS_THEMES = {
+    'block': [' ', '▏', '▎', '▎', '▍', '▍', '▌', '▌', '▋', '▋', '▊', '▊', '▉', '▉', '█'],
+    'progress': ['-', '\\', '|', '/', '-', '\\', '|', '/', '-', '\\', '|', '/', '-', '\\', '='],
+    'equal': ['='] * 15
+}
+
+PROGRESS_BAR_BLOCKS = PROGRESS_BAR_BLOCKS_THEMES[THEME['progress_bar']]
+
+
 
 
 def flatten(l):
@@ -113,10 +157,24 @@ def pytest_addoption(parser):
             "Show tests that failed instead of one-line tracebacks"
         )
     )
+    group._addoption(
+        '--show-count', action="store_true",
+        dest="show_count", default=False,
+        help=(
+            "Show tests taken / tests count"
+        )
+    )
+    group._addoption(
+        '--progressbar-len', action="store",
+        dest="progressbar_len", default="10",
+        help=(
+            "customize progress-bar size"
+        )
+    )
 
 
 def pytest_sessionstart(session):
-    global LEN_PROGRESS_BAR_SETTING
+    global LEN_PROGRESS_BAR_SETTING, PROGRESS_BAR_BLOCKS
     config = ConfigParser()
     config.read([
         'pytest-sugar.conf',
@@ -136,6 +194,8 @@ def pytest_sessionstart(session):
 
     if config.has_option('sugar', 'progressbar_length'):
         LEN_PROGRESS_BAR_SETTING = config.get('sugar', 'progressbar_length')
+
+    PROGRESS_BAR_BLOCKS = PROGRESS_BAR_BLOCKS_THEMES[THEME['progress_bar']]
 
 
 def strip_colors(text):
@@ -192,6 +252,7 @@ def pytest_report_teststatus(report):
 
 class SugarTerminalReporter(TerminalReporter):
     def __init__(self, reporter):
+        global THEME, LEN_PROGRESS_BAR_SETTING
         TerminalReporter.__init__(self, reporter.config)
         self.writer = self._tw
         self.paths_left = []
@@ -202,6 +263,10 @@ class SugarTerminalReporter(TerminalReporter):
         self.reports = []
         self.unreported_errors = []
         self.progress_blocks = []
+
+        if self.config.option.color == "no":
+            THEME = THEMES['no-color']
+        LEN_PROGRESS_BAR_SETTING = self.config.option.progressbar_len
 
     def report_collect(self, final=False):
         pass
@@ -263,8 +328,10 @@ class SugarTerminalReporter(TerminalReporter):
             bar = PROGRESS_BAR_BLOCKS[-1] * floored
             if rem > 0:
                 bar += PROGRESS_BAR_BLOCKS[rem]
-            bar += ' ' * (LEN_PROGRESS_BAR - len(bar))
 
+            bar += ' ' * (LEN_PROGRESS_BAR - len(bar))
+            if THEME['progressbar_delimiters'] and len(THEME['progressbar_delimiters']) == 2:
+                bar = THEME['progressbar_delimiters'][0] + bar + THEME['progressbar_delimiters'][1]
             last = 0
             last_theme = None
 
@@ -299,6 +366,9 @@ class SugarTerminalReporter(TerminalReporter):
             return progressbar
 
         append_string = get_progress_bar()
+        if self.config.option.show_count:
+            count = str(self.tests_count)
+            append_string += "[%s/%s]" % (str(self.tests_taken).zfill(len(count)), count)
         return self.append_string(append_string)
 
     def append_string(self, append_string=''):
@@ -315,11 +385,15 @@ class SugarTerminalReporter(TerminalReporter):
         self.writer.write("\r" + line)
 
     def get_max_column_for_test_status(self):
+        show_count_len = 0
+        if self.config.option.show_count:
+            show_count_len = len(str(self.tests_count)) * 2 + 5
         return (
             self._tw.fullwidth
             - LEN_PROGRESS_PERCENTAGE
             - LEN_PROGRESS_BAR
             - LEN_RIGHT_MARGIN
+            - show_count_len
         )
 
     def begin_new_line(self, report, print_filename):
