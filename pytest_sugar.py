@@ -469,9 +469,11 @@ class SugarTerminalReporter(TerminalReporter):
                 if self.config.option.tb_summary:
                     crashline = self._get_decoded_crashline(report)
                 else:
-                    path, name = report.location[0].rsplit('/', 1)
-                    crashline = '%s/%s:%s %s' % (
+                    path = os.path.dirname(report.location[0])
+                    name = os.path.basename(report.location[0])
+                    crashline = '%s%s%s:%s %s' % (
                         colored(path, THEME['path']),
+                        '/' if path else '',
                         colored(name, THEME['name']),
                         report.location[1] + 1,
                         colored(report.location[2], THEME['fail'])
