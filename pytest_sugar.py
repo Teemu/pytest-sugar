@@ -156,11 +156,6 @@ def pytest_configure(config):
         sugar_reporter = SugarTerminalReporter(standard_reporter)
         config.pluginmanager.unregister(standard_reporter)
         config.pluginmanager.register(sugar_reporter, 'terminalreporter')
-    else:
-        print(colored(
-            'WARNING: --nosugar is deprecated, please use -p no:sugar instead',
-            'yellow'
-        ))
 
 
 def pytest_report_teststatus(report):
