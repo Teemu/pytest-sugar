@@ -34,7 +34,7 @@ def get_counts(stdout):
 def assert_count(testdir, *args):
     """Assert that n passed, n failed, ... matches"""
     without_plugin = testdir.runpytest('-p', 'no:sugar', *args).stdout.str()
-    with_plugin = testdir.runpytest(*args).stdout.str()
+    with_plugin = testdir.runpytest('--force-sugar', *args).stdout.str()
 
     count_without = get_counts(without_plugin)
     count_with = get_counts(with_plugin)
@@ -60,7 +60,9 @@ class TestTerminalReporter(object):
                 assert False
             """
         )
-        output = testdir.runpytest('--new-summary').stdout.str()
+        output = testdir.runpytest(
+            '--force-sugar', '--new-summary'
+        ).stdout.str()
         assert 'test_new_summary.py:3 test_sample' in strip_colors(output)
 
     def test_xfail_true(self, testdir):
@@ -100,7 +102,7 @@ class TestTerminalReporter(object):
                 pass
             """
         )
-        result = testdir.runpytest()
+        result = testdir.runpytest('--force-sugar')
         assert result.ret == 0, result.stderr.str()
 
     def test_xfail_strict_true(self, testdir):
@@ -178,7 +180,7 @@ class TestTerminalReporter(object):
                 assert True
             """
         )
-        result = testdir.runpytest()
+        result = testdir.runpytest('--force-sugar')
         result.stdout.fnmatch_lines([
             '*test_xpass*',
             '*1 failed*',
@@ -200,7 +202,7 @@ class TestTerminalReporter(object):
         )
         assert_count(testdir)
 
-        result = testdir.runpytest()
+        result = testdir.runpytest('--force-sugar')
         result.stdout.fnmatch_lines([
             '*ERROR at teardown of test_foo*',
             '*1 passed*',
@@ -240,7 +242,7 @@ class TestTerminalReporter(object):
                 assert 0
             """
         )
-        result = testdir.runpytest()
+        result = testdir.runpytest('--force-sugar')
         result.stdout.fnmatch_lines([
             "* test_func *",
             "    def test_func():",
@@ -257,7 +259,7 @@ class TestTerminalReporter(object):
                 assert b'hello' == b'Bj\\xc3\\xb6rk Gu\\xc3\\xb0mundsd'
             """
         )
-        result = testdir.runpytest()
+        result = testdir.runpytest('--force-sugar')
         result.stdout.fnmatch_lines([
             "* test_func *",
             "    def test_func():",
@@ -276,7 +278,7 @@ class TestTerminalReporter(object):
             """
         )
         assert_count(testdir)
-        result = testdir.runpytest()
+        result = testdir.runpytest('--force-sugar')
         result.stdout.fnmatch_lines([
             "* test_func *",
             "    def test_func():",
@@ -302,7 +304,7 @@ class TestTerminalReporter(object):
             """
         )
         assert_count(testdir)
-        result = testdir.runpytest()
+        result = testdir.runpytest('--force-sugar')
 
         result.stdout.fnmatch_lines([
             "*ERROR at setup of test_nada*",
@@ -334,7 +336,7 @@ class TestTerminalReporter(object):
             """
         )
         assert_count(testdir)
-        result = testdir.runpytest()
+        result = testdir.runpytest('--force-sugar')
 
         result.stdout.fnmatch_lines([
             "*ERROR at teardown of test_nada*",
@@ -356,7 +358,7 @@ class TestTerminalReporter(object):
     def test_collect_error(self, testdir):
         testdir.makepyfile("""raise ValueError(0)""")
         assert_count(testdir)
-        result = testdir.runpytest()
+        result = testdir.runpytest('--force-sugar')
         result.stdout.fnmatch_lines([
             "*ERROR collecting test_collect_error.py*",
             "test_collect_error.py:1: in <module>",
@@ -403,6 +405,6 @@ class TestTerminalReporter(object):
                 pass
             """
         )
-        result = testdir.runpytest('-n2')
+        result = testdir.runpytest('--force-sugar', '-n2')
 
         assert result.ret == 0, result.stderr.str()
