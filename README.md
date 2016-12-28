@@ -2,7 +2,7 @@
 
 [![](https://travis-ci.org/Frozenball/pytest-sugar.png?branch=master)](https://travis-ci.org/Frozenball/pytest-sugar) ![](https://img.shields.io/pypi/v/pytest-sugar.svg)
 
-pytest-sugar is a plugin for `py.test <http://pytest.org>`_ that shows
+pytest-sugar is a plugin for [py.test](http://pytest.org) that shows
 failures and errors instantly and shows a progress bar.
 
 ![](http://pivotfinland.com/pytest-sugar/img/video.gif)
