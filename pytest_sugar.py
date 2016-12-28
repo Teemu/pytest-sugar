@@ -27,7 +27,7 @@ import pytest
 from _pytest.terminal import TerminalReporter
 
 
-__version__ = '0.7.1'
+__version__ = '0.8.0rc1'
 
 LEN_RIGHT_MARGIN = 0
 LEN_PROGRESS_PERCENTAGE = 5
@@ -107,8 +107,8 @@ def pytest_deselected(items):
 def pytest_addoption(parser):
     group = parser.getgroup("terminal reporting", "reporting", after="general")
     group._addoption(
-        '--new-summary', action="store_false",
-        dest="tb_summary", default=True,
+        '--old-summary', action="store_true",
+        dest="tb_summary", default=False,
         help=(
             "Show tests that failed instead of one-line tracebacks"
         )

@@ -61,9 +61,23 @@ class TestTerminalReporter(object):
             """
         )
         output = testdir.runpytest(
-            '--force-sugar', '--new-summary'
+            '--force-sugar'
         ).stdout.str()
         assert 'test_new_summary.py:3 test_sample' in strip_colors(output)
+
+    def test_old_summary(self, testdir):
+        testdir.makepyfile(
+            """
+            import pytest
+
+            def test_sample():
+                assert False
+            """
+        )
+        output = testdir.runpytest(
+            '--force-sugar', '--old-summary'
+        ).stdout.str()
+        assert 'test_old_summary.py:4: assert False' in strip_colors(output)
 
     def test_xfail_true(self, testdir):
         testdir.makepyfile(
@@ -183,8 +197,8 @@ class TestTerminalReporter(object):
         result = testdir.runpytest('--force-sugar')
         result.stdout.fnmatch_lines([
             '*test_xpass*',
-            '*1 failed*',
             '*XPASS(strict)*',
+            '*1 failed*',
         ])
 
     def test_teardown_errors(self, testdir):
