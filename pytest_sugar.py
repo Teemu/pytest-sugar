@@ -210,11 +210,15 @@ class SugarTerminalReporter(TerminalReporter):
         self.paths_left = []
         self.tests_count = 0
         self.tests_taken = 0
-        self.current_line = ''
-        self.currentfspath2 = ''
         self.reports = []
         self.unreported_errors = []
         self.progress_blocks = []
+        self.reset_tracked_lines()
+
+    def reset_tracked_lines(self):
+        self.current_lines = {}
+        self.current_line_nums = {}
+        self.current_line_num = 0
 
     def report_collect(self, final=False):
         pass
@@ -247,7 +251,7 @@ class SugarTerminalReporter(TerminalReporter):
     def write_fspath_result(self, fspath, res):
         return
 
-    def insert_progress(self):
+    def insert_progress(self, report):
         def get_progress_bar():
             length = LEN_PROGRESS_BAR
             if not length:
@@ -312,20 +316,32 @@ class SugarTerminalReporter(TerminalReporter):
             return progressbar
 
         append_string = get_progress_bar()
-        return self.append_string(append_string)
 
-    def append_string(self, append_string=''):
+        path = self.report_key(report)
+        current_line = self.current_lines.get(path, "")
+        line_num = self.current_line_nums.get(path, self.current_line_num)
+
         console_width = self._tw.fullwidth
         num_spaces = (
-            console_width - real_string_length(self.current_line) -
+            console_width - real_string_length(current_line) -
             real_string_length(append_string) - LEN_RIGHT_MARGIN
         )
-        full_line = self.current_line + " " * num_spaces
+        full_line = current_line + " " * num_spaces
         full_line += append_string
-        return full_line
 
-    def overwrite(self, line):
-        self.writer.write("\r" + line)
+        self.overwrite(full_line, self.current_line_num - line_num)
+
+    def overwrite(self, line, rel_line_num):
+        # Move cursor up rel_line_num lines
+        if rel_line_num > 0:
+            self.writer.write("\033[%dA" % rel_line_num)
+
+        # Overwrite the line
+        self.writer.write("\r%s" % line)
+
+        # Return cursor to original line
+        if rel_line_num > 0:
+            self.writer.write("\033[%dB" % rel_line_num)
 
     def get_max_column_for_test_status(self):
         return (
@@ -336,6 +352,8 @@ class SugarTerminalReporter(TerminalReporter):
         )
 
     def begin_new_line(self, report, print_filename):
+        path = self.report_key(report)
+        self.current_line_num += 1
         if len(report.fspath) > self.get_max_column_for_test_status() - 5:
             fspath = '...' + report.fspath[
                 -(self.get_max_column_for_test_status() - 5 - 5):
@@ -350,7 +368,7 @@ class SugarTerminalReporter(TerminalReporter):
             test_location = fspath[0:-len(basename)]
             test_name = fspath[-len(basename):]
         if print_filename:
-            self.current_line = (
+            self.current_lines[path] = (
                 " " +
                 colored(test_location, THEME['path']) +
                 ("::" if self.verbosity > 0 else "") +
@@ -358,17 +376,23 @@ class SugarTerminalReporter(TerminalReporter):
                 " "
             )
         else:
-            self.current_line = " " * (2 + len(fspath))
-        print("")
+            self.current_lines[path] = " " * (2 + len(fspath))
+        self.current_line_nums[path] = self.current_line_num
+        self.writer.write("\r\n")
 
-    def reached_last_column_for_test_status(self):
-        len_line = real_string_length(self.current_line)
+    def reached_last_column_for_test_status(self, report):
+        len_line = real_string_length(
+            self.current_lines[self.report_key(report)])
         return len_line >= self.get_max_column_for_test_status()
 
     def pytest_runtest_logstart(self, nodeid, location):
         # Prevent locationline from being printed since we already
         # show the module_name & in verbose mode the test name.
         pass
+
+    def report_key(self, report):
+        """Returns a key to identify which line the report should write to."""
+        return report.location if self.showlongtestinfo else report.fspath
 
     def pytest_runtest_logreport(self, report):
         global LEN_PROGRESS_BAR_SETTING, LEN_PROGRESS_BAR
@@ -393,18 +417,21 @@ class SugarTerminalReporter(TerminalReporter):
             # Ignore other reports or it will cause duplicated letters
         if report.when == 'teardown':
             self.tests_taken += 1
-            self.overwrite(self.insert_progress())
+            self.insert_progress(report)
             path = os.path.join(os.getcwd(), report.location[0])
 
         if report.when == 'call' or report.skipped:
-            path = report.location if self.showlongtestinfo else report.fspath
-            if path != self.currentfspath2:
-                self.currentfspath2 = path
+            path = self.report_key(report)
+            if path not in self.current_line_nums:
                 self.begin_new_line(report, print_filename=True)
-            elif self.reached_last_column_for_test_status():
-                self.begin_new_line(report, print_filename=False)
+            elif self.reached_last_column_for_test_status(report):
+                # Print filename if another line was inserted in-between
+                print_filename = (
+                    self.current_line_nums[self.report_key(report)] !=
+                    self.current_line_num)
+                self.begin_new_line(report, print_filename)
 
-            self.current_line = self.current_line + letter
+            self.current_lines[path] = self.current_lines[path] + letter
 
             block = int(
                 float(self.tests_taken) * LEN_PROGRESS_BAR / self.tests_count
@@ -442,7 +469,8 @@ class SugarTerminalReporter(TerminalReporter):
                         markup = {'yellow': True}
                 line = self._locationline(str(report.fspath), *report.location)
                 if hasattr(report, 'node'):
-                    self.ensure_newline()
+                    self._tw.write("\r\n")
+                    self.current_line_num += 1
                     if hasattr(report, 'node'):
                         self._tw.write("[%s] " % report.node.gateway.id)
                     self._tw.write(word, **markup)
@@ -573,3 +601,4 @@ class SugarTerminalReporter(TerminalReporter):
                 self.write_line('')
                 self.write_sep("―", msg)
                 self._outrep_summary(report)
+        self.reset_tracked_lines()
