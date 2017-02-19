@@ -460,3 +460,20 @@ class TestTerminalReporter(object):
         result = testdir.runpytest('--force-sugar', '-n2')
 
         assert result.ret == 0, result.stderr.str()
+
+    def test_doctest(self, testdir):
+        """ Test doctest-modules """
+
+        testdir.makepyfile(
+            """
+            class ToTest(object):
+                @property
+                def doctest(self):
+                    \"\"\"
+                        >>> Invalid doctest
+                    \"\"\"
+            """
+        )
+        result = testdir.runpytest('--force-sugar', '--doctest-module')
+
+        assert result.ret == 1, result.stderr.str()
