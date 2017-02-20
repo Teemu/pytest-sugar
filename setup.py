@@ -43,7 +43,6 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: POSIX',
-        'Operating System :: Microsoft :: Windows',
         'Operating System :: MacOS :: MacOS X',
         'Topic :: Software Development :: Testing',
         'Topic :: Software Development :: Libraries',
