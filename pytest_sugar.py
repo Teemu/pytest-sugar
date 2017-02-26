@@ -519,7 +519,7 @@ class SugarTerminalReporter(TerminalReporter):
                         colored(path, THEME['path']),
                         '/' if path else '',
                         colored(name, THEME['name']),
-                        report.location[1] + 1,
+                        report.location[1] + 1 if report.location[1] else '?',
                         colored(report.location[2], THEME['fail'])
                     )
                 self.write_line("         - %s" % crashline)
