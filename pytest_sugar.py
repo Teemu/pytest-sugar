@@ -487,11 +487,20 @@ class SugarTerminalReporter(TerminalReporter):
                 else:
                     path = os.path.dirname(report.location[0])
                     name = os.path.basename(report.location[0])
+                    # Doctest failure reports have lineno=None at least up to
+                    # pytest==3.0.7, but it is available via longrepr object.
+                    if report.location[1] is not None:
+                        lineno = report.location[1] + 1
+                    else:
+                        try:
+                            lineno = report.longrepr.reprlocation.lineno
+                        except AttributeError:
+                            lineno = None
                     crashline = '%s%s%s:%s %s' % (
                         colored(path, THEME['path']),
                         '/' if path else '',
                         colored(name, THEME['name']),
-                        report.location[1] + 1 if report.location[1] else '?',
+                        lineno if lineno else '?',
                         colored(report.location[2], THEME['fail'])
                     )
                 self.write_line("         - %s" % crashline)
