@@ -278,7 +278,7 @@ class TestTerminalReporter(object):
             "* test_func *",
             "    def test_func():",
             ">       assert * == *",
-            "E       assert * == *",
+            "E       AssertionError: assert * == *",
         ])
 
     def test_fail_in_fixture_and_test(self, testdir):
