@@ -14,6 +14,7 @@ env:
   - TOXENV=py27-pytest30-unsupported-xdist
   - TOXENV=py34-pytest30-supported-xdist
   - TOXENV=py35-pytest30-supported-xdist
+  - TOXENV=py36-pytest30-supported-xdist
   - TOXENV=py35-pytest30-unsupported-xdist
   - TOXENV=pypy-pytest30-supported-xdist
 install: pip install -U tox
