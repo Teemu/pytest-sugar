@@ -37,7 +37,7 @@ setup(
     zip_safe=False,
     include_package_data=True,
     platforms='any',
-    install_requires=['pytest>=2.3', 'termcolor>=1.1.0'],
+    install_requires=['pytest>=2.9', 'termcolor>=1.1.0'],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
