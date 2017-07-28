@@ -2,7 +2,13 @@ language: python
 sudo: false
 cache: pip
 python:
-  - 3.5
+  - 3.6
+addons:
+  apt:
+    sources:
+      - deadsnakes
+    packages:
+      - python3.5 pypy
 env:
   - TOXENV=py27-pytest30-supported-xdist
   - TOXENV=py27-pytest30-unsupported-xdist
