@@ -461,6 +461,20 @@ class TestTerminalReporter(object):
 
         assert result.ret == 0, result.stderr.str()
 
+    def test_xdist_verbose(self, testdir):
+        pytest.importorskip("xdist")
+        testdir.makepyfile(
+            """
+            def test_nada():
+                pass
+            def test_zip():
+                pass
+            """
+        )
+        result = testdir.runpytest('--force-sugar', '-n2', '-v')
+
+        assert result.ret == 0, result.stderr.str()
+
     def test_doctest(self, testdir):
         """ Test doctest-modules """
 
