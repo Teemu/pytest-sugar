@@ -477,3 +477,25 @@ class TestTerminalReporter(object):
         result = testdir.runpytest('--force-sugar', '--doctest-module')
 
         assert result.ret == 1, result.stderr.str()
+
+    def test_doctest_lineno(self, testdir):
+        """ Test location reported for doctest-modules """
+
+        testdir.makepyfile(
+            """
+            def foobar():
+                '''
+                >>> foobar()
+                '''
+                raise NotImplementedError
+            """
+        )
+        result = testdir.runpytest('--force-sugar', '--doctest-module')
+
+        assert result.ret == 1, result.stderr.str()
+        result.stdout.fnmatch_lines([
+            'UNEXPECTED EXCEPTION: NotImplementedError()',
+            '*test_doctest_lineno.py:3: UnexpectedException',
+            'Results*:',
+            '*-*test_doctest_lineno.py*:3*',
+        ])
