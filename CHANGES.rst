@@ -3,6 +3,12 @@ Changelog
 
 A list of changes between each release.
 
+0.9.0 (2017-8-4)
+^^^^^^^^^^^^^^^^^^^
+
+- Print correct location for doctest failures
+- Write xdist output on correct lines
+
 0.8.0 (2016-12-28)
 ^^^^^^^^^^^^^^^^^^^
 
