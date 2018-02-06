@@ -390,6 +390,13 @@ class SugarTerminalReporter(TerminalReporter):
         # show the module_name & in verbose mode the test name.
         pass
 
+    if pytest.__version__ >= '3.4':
+
+        def pytest_runtest_logfinish(self):
+            # prevent the default implementation to try to show
+            # pytest's default progress
+            pass
+
     def report_key(self, report):
         """Returns a key to identify which line the report should write to."""
         return report.location if self.showlongtestinfo else report.fspath
