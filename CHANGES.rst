@@ -3,6 +3,11 @@ Changelog
 
 A list of changes between each release.
 
+0.9.1 (2017-8-4)
+^^^^^^^^^^^^^^^^^^^
+
+- Fix incompatibility with pytest 3.4 (thanks @nicoddemus)
+
 0.9.0 (2017-8-4)
 ^^^^^^^^^^^^^^^^^^^
 
