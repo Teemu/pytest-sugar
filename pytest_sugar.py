@@ -588,12 +588,12 @@ class SugarTerminalReporter(TerminalReporter):
 
     def summary_failures(self):
         # Prevent failure summary from being shown since we already
-        # show the failure instantly after failure has occured.
+        # show the failure instantly after failure has occurred.
         pass
 
     def summary_errors(self):
         # Prevent error summary from being shown since we already
-        # show the error instantly after error has occured.
+        # show the error instantly after error has occurred.
         pass
 
     def print_failure(self, report):
