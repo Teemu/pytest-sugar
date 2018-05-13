@@ -22,9 +22,9 @@ def get_version(filename):
 setup(
     name='pytest-sugar',
     description=(
-        'py.test is a plugin for py.test that changes the default look'
-        ' and feel of py.test (e.g. progressbar, show tests that fail'
-        ' instantly).'
+        'pytest-sugar is a plugin for py.test that changes the default'
+        ' look and feel of py.test (e.g. progressbar, show tests that'
+        ' fail instantly).'
     ),
     long_description=codecs.open("README.md", encoding='utf-8').read(),
     version=get_version('pytest_sugar.py'),
