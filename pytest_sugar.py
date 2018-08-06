@@ -362,8 +362,12 @@ class SugarTerminalReporter(TerminalReporter):
             fspath = report.fspath
         basename = os.path.basename(fspath)
         if self.showlongtestinfo:
-            test_location = report.location[0]
-            test_name = report.location[2]
+            location_line = self._locationline(
+                report.nodeid,
+                *report.location
+            ).split("::", 1)
+            test_location = location_line[0]
+            test_name = location_line[1] if len(location_line) > 1 else ""
         else:
             test_location = fspath[0:-len(basename)]
             test_name = fspath[-len(basename):]
@@ -371,7 +375,7 @@ class SugarTerminalReporter(TerminalReporter):
             self.current_lines[path] = (
                 " " +
                 colored(test_location, THEME['path']) +
-                ("::" if self.verbosity > 0 else "") +
+                ("::" if self.verbosity > 0 and test_name else "") +
                 colored(test_name, THEME['name']) +
                 " "
             )
