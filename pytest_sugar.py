@@ -72,10 +72,10 @@ def flatten(l):
             yield x
 
 
-def pytest_collection_modifyitems(session, config, items):
-    terminal_reporter = config.pluginmanager.getplugin('terminalreporter')
-    if terminal_reporter:
-        terminal_reporter.tests_count = len(items)
+def pytest_runtestloop(session):
+    reporter = session.config.pluginmanager.getplugin('terminalreporter')
+    if reporter:
+        reporter.tests_count = len(session.items)
 
 
 try:
