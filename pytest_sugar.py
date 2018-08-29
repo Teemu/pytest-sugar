@@ -78,20 +78,13 @@ def pytest_collection_modifyitems(session, config, items):
         terminal_reporter.tests_count = len(items)
 
 
-try:
-    import xdist
-except ImportError:
-    pass
-else:
-    from distutils.version import LooseVersion
-    xdist_version = LooseVersion(xdist.__version__)
-    if xdist_version >= LooseVersion("1.14"):
-        def pytest_xdist_node_collection_finished(node, ids):
-            terminal_reporter = node.config.pluginmanager.getplugin(
-                'terminalreporter'
-            )
-            if terminal_reporter:
-                terminal_reporter.tests_count = len(ids)
+class DeferredXdistPlugin(object):
+    def pytest_xdist_node_collection_finished(self, node, ids):
+        terminal_reporter = node.config.pluginmanager.getplugin(
+            'terminalreporter'
+        )
+        if terminal_reporter:
+            terminal_reporter.tests_count = len(ids)
 
 
 def pytest_deselected(items):
@@ -164,6 +157,17 @@ def pytest_configure(config):
 
     if sys.stdout.isatty() or config.getvalue('force_sugar'):
         IS_SUGAR_ENABLED = True
+
+    if config.pluginmanager.hasplugin('xdist'):
+        try:
+            import xdist
+        except ImportError:
+            pass
+        else:
+            from distutils.version import LooseVersion
+            xdist_version = LooseVersion(xdist.__version__)
+            if xdist_version >= LooseVersion('1.14'):
+                config.pluginmanager.register(DeferredXdistPlugin())
 
     if IS_SUGAR_ENABLED and not getattr(config, 'slaveinput', None):
         # Get the standard terminal reporter plugin and replace it with our
