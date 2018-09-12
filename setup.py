@@ -27,6 +27,7 @@ setup(
         ' instantly).'
     ),
     long_description=codecs.open("README.md", encoding='utf-8').read(),
+    long_description_content_type='text/markdown',
     version=get_version('pytest_sugar.py'),
     url='http://pivotfinland.com/pytest-sugar/',
     license='BSD',
