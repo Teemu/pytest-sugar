@@ -361,13 +361,14 @@ class SugarTerminalReporter(TerminalReporter):
         else:
             fspath = report.fspath
         basename = os.path.basename(fspath)
-        if self.showlongtestinfo:
-            test_location = report.location[0]
-            test_name = report.location[2]
-        else:
-            test_location = fspath[0:-len(basename)]
-            test_name = fspath[-len(basename):]
         if print_filename:
+            if self.showlongtestinfo:
+                test_location = report.location[0]
+                test_name = report.location[2]
+            else:
+                test_location = fspath[0:-len(basename)]
+                test_name = fspath[-len(basename):]
+            test_name = test_name.replace('.', '::')
             self.current_lines[path] = (
                 " " +
                 colored(test_location, THEME['path']) +
