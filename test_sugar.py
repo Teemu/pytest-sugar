@@ -248,6 +248,33 @@ class TestTerminalReporter(object):
         )
         assert_count(testdir)
 
+    def test_item_count_after_pytest_collection_modifyitems(self, testdir):
+        testdir.makeconftest(
+            """
+            import pytest
+
+            @pytest.hookimpl(hookwrapper=True, tryfirst=True)
+            def pytest_collection_modifyitems(config, items):
+                yield
+                items[:] = [x for x in items if x.name == 'test_one']
+            """
+        )
+        testdir.makepyfile(
+            """
+            def test_one():
+                print('test_one_passed')
+
+            def test_ignored():
+                assert 0
+            """
+        )
+        result = testdir.runpytest('-p no:sugar', '-s')
+        result.stdout.fnmatch_lines([
+            '*test_one_passed*',
+            '*100%*',
+        ])
+        assert result.ret == 0
+
     def test_fail(self, testdir):
         testdir.makepyfile(
             """
