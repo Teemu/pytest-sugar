@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 import re
+from distutils.version import LooseVersion
 from pytest_sugar import strip_colors
 
 pytest_plugins = "pytester"
@@ -511,6 +512,10 @@ class TestTerminalReporter(object):
 
         assert result.ret == 1, result.stderr.str()
 
+    @pytest.mark.skipif(
+      LooseVersion(pytest.__version__) >= LooseVersion('3.5'),
+      reason='Temporarily skipping until #134'
+    )
     def test_doctest_lineno(self, testdir):
         """ Test location reported for doctest-modules """
 
