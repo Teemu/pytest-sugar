@@ -10,7 +10,7 @@ def get_counts(stdout):
     output = strip_colors(stdout)
 
     def _get(x):
-        m = re.search('\d %s' % x, output)
+        m = re.search(r'\d %s' % x, output)
         if m:
             return m.group()[0]
         else:
