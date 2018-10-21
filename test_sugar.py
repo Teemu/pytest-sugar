@@ -462,8 +462,6 @@ class TestTerminalReporter(object):
     def test_verbose_has_double_colon(self, testdir):
         testdir.makepyfile(
             """
-            import pytest
-
             def test_true():
                 assert True
             """
@@ -478,11 +476,9 @@ class TestTerminalReporter(object):
     def test_verbose_has_double_colon_with_class(self, testdir):
         testdir.makepyfile(
             """
-            import pytest
-
             class TestTrue:
 
-                def test_true():
+                def test_true(self):
                     assert True
             """
         )
@@ -492,6 +488,22 @@ class TestTerminalReporter(object):
 
         test_name = (
             'test_verbose_has_double_colon_with_class.py::TestTrue::test_true')
+        assert test_name in strip_colors(output)
+
+    def test_not_verbose_no_double_colon_filename(self, testdir):
+        testdir.makepyfile(
+            """
+            class TestTrue:
+
+                def test_true(self):
+                    assert True
+            """
+        )
+        output = testdir.runpytest(
+            '--force-sugar'
+        ).stdout.str()
+
+        test_name = 'test_not_verbose_no_double_colon_filename.py'
         assert test_name in strip_colors(output)
 
     def test_xdist(self, testdir):
