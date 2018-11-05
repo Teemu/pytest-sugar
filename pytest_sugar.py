@@ -14,6 +14,7 @@ import locale
 import os
 import re
 import sys
+from packaging.version import parse
 
 try:
     from configparser import ConfigParser
@@ -398,7 +399,7 @@ class SugarTerminalReporter(TerminalReporter):
         # show the module_name & in verbose mode the test name.
         pass
 
-    if tuple(int(x) for x in pytest.__version__.split('.')[:2]) >= (3, 4):
+    if parse(pytest.__version__) >= parse('3.4'):
 
         def pytest_runtest_logfinish(self):
             # prevent the default implementation to try to show
