@@ -398,7 +398,7 @@ class SugarTerminalReporter(TerminalReporter):
         # show the module_name & in verbose mode the test name.
         pass
 
-    if pytest.__version__ >= '3.4':
+    if tuple(int(x) for x in pytest.__version__.split('.')[:2]) >= (3, 4):
 
         def pytest_runtest_logfinish(self):
             # prevent the default implementation to try to show
