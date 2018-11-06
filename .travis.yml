@@ -8,7 +8,7 @@ addons:
     sources:
       - deadsnakes
     packages:
-      - python3.5 pypy python3.7
+      - python3.5 pypy
 env:
   - TOXENV=py27-pytest30-supported-xdist
   - TOXENV=py27-pytest31-supported-xdist
@@ -21,12 +21,18 @@ env:
   - TOXENV=py35-pytest34-supported-xdist
   - TOXENV=py36-pytest30-supported-xdist
   - TOXENV=py36-pytest34-supported-xdist
+  - TOXENV=py36-pytest310-supported-xdist
   - TOXENV=py35-pytest30-unsupported-xdist
   - TOXENV=pypy-pytest30-supported-xdist
   - TOXENV=pypy-pytest31-supported-xdist
   - TOXENV=py37-pytest39-supported-xdist
-  - TOXENV=py37-pytest310-supported-xdist
   - TOXENV=qa
+matrix:
+  include:
+    - env: TOXENV=py37-pytest39-supported-xdist
+      python: '3.7'
+      sudo: required
+      dist: xenial
 install: pip install -U tox
 script:
   - tox
