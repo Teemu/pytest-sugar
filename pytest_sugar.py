@@ -399,12 +399,10 @@ class SugarTerminalReporter(TerminalReporter):
         # show the module_name & in verbose mode the test name.
         pass
 
-    if parse(pytest.__version__) >= parse('3.4'):  # pragma: no cover
-
-        def pytest_runtest_logfinish(self):
-            # prevent the default implementation to try to show
-            # pytest's default progress
-            pass
+    def pytest_runtest_logfinish(self):
+        # prevent the default implementation to try to show
+        # pytest's default progress
+        pass
 
     def report_key(self, report):
         """Returns a key to identify which line the report should write to."""
@@ -626,3 +624,8 @@ class SugarTerminalReporter(TerminalReporter):
                 self.write_sep("―", msg)
                 self._outrep_summary(report)
         self.reset_tracked_lines()
+
+
+# On older version of Pytest, allow default progress
+if parse(pytest.__version__) <= parse('3.4'):  # pragma: no cover
+    del SugarTerminalReporter.pytest_runtest_logfinish
