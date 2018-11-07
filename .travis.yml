@@ -3,12 +3,6 @@ sudo: false
 cache: pip
 python:
   - 3.6
-addons:
-  apt:
-    sources:
-      - deadsnakes
-    packages:
-      - python3.5 pypy
 env:
   - TOXENV=py27-pytest30-supported-xdist
   - TOXENV=py27-pytest31-supported-xdist
@@ -17,14 +11,9 @@ env:
   - TOXENV=py34-pytest30-supported-xdist
   - TOXENV=py34-pytest31-supported-xdist
   - TOXENV=py34-pytest34-supported-xdist
-  - TOXENV=py35-pytest30-supported-xdist
-  - TOXENV=py35-pytest34-supported-xdist
   - TOXENV=py36-pytest30-supported-xdist
   - TOXENV=py36-pytest34-supported-xdist
-  - TOXENV=py36-pytest310-supported-xdist-rerunfailures
-  - TOXENV=py35-pytest30-unsupported-xdist
-  - TOXENV=pypy-pytest30-supported-xdist
-  - TOXENV=pypy-pytest31-supported-xdist
+  - TOXENV=py36-pytest310-unsupported-xdist-rerunfailures
   - TOXENV=qa
 matrix:
   include:
@@ -32,6 +21,10 @@ matrix:
       python: '3.7'
       sudo: required
       dist: xenial
+    - env: TOXENV=pypy-pytest39-supported-xdist
+      python: 'pypy'
+    - env: TOXENV=py35-pytest39-supported-xdist
+      python: '3.5'
 install: pip install -U tox
 script:
   - tox
