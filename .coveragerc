@@ -1,0 +1,11 @@
+[run]
+branch = 1
+parallel = 1
+
+[report]
+include = pytest_sugar.py,test_*.py
+
+[paths]
+source = ./
+  .tox/*/lib/python*/site-packages/
+  .tox\*\Lib\site-packages\
