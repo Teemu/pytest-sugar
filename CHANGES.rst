@@ -3,6 +3,14 @@ Changelog
 
 A list of changes between each release.
 
+0.9.2 (2018-11-8)
+^^^^^^^^^^^^^^^^^^^
+
+- Fix incompatibility with pytest 3.10 (thanks @Natim)
+- Double colons for verbose output (thanks @albertodonato)
+- Fix "Wrong count with items modified in pytest_collection_modifyitems" (thanks @blueyed)
+- Defer registration of xdist hook (thanks @blueyed)
+
 0.9.1 (2017-8-4)
 ^^^^^^^^^^^^^^^^^^^
 
