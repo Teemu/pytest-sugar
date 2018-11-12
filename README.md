@@ -34,6 +34,11 @@ If you would like to run tests without pytest-sugar, use:
 
     $ py.test -p no:sugar
 
+Because this project is liable to have unexpected compatibility issues due to emergent
+releases of pytest, it is recommended against installing this package with production
+CI pipelines and instead for individual developers to install the package separately
+as desired.
+
 ## Running on Windows
 
 If you are seeing gibberish, you might want to try changing charset and fonts. See [this comment]( https://github.com/Frozenball/pytest-sugar/pull/49#issuecomment-146567670) for more details.
