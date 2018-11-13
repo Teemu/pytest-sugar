@@ -225,9 +225,6 @@ class SugarTerminalReporter(TerminalReporter):
         self.current_line_nums = {}
         self.current_line_num = 0
 
-    def report_collect(self, final=False):
-        pass
-
     def pytest_collectreport(self, report):
         TerminalReporter.pytest_collectreport(self, report)
         if report.location[0]:
