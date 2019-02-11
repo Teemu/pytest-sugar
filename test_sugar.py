@@ -269,7 +269,7 @@ class TestTerminalReporter(object):
                 assert 0
             """
         )
-        result = testdir.runpytest('-p no:sugar', '-s')
+        result = testdir.runpytest('-s')
         result.stdout.fnmatch_lines([
             '*test_one_passed*',
             '*100%*',
