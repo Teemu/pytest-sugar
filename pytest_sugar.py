@@ -368,17 +368,10 @@ class SugarTerminalReporter(TerminalReporter):
         basename = os.path.basename(fspath)
         if print_filename:
             if self.showlongtestinfo:
-                test_location = report.location[0]
-                test_name = report.location[2]
+                test_location, _, test_name = report.nodeid.partition('::')
             else:
                 test_location = fspath[0:-len(basename)]
                 test_name = fspath[-len(basename):]
-            if test_location:
-                pass
-                # only replace if test_location is not empty, if it is,
-                # test_name contains the filename
-                # FIXME: This doesn't work.
-                # test_name = test_name.replace('.', '::')
             self.current_lines[path] = (
                 " " +
                 colored(test_location, THEME['path']) +

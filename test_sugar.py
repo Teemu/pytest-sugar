@@ -473,38 +473,43 @@ class TestTerminalReporter(object):
             output
         )
 
-    # def test_verbose_has_double_colon_with_class(self, testdir):
-    #     testdir.makepyfile(
-    #         """
-    #         class TestTrue:
+    def test_verbose_has_double_colon_with_class(self, testdir):
+        testdir.makepyfile(
+            """
+            class TestTrue:
 
-    #             def test_true(self):
-    #                 assert True
-    #         """
-    #     )
-    #     output = testdir.runpytest(
-    #         '--force-sugar', '--verbose'
-    #     ).stdout.str()
+                def test_true(self):
+                    assert True
+            """
+        )
+        output = testdir.runpytest(
+            '--force-sugar', '--verbose'
+        ).stdout.str()
 
-    #     test_name = (
-    #         'test_verbose_has_double_colon_with_class.py::TestTrue::test_true')
-    #     assert test_name in strip_colors(output)
+        # see: https://github.com/pytest-dev/pytest/commit/ac8b9c6e9dbb66114a1c3f79cd1fdeb0b2b2c54d
+        if LooseVersion(pytest.__version__) < LooseVersion('4.0'):
+            test_name = (
+                'test_verbose_has_double_colon_with_class.py::TestTrue::()::test_true')
+        else:
+            test_name = (
+                'test_verbose_has_double_colon_with_class.py::TestTrue::test_true')
+        assert test_name in strip_colors(output)
 
-    # def test_not_verbose_no_double_colon_filename(self, testdir):
-    #     testdir.makepyfile(
-    #         """
-    #         class TestTrue:
+    def test_not_verbose_no_double_colon_filename(self, testdir):
+        testdir.makepyfile(
+            """
+            class TestTrue:
 
-    #             def test_true(self):
-    #                 assert True
-    #         """
-    #     )
-    #     output = testdir.runpytest(
-    #         '--force-sugar'
-    #     ).stdout.str()
+                def test_true(self):
+                    assert True
+            """
+        )
+        output = testdir.runpytest(
+            '--force-sugar'
+        ).stdout.str()
 
-    #     test_name = 'test_not_verbose_no_double_colon_filename.py'
-    #     assert test_name in strip_colors(output)
+        test_name = 'test_not_verbose_no_double_colon_filename.py'
+        assert test_name in strip_colors(output)
 
     def test_xdist(self, testdir):
         pytest.importorskip("xdist")
