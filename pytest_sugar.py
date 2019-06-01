@@ -201,6 +201,7 @@ def pytest_report_teststatus(report):
     elif report.failed:
         letter = colored(THEME["symbol_failed"], THEME["fail"])
         if report.when != "call":
+            report.outcome = "error"
             letter = colored(THEME["symbol_failed_not_call"], THEME["fail"])
     elif report.outcome == "rerun":
         letter = colored(THEME["symbol_rerun"], THEME["rerun"])
