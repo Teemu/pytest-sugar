@@ -150,14 +150,18 @@ def real_string_length(string):
 
 
 IS_SUGAR_ENABLED = False
+IS_SUGAR_VERBOSE_ENABLED = False
 
 
 @pytest.mark.trylast
 def pytest_configure(config):
-    global IS_SUGAR_ENABLED
+    global IS_SUGAR_ENABLED, IS_SUGAR_VERBOSE_ENABLED
 
     if sys.stdout.isatty() or config.getvalue('force_sugar'):
         IS_SUGAR_ENABLED = True
+
+    if config.getvalue('reportchars') == "a":
+        IS_SUGAR_VERBOSE_ENABLED = True
 
     if config.pluginmanager.hasplugin('xdist'):
         try:
@@ -502,30 +506,9 @@ class SugarTerminalReporter(TerminalReporter):
         else:
             return 0
 
-    def summary_stats(self):
-        session_duration = py.std.time.time() - self._sessionstarttime
-
-        print("\nResults (%.2fs):" % round(session_duration, 2))
-        if self.count('passed') > 0:
-            self.write_line(colored(
-                "   % 5d passed" % self.count('passed'),
-                THEME['success']
-            ))
-
-        if self.count('xpassed') > 0:
-            self.write_line(colored(
-                "   % 5d xpassed" % self.count('xpassed'),
-                THEME['xpassed']
-            ))
-
-        if self.count('failed', when=['call']) > 0:
-            self.write_line(colored(
-                "   % 5d failed" % self.count('failed', when=['call']),
-                THEME['fail']
-            ))
-            for report in self.stats['failed']:
-                if report.when != 'call':
-                    continue
+    def collect_files_for_report(self, when, outcome, theme):
+        for report in self.stats[outcome]:
+            if report.when in when:
                 if self.config.option.tb_summary:
                     crashline = self._get_decoded_crashline(report)
                 else:
@@ -539,14 +522,54 @@ class SugarTerminalReporter(TerminalReporter):
                         lineno = report.location[1]
                         if lineno is not None:
                             lineno += 1
-                    crashline = '%s%s%s:%s %s' % (
+                    crashline = '%s%s%s:%s %s (%s)' % (
                         colored(path, THEME['path']),
                         '/' if path else '',
                         colored(name, THEME['name']),
                         lineno if lineno else '?',
-                        colored(report.location[2], THEME['fail'])
+                        colored(report.location[2], THEME[theme]),
+                        colored(report.when, THEME['name'])
                     )
                 self.write_line("         - %s" % crashline)
+
+    def summary_stats(self):
+        session_duration = py.std.time.time() - self._sessionstarttime
+
+        print("\nResults (%.2fs):" % round(session_duration, 2))
+        if self.count('passed') > 0:
+            self.write_line(colored(
+                "   % 5d passed" % self.count('passed'),
+                THEME['success']
+            ))
+            if IS_SUGAR_VERBOSE_ENABLED:
+                self.collect_files_for_report(
+                    when=['call'],
+                    outcome='passed',
+                    theme='success',
+                )
+
+        if self.count('xpassed') > 0:
+            self.write_line(colored(
+                "   % 5d xpassed" % self.count('xpassed'),
+                THEME['xpassed']
+            ))
+            if IS_SUGAR_VERBOSE_ENABLED:
+                self.collect_files_for_report(
+                    when=['call'],
+                    outcome='xpassed',
+                    theme='xpassed',
+                )
+
+        if self.count('failed', when=['call']) > 0:
+            self.write_line(colored(
+                "   % 5d failed" % self.count('failed', when=['call']),
+                THEME['fail']
+            ))
+            self.collect_files_for_report(
+                when=['call'],
+                outcome='failed',
+                theme='fail',
+            )
 
         if self.count('failed', when=['setup', 'teardown']) > 0:
             self.write_line(colored(
@@ -555,12 +578,24 @@ class SugarTerminalReporter(TerminalReporter):
                 ),
                 THEME['error']
             ))
+            if IS_SUGAR_VERBOSE_ENABLED:
+                self.collect_files_for_report(
+                    when=['setup', 'teardown'],
+                    outcome='failed',
+                    theme='fail',
+                )
 
         if self.count('xfailed') > 0:
             self.write_line(colored(
                 "   % 5d xfailed" % self.count('xfailed'),
                 THEME['xfailed']
             ))
+            if IS_SUGAR_VERBOSE_ENABLED:
+                self.collect_files_for_report(
+                    when=['call'],
+                    outcome='xfailed',
+                    theme='xfailed',
+                )
 
         if self.count('skipped', when=['call', 'setup', 'teardown']) > 0:
             self.write_line(colored(
@@ -569,18 +604,36 @@ class SugarTerminalReporter(TerminalReporter):
                 ),
                 THEME['skipped']
             ))
+            if IS_SUGAR_VERBOSE_ENABLED:
+                self.collect_files_for_report(
+                    when=['call', 'setup', 'teardown'],
+                    outcome='skipped',
+                    theme='skipped',
+                )
 
         if self.count('rerun') > 0:
             self.write_line(colored(
                 "   % 5d rerun" % self.count('rerun'),
                 THEME['rerun']
             ))
+            if IS_SUGAR_VERBOSE_ENABLED:
+                self.collect_files_for_report(
+                    when=['call'],
+                    outcome='rerun',
+                    theme='rerun',
+                )
 
         if self.count('deselected') > 0:
             self.write_line(colored(
                 "   % 5d deselected" % self.count('deselected'),
                 THEME['warning']
             ))
+            if IS_SUGAR_VERBOSE_ENABLED:
+                self.collect_files_for_report(
+                    when=['call'],
+                    outcome='deselected',
+                    theme='warning',
+                )
 
     def _get_decoded_crashline(self, report):
         crashline = self._getcrashline(report)
