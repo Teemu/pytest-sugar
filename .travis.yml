@@ -23,6 +23,9 @@ matrix:
     - env: TOXENV=py37-pytest42-supported-xdist
     - env: TOXENV=py37-pytest42-unsupported-xdist-rerunfailures
 
+    # Latest pytest.
+    - env: TOXENV=py37-pytest46-supported-xdist
+
     - env: TOXENV=qa
 install: pip install -U tox
 script:
