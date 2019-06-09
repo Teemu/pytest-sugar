@@ -616,11 +616,13 @@ class SugarTerminalReporter(TerminalReporter):
                 self.write_line(line)
             else:
                 msg = self._getfailureheadline(report)
-                if not hasattr(report, 'when'):
+                # "when" was unset before pytest 4.2 for collection errors.
+                when = getattr(report, "when", "collect")
+                if when == "collect":
                     msg = "ERROR collecting " + msg
-                elif report.when == "setup":
+                elif when == "setup":
                     msg = "ERROR at setup of " + msg
-                elif report.when == "teardown":
+                elif when == "teardown":
                     msg = "ERROR at teardown of " + msg
                 self.write_line('')
                 self.write_sep("―", msg)
