@@ -486,13 +486,17 @@ class TestTerminalReporter(object):
             '--force-sugar', '--verbose'
         ).stdout.str()
 
-        # see: https://github.com/pytest-dev/pytest/commit/ac8b9c6e9dbb66114a1c3f79cd1fdeb0b2b2c54d
+        # see: https://github.com/pytest-dev/pytest/commit/ac8b9c6e9dbb66114a1c3f79cd1fdeb0b2b2c54d  # noqa
         if LooseVersion(pytest.__version__) < LooseVersion('4.0'):
             test_name = (
-                'test_verbose_has_double_colon_with_class.py::TestTrue::()::test_true')
+                'test_verbose_has_double_colon_with_class.py::'
+                'TestTrue::()::test_true'
+            )
         else:
             test_name = (
-                'test_verbose_has_double_colon_with_class.py::TestTrue::test_true')
+                'test_verbose_has_double_colon_with_class.py::'
+                'TestTrue::test_true'
+            )
         assert test_name in strip_colors(output)
 
     def test_not_verbose_no_double_colon_filename(self, testdir):
