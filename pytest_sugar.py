@@ -3,8 +3,8 @@
 pytest_sugar
 ~~~~~~~~~~~~
 
-py.test is a plugin for py.test that changes the default look
-and feel of py.test (e.g. progressbar, show tests that fail instantly).
+pytest-sugar is a plugin for pytest that changes the default look
+and feel of pytest (e.g. progressbar, show tests that fail instantly).
 
 :copyright: see LICENSE for details
 :license: BSD, see LICENSE for more details.
