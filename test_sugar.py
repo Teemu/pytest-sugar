@@ -547,7 +547,7 @@ class TestTerminalReporter(object):
                     \"\"\"
             """
         )
-        result = testdir.runpytest('--force-sugar', '--doctest-module')
+        result = testdir.runpytest('--force-sugar', '--doctest-modules')
 
         assert result.ret == 1, result.stderr.str()
 
@@ -567,7 +567,7 @@ class TestTerminalReporter(object):
                 raise NotImplementedError
             """
         )
-        result = testdir.runpytest('--force-sugar', '--doctest-module')
+        result = testdir.runpytest('--force-sugar', '--doctest-modules')
 
         assert result.ret == 1, result.stderr.str()
         result.stdout.fnmatch_lines([
