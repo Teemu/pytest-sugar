@@ -3,6 +3,11 @@ Changelog
 
 A list of changes between each release.
 
+0.9.3 (2020-04-26)
+^^^^^^^^^^^^^^^^^^^
+
+- Fix incompatibility with pytest 5.4.0 (thanks @GuillaumeFavelier)
+
 0.9.2 (2018-11-8)
 ^^^^^^^^^^^^^^^^^^^
 
