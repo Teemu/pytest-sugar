@@ -64,8 +64,8 @@ PROGRESS_BAR_BLOCKS = [
 ]
 
 
-def flatten(l):
-    for x in l:
+def flatten(iterable):
+    for x in iterable:
         if isinstance(x, (list, tuple)):
             for y in flatten(x):
                 yield y
