@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import pytest
 import re
-from distutils.version import LooseVersion
 from pytest_sugar import strip_colors
 
 pytest_plugins = "pytester"

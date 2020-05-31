@@ -64,8 +64,8 @@ PROGRESS_BAR_BLOCKS = [
 ]
 
 
-def flatten(l):
-    for x in l:
+def flatten(seq):
+    for x in seq:
         if isinstance(x, (list, tuple)):
             for y in flatten(x):
                 yield y
@@ -589,8 +589,8 @@ class SugarTerminalReporter(TerminalReporter):
         return crashline
 
     def _get_lineno_from_report(self, report):
-        # Doctest failure reports changed the attribute where longrepr were stored in pytest>3.10
-        # to reprlocation_lines, a list of (ReprFileLocation, lines)
+        # Doctest failures in pytest>3.10 are stored in
+        # reprlocation_lines, a list of (ReprFileLocation, lines)
         try:
             location, lines = report.longrepr.reprlocation_lines[0]
             return location.lineno
