@@ -238,6 +238,7 @@ class SugarTerminalReporter(TerminalReporter):
             self.print_failure(report)
 
     def pytest_sessionstart(self, session):
+        self._session = session
         self._sessionstarttime = py.std.time.time()
         verinfo = ".".join(map(str, sys.version_info[:3]))
         self.write_line(
