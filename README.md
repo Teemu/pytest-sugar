@@ -1,11 +1,12 @@
 # pytest-sugar
 
-[![](https://travis-ci.org/Frozenball/pytest-sugar.svg?branch=master)](https://travis-ci.org/Frozenball/pytest-sugar) ![](https://img.shields.io/pypi/v/pytest-sugar.svg)
+[![Build status](https://travis-ci.org/Teemu/pytest-sugar.svg?branch=master)](https://travis-ci.org/Teemu/pytest-sugar)
+[![Pypi version](https://img.shields.io/pypi/v/pytest-sugar.svg)](https://pypi.org/project/pytest-sugar/)
 
 pytest-sugar is a plugin for [pytest](http://pytest.org) that shows
 failures and errors instantly and shows a progress bar.
 
-![](http://pivotfinland.com/pytest-sugar/img/video.gif)
+![Demo](http://pivotfinland.com/pytest-sugar/img/video.gif)
 
 ## Requirements
 
@@ -20,7 +21,7 @@ You will need the following prerequisites in order to use pytest-sugar:
 
 To install pytest-sugar:
 
-    $ pip install pytest-sugar
+    pip install pytest-sugar
 
 Then run your tests with:
 
@@ -36,4 +37,4 @@ If you would like to run tests without pytest-sugar, use:
 
 ## Running on Windows
 
-If you are seeing gibberish, you might want to try changing charset and fonts. See [this comment]( https://github.com/Frozenball/pytest-sugar/pull/49#issuecomment-146567670) for more details.
+If you are seeing gibberish, you might want to try changing charset and fonts. See [this comment]( https://github.com/Teemu/pytest-sugar/pull/49#issuecomment-146567670) for more details.

@@ -28,7 +28,7 @@ import pytest
 from _pytest.terminal import TerminalReporter
 
 
-__version__ = '0.9.2'
+__version__ = '0.9.3'
 
 LEN_RIGHT_MARGIN = 0
 LEN_PROGRESS_PERCENTAGE = 5
@@ -211,7 +211,6 @@ def pytest_report_teststatus(report):
 class SugarTerminalReporter(TerminalReporter):
     def __init__(self, reporter):
         TerminalReporter.__init__(self, reporter.config)
-        self.writer = self._tw
         self.paths_left = []
         self.tests_count = 0
         self.tests_taken = 0
@@ -339,14 +338,14 @@ class SugarTerminalReporter(TerminalReporter):
     def overwrite(self, line, rel_line_num):
         # Move cursor up rel_line_num lines
         if rel_line_num > 0:
-            self.writer.write("\033[%dA" % rel_line_num)
+            self.write("\033[%dA" % rel_line_num)
 
         # Overwrite the line
-        self.writer.write("\r%s" % line)
+        self.write("\r%s" % line)
 
         # Return cursor to original line
         if rel_line_num > 0:
-            self.writer.write("\033[%dB" % rel_line_num)
+            self.write("\033[%dB" % rel_line_num)
 
     def get_max_column_for_test_status(self):
         return (
@@ -389,7 +388,7 @@ class SugarTerminalReporter(TerminalReporter):
         else:
             self.current_lines[path] = " " * (2 + len(fspath))
         self.current_line_nums[path] = self.current_line_num
-        self.writer.write("\r\n")
+        self.write("\r\n")
 
     def reached_last_column_for_test_status(self, report):
         len_line = real_string_length(

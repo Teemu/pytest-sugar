@@ -16,15 +16,16 @@ matrix:
       python: 3.4
     - env: TOXENV=py35-pytest39-supported-xdist
       python: 3.5
-    - env: TOXENV=py36-pytest40-supported-xdist
+    - env: TOXENV=py36-pytest40-supported-xdist-pinned-attrs
       python: 3.6
 
-    - env: TOXENV=py37-pytest41-supported-xdist
-    - env: TOXENV=py37-pytest42-supported-xdist
-    - env: TOXENV=py37-pytest42-unsupported-xdist-rerunfailures
+    - env: TOXENV=py37-pytest41-supported-xdist-pinned-attrs
+    - env: TOXENV=py37-pytest42-supported-xdist-pinned-attrs
+    - env: TOXENV=py37-pytest42-unsupported-xdist-rerunfailures-pinned-attrs
+    - env: TOXENV=py37-pytest46-supported-xdist
 
     # Latest pytest.
-    - env: TOXENV=py37-pytest46-supported-xdist
+    - env: TOXENV=py37-pytest54-supported-xdist
 
     - env: TOXENV=qa
 install: pip install -U tox
