@@ -64,8 +64,8 @@ PROGRESS_BAR_BLOCKS = [
 ]
 
 
-def flatten(l):
-    for x in l:
+def flatten(seq):
+    for x in seq:
         if isinstance(x, (list, tuple)):
             for y in flatten(x):
                 yield y
@@ -238,6 +238,7 @@ class SugarTerminalReporter(TerminalReporter):
             self.print_failure(report)
 
     def pytest_sessionstart(self, session):
+        self._session = session
         self._sessionstarttime = py.std.time.time()
         verinfo = ".".join(map(str, sys.version_info[:3]))
         self.write_line(
@@ -530,14 +531,7 @@ class SugarTerminalReporter(TerminalReporter):
                 else:
                     path = os.path.dirname(report.location[0])
                     name = os.path.basename(report.location[0])
-                    # Doctest failure reports have lineno=None at least up to
-                    # pytest==3.0.7, but it is available via longrepr object.
-                    try:
-                        lineno = report.longrepr.reprlocation.lineno
-                    except AttributeError:
-                        lineno = report.location[1]
-                        if lineno is not None:
-                            lineno += 1
+                    lineno = self._get_lineno_from_report(report)
                     crashline = '%s%s%s:%s %s' % (
                         colored(path, THEME['path']),
                         '/' if path else '',
@@ -593,6 +587,24 @@ class SugarTerminalReporter(TerminalReporter):
                 crashline = crashline.decode(encoding, errors='replace')
 
         return crashline
+
+    def _get_lineno_from_report(self, report):
+        # Doctest failures in pytest>3.10 are stored in
+        # reprlocation_lines, a list of (ReprFileLocation, lines)
+        try:
+            location, lines = report.longrepr.reprlocation_lines[0]
+            return location.lineno
+        except AttributeError:
+            pass
+        # Doctest failure reports have lineno=None at least up to
+        # pytest==3.0.7, but it is available via longrepr object.
+        try:
+            return report.longrepr.reprlocation.lineno
+        except AttributeError:
+            lineno = report.location[1]
+            if lineno is not None:
+                lineno += 1
+            return lineno
 
     def summary_failures(self):
         # Prevent failure summary from being shown since we already
