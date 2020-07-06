@@ -3,6 +3,13 @@ Changelog
 
 A list of changes between each release.
 
+0.9.4 (2020-07-06)
+^^^^^^^^^^^^^^^^^^^
+
+- Fix pytest-sugar 0.9.3 incompatible with pytest 5.4 (thanks @nicoddemus)
+- Fix Tests fail with pytest 3.5.0 DOCTESTS (^)
+- Fix Tests fail with pytest 5.x (^)
+
 0.9.3 (2020-04-26)
 ^^^^^^^^^^^^^^^^^^^
 
