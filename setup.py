@@ -44,7 +44,7 @@ setup(
     platforms='any',
     install_requires=['pytest>=2.9', 'termcolor>=1.1.0', 'packaging>=14.1'],
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: POSIX',
