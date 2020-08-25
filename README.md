@@ -3,7 +3,7 @@
 [![Build status](https://travis-ci.org/Teemu/pytest-sugar.svg?branch=master)](https://travis-ci.org/Teemu/pytest-sugar)
 [![Pypi version](https://img.shields.io/pypi/v/pytest-sugar.svg)](https://pypi.org/project/pytest-sugar/)
 
-pytest-sugar is a plugin for [py.test](http://pytest.org) that shows
+pytest-sugar is a plugin for [pytest](http://pytest.org) that shows
 failures and errors instantly and shows a progress bar.
 
 ![Demo](http://pivotfinland.com/pytest-sugar/img/video.gif)
@@ -25,15 +25,15 @@ To install pytest-sugar:
 
 Then run your tests with:
 
-    py.test
+    $ pytest
 
 If you would like more detailed output (one test per line), then you may use the verbose option:
 
-    py.test --verbose
+    $ pytest --verbose
 
 If you would like to run tests without pytest-sugar, use:
 
-    py.test -p no:sugar
+    $ pytest -p no:sugar
 
 ## Running on Windows
 

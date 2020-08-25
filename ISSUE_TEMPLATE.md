@@ -1,7 +1,7 @@
 When reporting an issue, include a way to reproduce the bug. For example:
 
-#### Command used to run py.test
-````py.test test_example.py````
+#### Command used to run pytest
+````pytest test_example.py````
 
 #### Test file
 ````python
