@@ -24,10 +24,17 @@ matrix:
     - env: TOXENV=py37-pytest42-unsupported-xdist-rerunfailures-pinned-attrs
     - env: TOXENV=py37-pytest46-supported-xdist
 
-    # Latest pytest.
     - env: TOXENV=py37-pytest54-supported-xdist
+    - env: TOXENV=py38-pytest54-supported-xdist
+      python: 3.8
+
+    # Latest pytest.
+    - env: TOXENV=py37-pytest60-supported-xdist
+    - env: TOXENV=py38-pytest60-supported-xdist
+      python: 3.8
 
     - env: TOXENV=qa
+      python: 3.8
 install: pip install -U tox
 script:
   - tox

@@ -29,9 +29,10 @@ setup(
     long_description=codecs.open("README.md", encoding='utf-8').read(),
     long_description_content_type='text/markdown',
     version=get_version('pytest_sugar.py'),
-    url='http://pivotfinland.com/pytest-sugar/',
+    url='https://pivotfinland.com/pytest-sugar/',
     project_urls={
-        'Source': 'https://github.com/Teemu/pytest-sugar'
+        'Source': 'https://github.com/Teemu/pytest-sugar/',
+        'Tracker': 'https://github.com/Teemu/pytest-sugar/issues',
     },
     license='BSD',
     author='Teemu, Janne Vanhala and others',
@@ -59,6 +60,7 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: Implementation :: PyPy',
     ]
 )
