@@ -524,23 +524,22 @@ class SugarTerminalReporter(TerminalReporter):
                     THEME["fail"],
                 )
             )
-            for report in self.stats["failed"]:
+            for i in range(len(self.stats["failed"])):
+                report = self.stats["failed"][i]
+                indents = 9
                 if report.when != "call":
                     continue
                 if self.config.option.tb_summary:
                     crashline = self._get_decoded_crashline(report)
+                if self._is_report_subtest(self.stats["failed"], i):
+                    if self._is_report_first_subtest(self.stats["failed"], i):
+                        header_crashline = self._get_generic_crashline(report)
+                        self.write_line("%s- %s" % (indents * " ", header_crashline))
+                    crashline = getattr(report, "sub_test_description", lambda: "?")()
+                    indents += 2
                 else:
-                    path = os.path.dirname(report.location[0])
-                    name = os.path.basename(report.location[0])
-                    lineno = self._get_lineno_from_report(report)
-                    crashline = "%s%s%s:%s %s" % (
-                        colored(path, THEME["path"]),
-                        "/" if path else "",
-                        colored(name, THEME["name"]),
-                        lineno if lineno else "?",
-                        colored(report.location[2], THEME["fail"]),
-                    )
-                self.write_line("         - %s" % crashline)
+                    crashline = self._get_generic_crashline(report)
+                self.write_line("%s- %s" % (indents * " ", crashline))
 
         if self.count("failed", when=["setup", "teardown"]) > 0:
             self.write_line(
@@ -577,6 +576,22 @@ class SugarTerminalReporter(TerminalReporter):
                 )
             )
 
+    def _is_report_subtest(self, tests, index):
+        return self._is_prior_report_same_location(
+            tests, index
+        ) or self._is_next_report_same_location(tests, index)
+
+    def _is_report_first_subtest(self, tests, index):
+        return not self._is_prior_report_same_location(
+            tests, index
+        ) and self._is_next_report_same_location(tests, index)
+
+    def _is_prior_report_same_location(self, tests, i):
+        return i > 0 and tests[i - 1].location == tests[i].location
+
+    def _is_next_report_same_location(self, tests, i):
+        return i + 1 < len(tests) and tests[i + 1].location == tests[i].location
+
     def _get_decoded_crashline(self, report):
         crashline = self._getcrashline(report)
 
@@ -589,6 +604,23 @@ class SugarTerminalReporter(TerminalReporter):
                 crashline = crashline.decode(encoding, errors="replace")
 
         return crashline
+
+    def _get_generic_crashline(self, report):
+        return "%s %s" % (
+            self._get_generic_crashline_filelocation(report),
+            colored(report.location[2], THEME["fail"]),
+        )
+
+    def _get_generic_crashline_filelocation(self, report):
+        path = os.path.dirname(report.location[0])
+        name = os.path.basename(report.location[0])
+        lineno = self._get_lineno_from_report(report)
+        return "%s%s%s:%s" % (
+            colored(path, THEME["path"]),
+            "/" if path else "",
+            colored(name, THEME["name"]),
+            lineno if lineno else "?",
+        )
 
     def _get_lineno_from_report(self, report):
         # Doctest failures in pytest>3.10 are stored in
