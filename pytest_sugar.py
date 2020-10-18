@@ -474,13 +474,12 @@ class SugarTerminalReporter(TerminalReporter):
             if not letter and not word:
                 return
             if self.verbosity > 0:
+                markup = {'red': True}
                 if isinstance(word, tuple):
                     word, markup = word
                 else:
                     if report.passed:
                         markup = {'green': True}
-                    elif report.failed:
-                        markup = {'red': True}
                     elif report.skipped:
                         markup = {'yellow': True}
                 line = self._locationline(str(report.fspath), *report.location)
