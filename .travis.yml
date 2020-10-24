@@ -5,15 +5,17 @@ python:
   - 3.7
 matrix:
   include:
-    - env: TOXENV=py36-pytest46-supported-xdist
+    - env: TOXENV=py36-pytest46-extra
+      python: 3.6
 
-    - env: TOXENV=py37-pytest54-supported-xdist
-    - env: TOXENV=py38-pytest54-supported-xdist
+    - env: TOXENV=py37-pytest54-extra
+    - env: TOXENV=py38-pytest54-extra
       python: 3.8
 
     # Latest pytest.
-    - env: TOXENV=py36-pytest60-supported-xdist
-    - env: TOXENV=py38-pytest60-supported-xdist
+    - env: TOXENV=py36-pytest60-extra
+      python: 3.6
+    - env: TOXENV=py38-pytest60-extra
       python: 3.8
 
     - env: TOXENV=qa
