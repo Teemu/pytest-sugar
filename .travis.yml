@@ -8,12 +8,10 @@ matrix:
     - env: TOXENV=py36-pytest54-supported-xdist-pinned-attrs
       python: 3.6
 
-    - env: TOXENV=py37-pytest54-supported-xdist
     - env: TOXENV=py38-pytest54-supported-xdist-rerunfailures
       python: 3.8
 
     # Latest pytest.
-    - env: TOXENV=py37-pytest60-supported-xdist
     - env: TOXENV=py38-pytest60-supported-xdist
       python: 3.8
 
