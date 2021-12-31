@@ -14,7 +14,7 @@ import locale
 import os
 import re
 import sys
-from packaging.version import parse
+from packaging.version import parse, Version
 
 try:
     from configparser import ConfigParser
@@ -165,9 +165,8 @@ def pytest_configure(config):
         except ImportError:
             pass
         else:
-            from distutils.version import LooseVersion
-            xdist_version = LooseVersion(xdist.__version__)
-            if xdist_version >= LooseVersion('1.14'):
+            xdist_version = Version(xdist.__version__)
+            if xdist_version >= Version('1.14'):
                 config.pluginmanager.register(DeferredXdistPlugin())
 
     if IS_SUGAR_ENABLED and not getattr(config, 'slaveinput', None):
