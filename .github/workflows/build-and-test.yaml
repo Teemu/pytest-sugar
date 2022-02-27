@@ -1,0 +1,148 @@
+name: build
+
+on:
+  push:
+    branches:
+      - master
+      - 'feature/*'
+      - 'bugfix/*'
+    tags:
+      - '*.*.*'
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false # run all tests anyway
+      matrix:
+        include:
+          - toxenv: pytest30
+            python: 2.7
+          - toxenv: py27-pytest36-supported-xdist
+            python: 2.7
+          - toxenv: py27-pytest37-unsupported-xdist
+            python: 2.7
+
+          # fixme: not supported by actions/setup-python
+          # - toxenv: py34-pytest38-supported-xdist
+          #   python: 3.4
+          - toxenv: py35-pytest39-supported-xdist
+            python: 3.5
+          - toxenv: py36-pytest40-supported-xdist-pinned-attrs
+            python: 3.6
+
+          - toxenv: py37-pytest41-supported-xdist-pinned-attrs
+            python: 3.7
+          - toxenv: py37-pytest42-supported-xdist-pinned-attrs
+            python: 3.7
+          # fixme: hungs build or fails
+          # - toxenv: py37-pytest42-unsupported-xdist-rerunfailures-pinned-attrs
+          #   python: 3.7
+          - toxenv: py37-pytest46-supported-xdist
+            python: 3.7
+
+          - toxenv: py37-pytest54-supported-xdist
+            python: 3.7
+          - toxenv: py38-pytest54-supported-xdist
+            python: 3.8
+
+          # Latest pytest.
+          - toxenv: py37-pytest60-supported-xdist
+            python: 3.7
+          - toxenv: py37-pytest70-supported-xdist
+            python: 3.7
+          - toxenv: py38-pytest60-supported-xdist
+            python: 3.8
+          - toxenv: py38-pytest70-supported-xdist
+            python: 3.8
+          - toxenv: py39-pytest60-supported-xdist
+            python: 3.9
+          - toxenv: py39-pytest70-supported-xdist
+            python: 3.9
+          - toxenv: py310-pytest70-supported-xdist
+            python: "3.10"
+
+          - toxenv: qa
+            python: 3.8
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+          cache: 'pip'
+          cache-dependency-path: |
+            requirements-dev.txt
+            setup.py
+            tox.ini
+
+      # - name: Guess next version
+      #   id: guessed_tag_version
+      #   uses: mathieudutour/github-tag-action@v5.3
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      #     dry_run: true
+      #     append_to_pre_release_tag: pre
+      # - name: Extract version from tag
+      #   env:
+      #     VERSION_TAG: ${{ steps.guessed_tag_version.outputs.new_tag }}
+      #   run: echo "VERSION=$(echo $VERSION_TAG | sed -e "s/^v//" -e "s/-.*$//")" >> $GITHUB_ENV
+
+      - name: Install requirements
+        run: |
+          pip install -r requirements-dev.txt
+
+      - name: Test
+        env:
+          TOXENV: ${{ matrix.toxenv }}
+        run: tox
+
+      - name: Coverage
+        run: codecov -e TOXENV
+
+  release:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-20.04
+    needs:
+      - test
+    steps:
+      - uses: actions/checkout@v2
+  #     - name: Bump version and push tag
+  #       if: github.ref == 'refs/heads/master'
+  #       id: tag_version
+  #       uses: mathieudutour/github-tag-action@v5.3
+  #       with:
+  #         github_token: ${{ secrets.GITHUB_TOKEN }}
+  #
+  #     - name: Extract version from tag on master
+  #       if: github.ref == 'refs/heads/master'
+  #       env:
+  #         VERSION_TAG: ${{ steps.tag_version.outputs.new_tag }}
+  #       run: echo "VERSION=${VERSION_TAG#v}" >> $GITHUB_ENV
+  #
+  #     - name: Use branch name as version not on master
+  #       if: github.ref != 'refs/heads/master'
+  #       run: echo "VERSION=${GITHUB_REF##*/}" >> $GITHUB_ENV
+  #
+  #     - name: build module
+  #       run: |
+  #         echo later
+  #
+      - name: Build
+        run: |
+          python setup.py clean sdist bdist_wheel
+          # fixme: I don't think I will be able to upload without secret
+          # upload
+
+  #     - name: Create normal GitHub release
+  #       if: github.ref == 'refs/heads/master' && github.event_name != 'schedule'
+  #       uses: actions/create-release@v1
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         tag_name: ${{ steps.tag_version.outputs.new_tag }}
+  #         release_name: Release ${{ steps.tag_version.outputs.new_tag }}
+  #         body: ${{ steps.tag_version.outputs.changelog }}
