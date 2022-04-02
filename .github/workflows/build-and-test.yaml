@@ -75,6 +75,3 @@ jobs:
         env:
           TOXENV: ${{ matrix.toxenv }}
         run: tox
-
-      - name: Coverage
-        run: codecov -e TOXENV
