@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - master
-      - 'feature/*'
-      - 'bugfix/*'
     tags:
       - '*.*.*'
   pull_request:
@@ -75,25 +73,12 @@ jobs:
           python-version: ${{ matrix.python }}
           cache: 'pip'
           cache-dependency-path: |
-            requirements-dev.txt
             setup.py
             tox.ini
 
-      # - name: Guess next version
-      #   id: guessed_tag_version
-      #   uses: mathieudutour/github-tag-action@v5.3
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
-      #     dry_run: true
-      #     append_to_pre_release_tag: pre
-      # - name: Extract version from tag
-      #   env:
-      #     VERSION_TAG: ${{ steps.guessed_tag_version.outputs.new_tag }}
-      #   run: echo "VERSION=$(echo $VERSION_TAG | sed -e "s/^v//" -e "s/-.*$//")" >> $GITHUB_ENV
-
       - name: Install requirements
         run: |
-          pip install -r requirements-dev.txt
+          pip install -U tox
 
       - name: Test
         env:
@@ -102,47 +87,3 @@ jobs:
 
       - name: Coverage
         run: codecov -e TOXENV
-
-  release:
-    if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-20.04
-    needs:
-      - test
-    steps:
-      - uses: actions/checkout@v2
-  #     - name: Bump version and push tag
-  #       if: github.ref == 'refs/heads/master'
-  #       id: tag_version
-  #       uses: mathieudutour/github-tag-action@v5.3
-  #       with:
-  #         github_token: ${{ secrets.GITHUB_TOKEN }}
-  #
-  #     - name: Extract version from tag on master
-  #       if: github.ref == 'refs/heads/master'
-  #       env:
-  #         VERSION_TAG: ${{ steps.tag_version.outputs.new_tag }}
-  #       run: echo "VERSION=${VERSION_TAG#v}" >> $GITHUB_ENV
-  #
-  #     - name: Use branch name as version not on master
-  #       if: github.ref != 'refs/heads/master'
-  #       run: echo "VERSION=${GITHUB_REF##*/}" >> $GITHUB_ENV
-  #
-  #     - name: build module
-  #       run: |
-  #         echo later
-  #
-      - name: Build
-        run: |
-          python setup.py clean sdist bdist_wheel
-          # fixme: I don't think I will be able to upload without secret
-          # upload
-
-  #     - name: Create normal GitHub release
-  #       if: github.ref == 'refs/heads/master' && github.event_name != 'schedule'
-  #       uses: actions/create-release@v1
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #       with:
-  #         tag_name: ${{ steps.tag_version.outputs.new_tag }}
-  #         release_name: Release ${{ steps.tag_version.outputs.new_tag }}
-  #         body: ${{ steps.tag_version.outputs.changelog }}
