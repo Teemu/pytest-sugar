@@ -27,6 +27,7 @@ jobs:
           # fixme: not supported by actions/setup-python
           # - toxenv: py34-pytest38-supported-xdist
           #   python: 3.4
+
           - toxenv: py35-pytest39-supported-xdist
             python: 3.5
           - toxenv: py36-pytest40-supported-xdist-pinned-attrs
@@ -50,19 +51,9 @@ jobs:
           # Latest pytest.
           - toxenv: py37-pytest60-supported-xdist
             python: 3.7
-          - toxenv: py37-pytest70-supported-xdist
-            python: 3.7
           - toxenv: py38-pytest60-supported-xdist
             python: 3.8
-          - toxenv: py38-pytest70-supported-xdist
-            python: 3.8
-          - toxenv: py39-pytest60-supported-xdist
-            python: 3.9
-          - toxenv: py39-pytest70-supported-xdist
-            python: 3.9
-          - toxenv: py310-pytest70-supported-xdist
-            python: "3.10"
-
+        
           - toxenv: qa
             python: 3.8
     steps:
