@@ -3,6 +3,13 @@ Changelog
 
 A list of changes between each release.
 
+0.9.5 (2022-04-12)
+^^^^^^^^^^^^^^^^^^^
+
+- Fix distutils deprecation warning (thanks @tgagor)
+- Fix incompatibility with pytest-timeout (thanks @graingert)
+- Update pytest naming convention in documentation (thanks @avallbona)
+
 0.9.4 (2020-07-06)
 ^^^^^^^^^^^^^^^^^^^
 
