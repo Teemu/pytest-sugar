@@ -19,13 +19,6 @@ jobs:
       fail-fast: false # run all tests anyway
       matrix:
         include:
-          - toxenv: pytest30
-            python: 2.7
-          - toxenv: py27-pytest36-supported-xdist
-            python: 2.7
-          - toxenv: py27-pytest37-unsupported-xdist
-            python: 2.7
-
           # fixme: not supported by actions/setup-python
           # - toxenv: py34-pytest38-supported-xdist
           #   python: 3.4
