@@ -3,7 +3,7 @@ Changelog
 
 A list of changes between each release.
 
-0.9.5 (2022-04-12)
+0.9.5 (2022-07-10)
 ^^^^^^^^^^^^^^^^^^^
 
 - Fix distutils deprecation warning (thanks @tgagor)
