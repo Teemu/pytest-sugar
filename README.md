@@ -8,6 +8,11 @@ failures and errors instantly and shows a progress bar.
 
 ![Demo](https://i.imgur.com/jER0Jxj.gif)
 
+## Similar projects
+
+- [pytest-rich](https://github.com/nicoddemus/pytest-rich)
+- [pytest-pretty](https://github.com/samuelcolvin/pytest-pretty)
+
 ## Requirements
 
 You will need the following prerequisites in order to use pytest-sugar:
