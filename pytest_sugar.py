@@ -14,6 +14,7 @@ import locale
 import os
 import re
 import sys
+import time
 from packaging.version import parse
 
 try:
@@ -23,7 +24,6 @@ except ImportError:
 
 from termcolor import colored
 
-import py
 import pytest
 from _pytest.terminal import TerminalReporter
 
@@ -239,7 +239,7 @@ class SugarTerminalReporter(TerminalReporter):
 
     def pytest_sessionstart(self, session):
         self._session = session
-        self._sessionstarttime = py.std.time.time()
+        self._sessionstarttime = time.time()
         verinfo = ".".join(map(str, sys.version_info[:3]))
         self.write_line(
             "Test session starts "
@@ -504,7 +504,7 @@ class SugarTerminalReporter(TerminalReporter):
             return 0
 
     def summary_stats(self):
-        session_duration = py.std.time.time() - self._sessionstarttime
+        session_duration = time.time() - self._sessionstarttime
 
         print("\nResults (%.2fs):" % round(session_duration, 2))
         if self.count('passed') > 0:
