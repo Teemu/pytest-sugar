@@ -3,6 +3,11 @@ Changelog
 
 A list of changes between each release.
 
+0.9.6 (2022-11-5)
+^^^^^^^^^^^^^^^^^^^
+
+- Remove py.std calls (thanks @alexcjohnson)
+
 0.9.5 (2022-07-10)
 ^^^^^^^^^^^^^^^^^^^
 
