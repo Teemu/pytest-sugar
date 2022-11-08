@@ -10,31 +10,31 @@ def get_counts(stdout):
     output = strip_colors(stdout)
 
     def _get(x):
-        m = re.search(r'\d %s' % x, output)
+        m = re.search(r"\d %s" % x, output)
         if m:
             return m.group()[0]
         else:
-            return 'n/a'
+            return "n/a"
 
     return {
         x: _get(x)
         for x in (
-            'passed',
-            'xpassed',
-            'failed',
-            'xfailed',
-            'deselected',
-            'error',
-            'rerun',
-            'skipped'
+            "passed",
+            "xpassed",
+            "failed",
+            "xfailed",
+            "deselected",
+            "error",
+            "rerun",
+            "skipped",
         )
     }
 
 
 def assert_count(testdir, *args):
     """Assert that n passed, n failed, ... matches"""
-    without_plugin = testdir.runpytest('-p', 'no:sugar', *args).stdout.str()
-    with_plugin = testdir.runpytest('--force-sugar', *args).stdout.str()
+    without_plugin = testdir.runpytest("-p", "no:sugar", *args).stdout.str()
+    with_plugin = testdir.runpytest("--force-sugar", *args).stdout.str()
 
     count_without = get_counts(without_plugin)
     count_with = get_counts(with_plugin)
@@ -43,9 +43,10 @@ def assert_count(testdir, *args):
         "When running test with and without plugin, "
         "the resulting output differs.\n\n"
         "Without plugin: %s\n"
-        "With plugin: %s\n" % (
-            ", ".join('%s %s' % (v, k) for k, v in count_without.items()),
-            ", ".join('%s %s' % (v, k) for k, v in count_with.items()),
+        "With plugin: %s\n"
+        % (
+            ", ".join("%s %s" % (v, k) for k, v in count_without.items()),
+            ", ".join("%s %s" % (v, k) for k, v in count_with.items()),
         )
     )
 
@@ -60,10 +61,8 @@ class TestTerminalReporter(object):
                 assert False
             """
         )
-        output = testdir.runpytest(
-            '--force-sugar'
-        ).stdout.str()
-        assert 'test_new_summary.py:3 test_sample' in strip_colors(output)
+        output = testdir.runpytest("--force-sugar").stdout.str()
+        assert "test_new_summary.py:3 test_sample" in strip_colors(output)
 
     def test_old_summary(self, testdir):
         testdir.makepyfile(
@@ -74,10 +73,8 @@ class TestTerminalReporter(object):
                 assert False
             """
         )
-        output = testdir.runpytest(
-            '--force-sugar', '--old-summary'
-        ).stdout.str()
-        assert 'test_old_summary.py:4: assert False' in strip_colors(output)
+        output = testdir.runpytest("--force-sugar", "--old-summary").stdout.str()
+        assert "test_old_summary.py:4: assert False" in strip_colors(output)
 
     def test_xfail_true(self, testdir):
         testdir.makepyfile(
@@ -116,7 +113,7 @@ class TestTerminalReporter(object):
                 pass
             """
         )
-        result = testdir.runpytest('--force-sugar')
+        result = testdir.runpytest("--force-sugar")
         assert result.ret == 0, result.stderr.str()
 
     def test_xfail_strict_true(self, testdir):
@@ -168,7 +165,7 @@ class TestTerminalReporter(object):
         assert_count(testdir)
 
     def test_flaky_test(self, testdir):
-        pytest.importorskip('pytest_rerunfailures')
+        pytest.importorskip("pytest_rerunfailures")
         testdir.makepyfile(
             """
             import pytest
@@ -194,12 +191,14 @@ class TestTerminalReporter(object):
                 assert True
             """
         )
-        result = testdir.runpytest('--force-sugar')
-        result.stdout.fnmatch_lines([
-            '*test_xpass*',
-            '*XPASS(strict)*',
-            '*1 failed*',
-        ])
+        result = testdir.runpytest("--force-sugar")
+        result.stdout.fnmatch_lines(
+            [
+                "*test_xpass*",
+                "*XPASS(strict)*",
+                "*1 failed*",
+            ]
+        )
 
     def test_teardown_errors(self, testdir):
         testdir.makepyfile(
@@ -216,12 +215,10 @@ class TestTerminalReporter(object):
         )
         assert_count(testdir)
 
-        result = testdir.runpytest('--force-sugar')
-        result.stdout.fnmatch_lines([
-            '*ERROR at teardown of test_foo*',
-            '*1 passed*',
-            '*1 error*'
-        ])
+        result = testdir.runpytest("--force-sugar")
+        result.stdout.fnmatch_lines(
+            ["*ERROR at teardown of test_foo*", "*1 passed*", "*1 error*"]
+        )
 
     def test_skipping_tests(self, testdir):
         testdir.makepyfile(
@@ -268,11 +265,13 @@ class TestTerminalReporter(object):
                 assert 0
             """
         )
-        result = testdir.runpytest('-s')
-        result.stdout.fnmatch_lines([
-            '*test_one_passed*',
-            '*100%*',
-        ])
+        result = testdir.runpytest("-s")
+        result.stdout.fnmatch_lines(
+            [
+                "*test_one_passed*",
+                "*100%*",
+            ]
+        )
         assert result.ret == 0
 
     def test_fail(self, testdir):
@@ -283,13 +282,15 @@ class TestTerminalReporter(object):
                 assert 0
             """
         )
-        result = testdir.runpytest('--force-sugar')
-        result.stdout.fnmatch_lines([
-            "* test_func *",
-            "    def test_func():",
-            ">       assert 0",
-            "E       assert 0",
-        ])
+        result = testdir.runpytest("--force-sugar")
+        result.stdout.fnmatch_lines(
+            [
+                "* test_func *",
+                "    def test_func():",
+                ">       assert 0",
+                "E       assert 0",
+            ]
+        )
 
     def test_fail_unicode_crashline(self, testdir):
         testdir.makepyfile(
@@ -300,13 +301,15 @@ class TestTerminalReporter(object):
                 assert b'hello' == b'Bj\\xc3\\xb6rk Gu\\xc3\\xb0mundsd'
             """
         )
-        result = testdir.runpytest('--force-sugar')
-        result.stdout.fnmatch_lines([
-            "* test_func *",
-            "    def test_func():",
-            ">       assert * == *",
-            "E       AssertionError: assert * == *",
-        ])
+        result = testdir.runpytest("--force-sugar")
+        result.stdout.fnmatch_lines(
+            [
+                "* test_func *",
+                "    def test_func():",
+                ">       assert * == *",
+                "E       AssertionError: assert * == *",
+            ]
+        )
 
     def test_fail_in_fixture_and_test(self, testdir):
         testdir.makepyfile(
@@ -327,8 +330,8 @@ class TestTerminalReporter(object):
             """
         )
         assert_count(testdir)
-        output = strip_colors(testdir.runpytest('--force-sugar').stdout.str())
-        assert output.count('         -') == 2
+        output = strip_colors(testdir.runpytest("--force-sugar").stdout.str())
+        assert output.count("         -") == 2
 
     def test_fail_fail(self, testdir):
         testdir.makepyfile(
@@ -341,17 +344,19 @@ class TestTerminalReporter(object):
             """
         )
         assert_count(testdir)
-        result = testdir.runpytest('--force-sugar')
-        result.stdout.fnmatch_lines([
-            "* test_func *",
-            "    def test_func():",
-            ">       assert 0",
-            "E       assert 0",
-            "* test_func2 *",
-            "    def test_func2():",
-            ">       assert 0",
-            "E       assert 0",
-        ])
+        result = testdir.runpytest("--force-sugar")
+        result.stdout.fnmatch_lines(
+            [
+                "* test_func *",
+                "    def test_func():",
+                ">       assert 0",
+                "E       assert 0",
+                "* test_func2 *",
+                "    def test_func2():",
+                ">       assert 0",
+                "E       assert 0",
+            ]
+        )
 
     def test_error_in_setup_then_pass(self, testdir):
         testdir.makepyfile(
@@ -367,22 +372,24 @@ class TestTerminalReporter(object):
             """
         )
         assert_count(testdir)
-        result = testdir.runpytest('--force-sugar')
+        result = testdir.runpytest("--force-sugar")
 
-        result.stdout.fnmatch_lines([
-            "*ERROR at setup of test_nada*",
-            "",
-            "function = <function test_nada at *",
-            "",
-            "*setup_function(function):*",
-            "*setup func*",
-            "*if function is test_nada:*",
-            "*assert 0*",
-            "test_error_in_setup_then_pass.py:4: AssertionError",
-            "*Captured stdout setup*",
-            "*setup func*",
-            "*1 passed*",
-        ])
+        result.stdout.fnmatch_lines(
+            [
+                "*ERROR at setup of test_nada*",
+                "",
+                "function = <function test_nada at *",
+                "",
+                "*setup_function(function):*",
+                "*setup func*",
+                "*if function is test_nada:*",
+                "*assert 0*",
+                "test_error_in_setup_then_pass.py:4: AssertionError",
+                "*Captured stdout setup*",
+                "*setup func*",
+                "*1 passed*",
+            ]
+        )
         assert result.ret != 0
 
     def test_error_in_teardown_then_pass(self, testdir):
@@ -399,35 +406,39 @@ class TestTerminalReporter(object):
             """
         )
         assert_count(testdir)
-        result = testdir.runpytest('--force-sugar')
+        result = testdir.runpytest("--force-sugar")
 
-        result.stdout.fnmatch_lines([
-            "*ERROR at teardown of test_nada*",
-            "",
-            "function = <function test_nada at*",
-            "",
-            "*def teardown_function(function):*",
-            "*teardown func*",
-            "*if function is test_nada*",
-            ">*assert 0*",
-            "E*assert 0*",
-            "test_error_in_teardown_then_pass.py:4: AssertionError",
-            "*Captured stdout teardown*",
-            "teardown func",
-            "*2 passed*",
-        ])
+        result.stdout.fnmatch_lines(
+            [
+                "*ERROR at teardown of test_nada*",
+                "",
+                "function = <function test_nada at*",
+                "",
+                "*def teardown_function(function):*",
+                "*teardown func*",
+                "*if function is test_nada*",
+                ">*assert 0*",
+                "E*assert 0*",
+                "test_error_in_teardown_then_pass.py:4: AssertionError",
+                "*Captured stdout teardown*",
+                "teardown func",
+                "*2 passed*",
+            ]
+        )
         assert result.ret != 0
 
     def test_collect_error(self, testdir):
         testdir.makepyfile("""raise ValueError(0)""")
         assert_count(testdir)
-        result = testdir.runpytest('--force-sugar')
-        result.stdout.fnmatch_lines([
-            "*ERROR collecting test_collect_error.py*",
-            "test_collect_error.py:1: in <module>",
-            "    raise ValueError(0)",
-            "E   ValueError: 0",
-        ])
+        result = testdir.runpytest("--force-sugar")
+        result.stdout.fnmatch_lines(
+            [
+                "*ERROR collecting test_collect_error.py*",
+                "test_collect_error.py:1: in <module>",
+                "    raise ValueError(0)",
+                "E   ValueError: 0",
+            ]
+        )
 
     def test_verbose(self, testdir):
         testdir.makepyfile(
@@ -456,7 +467,7 @@ class TestTerminalReporter(object):
                 assert True
             """
         )
-        assert_count(testdir, '--verbose')
+        assert_count(testdir, "--verbose")
 
     def test_verbose_has_double_colon(self, testdir):
         testdir.makepyfile(
@@ -465,12 +476,8 @@ class TestTerminalReporter(object):
                 assert True
             """
         )
-        output = testdir.runpytest(
-            '--force-sugar', '--verbose'
-        ).stdout.str()
-        assert 'test_verbose_has_double_colon.py::test_true' in strip_colors(
-            output
-        )
+        output = testdir.runpytest("--force-sugar", "--verbose").stdout.str()
+        assert "test_verbose_has_double_colon.py::test_true" in strip_colors(output)
 
     # def test_verbose_has_double_colon_with_class(self, testdir):
     #     testdir.makepyfile(
@@ -515,7 +522,7 @@ class TestTerminalReporter(object):
                 pass
             """
         )
-        result = testdir.runpytest('--force-sugar', '-n2')
+        result = testdir.runpytest("--force-sugar", "-n2")
 
         assert result.ret == 0, result.stderr.str()
 
@@ -529,12 +536,12 @@ class TestTerminalReporter(object):
                 pass
             """
         )
-        result = testdir.runpytest('--force-sugar', '-n2', '-v')
+        result = testdir.runpytest("--force-sugar", "-n2", "-v")
 
         assert result.ret == 0, result.stderr.str()
 
     def test_doctest(self, testdir):
-        """ Test doctest-modules """
+        """Test doctest-modules"""
 
         testdir.makepyfile(
             """
@@ -546,12 +553,12 @@ class TestTerminalReporter(object):
                     \"\"\"
             """
         )
-        result = testdir.runpytest('--force-sugar', '--doctest-modules')
+        result = testdir.runpytest("--force-sugar", "--doctest-modules")
 
         assert result.ret == 1, result.stderr.str()
 
     def test_doctest_lineno(self, testdir):
-        """ Test location reported for doctest-modules """
+        """Test location reported for doctest-modules"""
 
         testdir.makepyfile(
             """
@@ -562,12 +569,14 @@ class TestTerminalReporter(object):
                 raise NotImplementedError
             """
         )
-        result = testdir.runpytest('--force-sugar', '--doctest-modules')
+        result = testdir.runpytest("--force-sugar", "--doctest-modules")
 
         assert result.ret == 1, result.stderr.str()
-        result.stdout.fnmatch_lines([
-            'UNEXPECTED EXCEPTION: NotImplementedError()',
-            '*test_doctest_lineno.py:3: UnexpectedException',
-            'Results*:',
-            '*-*test_doctest_lineno.py*:3*',
-        ])
+        result.stdout.fnmatch_lines(
+            [
+                "UNEXPECTED EXCEPTION: NotImplementedError()",
+                "*test_doctest_lineno.py:3: UnexpectedException",
+                "Results*:",
+                "*-*test_doctest_lineno.py*:3*",
+            ]
+        )

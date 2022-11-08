@@ -28,39 +28,53 @@ import pytest
 from _pytest.terminal import TerminalReporter
 
 
-__version__ = '0.9.6'
+__version__ = "0.9.6"
 
 LEN_RIGHT_MARGIN = 0
 LEN_PROGRESS_PERCENTAGE = 5
-LEN_PROGRESS_BAR_SETTING = '10'
+LEN_PROGRESS_BAR_SETTING = "10"
 LEN_PROGRESS_BAR = None
 THEME = {
-    'header': 'magenta',
-    'skipped': 'blue',
-    'success': 'green',
-    'warning': 'yellow',
-    'fail': 'red',
-    'error': 'red',
-    'xfailed': 'green',
-    'xpassed': 'red',
-    'progressbar': 'green',
-    'progressbar_fail': 'red',
-    'progressbar_background': 'grey',
-    'path': 'cyan',
-    'name': None,
-    'symbol_passed': '✓',
-    'symbol_skipped': 's',
-    'symbol_failed': '⨯',
-    'symbol_failed_not_call': 'ₓ',
-    'symbol_xfailed_skipped': 'x',
-    'symbol_xfailed_failed': 'X',
-    'symbol_unknown': '?',
-    'unknown': 'blue',
-    'symbol_rerun': 'R',
-    'rerun': 'blue',
+    "header": "magenta",
+    "skipped": "blue",
+    "success": "green",
+    "warning": "yellow",
+    "fail": "red",
+    "error": "red",
+    "xfailed": "green",
+    "xpassed": "red",
+    "progressbar": "green",
+    "progressbar_fail": "red",
+    "progressbar_background": "grey",
+    "path": "cyan",
+    "name": None,
+    "symbol_passed": "✓",
+    "symbol_skipped": "s",
+    "symbol_failed": "⨯",
+    "symbol_failed_not_call": "ₓ",
+    "symbol_xfailed_skipped": "x",
+    "symbol_xfailed_failed": "X",
+    "symbol_unknown": "?",
+    "unknown": "blue",
+    "symbol_rerun": "R",
+    "rerun": "blue",
 }
 PROGRESS_BAR_BLOCKS = [
-    ' ', '▏', '▎', '▎', '▍', '▍', '▌', '▌', '▋', '▋', '▊', '▊', '▉', '▉', '█',
+    " ",
+    "▏",
+    "▎",
+    "▎",
+    "▍",
+    "▍",
+    "▌",
+    "▌",
+    "▋",
+    "▋",
+    "▊",
+    "▊",
+    "▉",
+    "▉",
+    "█",
 ]
 
 
@@ -74,74 +88,71 @@ def flatten(seq):
 
 
 def pytest_runtestloop(session):
-    reporter = session.config.pluginmanager.getplugin('terminalreporter')
+    reporter = session.config.pluginmanager.getplugin("terminalreporter")
     if reporter:
         reporter.tests_count = len(session.items)
 
 
 class DeferredXdistPlugin(object):
     def pytest_xdist_node_collection_finished(self, node, ids):
-        terminal_reporter = node.config.pluginmanager.getplugin(
-            'terminalreporter'
-        )
+        terminal_reporter = node.config.pluginmanager.getplugin("terminalreporter")
         if terminal_reporter:
             terminal_reporter.tests_count = len(ids)
 
 
 def pytest_deselected(items):
-    """ Update tests_count to not include deselected tests """
+    """Update tests_count to not include deselected tests"""
     if len(items) > 0:
         pluginmanager = items[0].config.pluginmanager
-        terminal_reporter = pluginmanager.getplugin('terminalreporter')
-        if (hasattr(terminal_reporter, 'tests_count')
-                and terminal_reporter.tests_count > 0):
+        terminal_reporter = pluginmanager.getplugin("terminalreporter")
+        if (
+            hasattr(terminal_reporter, "tests_count")
+            and terminal_reporter.tests_count > 0
+        ):
             terminal_reporter.tests_count -= len(items)
 
 
 def pytest_addoption(parser):
     group = parser.getgroup("terminal reporting", "reporting", after="general")
     group._addoption(
-        '--old-summary', action="store_true",
-        dest="tb_summary", default=False,
-        help=(
-            "Show tests that failed instead of one-line tracebacks"
-        )
+        "--old-summary",
+        action="store_true",
+        dest="tb_summary",
+        default=False,
+        help=("Show tests that failed instead of one-line tracebacks"),
     )
     group._addoption(
-        '--force-sugar', action="store_true",
-        dest="force_sugar", default=False,
-        help=(
-            "Force pytest-sugar output even when not in real terminal"
-        )
+        "--force-sugar",
+        action="store_true",
+        dest="force_sugar",
+        default=False,
+        help=("Force pytest-sugar output even when not in real terminal"),
     )
 
 
 def pytest_sessionstart(session):
     global LEN_PROGRESS_BAR_SETTING
     config = ConfigParser()
-    config.read([
-        'pytest-sugar.conf',
-        os.path.expanduser('~/.pytest-sugar.conf')
-    ])
+    config.read(["pytest-sugar.conf", os.path.expanduser("~/.pytest-sugar.conf")])
 
     for key in THEME:
-        if not config.has_option('theme', key):
+        if not config.has_option("theme", key):
             continue
 
         value = config.get("theme", key)
         value = value.lower()
-        if value in ('', 'none'):
+        if value in ("", "none"):
             value = None
 
         THEME[key] = value
 
-    if config.has_option('sugar', 'progressbar_length'):
-        LEN_PROGRESS_BAR_SETTING = config.get('sugar', 'progressbar_length')
+    if config.has_option("sugar", "progressbar_length"):
+        LEN_PROGRESS_BAR_SETTING = config.get("sugar", "progressbar_length")
 
 
 def strip_colors(text):
-    ansi_escape = re.compile(r'\x1b[^m]*m')
-    stripped = ansi_escape.sub('', text)
+    ansi_escape = re.compile(r"\x1b[^m]*m")
+    stripped = ansi_escape.sub("", text)
     return stripped
 
 
@@ -156,26 +167,27 @@ IS_SUGAR_ENABLED = False
 def pytest_configure(config):
     global IS_SUGAR_ENABLED
 
-    if sys.stdout.isatty() or config.getvalue('force_sugar'):
+    if sys.stdout.isatty() or config.getvalue("force_sugar"):
         IS_SUGAR_ENABLED = True
 
-    if config.pluginmanager.hasplugin('xdist'):
+    if config.pluginmanager.hasplugin("xdist"):
         try:
             import xdist
         except ImportError:
             pass
         else:
             from packaging import version
+
             xdist_version = version.Version(xdist.__version__)
-            if xdist_version >= version.Version('1.14'):
+            if xdist_version >= version.Version("1.14"):
                 config.pluginmanager.register(DeferredXdistPlugin())
 
-    if IS_SUGAR_ENABLED and not getattr(config, 'slaveinput', None):
+    if IS_SUGAR_ENABLED and not getattr(config, "slaveinput", None):
         # Get the standard terminal reporter plugin and replace it with our
-        standard_reporter = config.pluginmanager.getplugin('terminalreporter')
+        standard_reporter = config.pluginmanager.getplugin("terminalreporter")
         sugar_reporter = SugarTerminalReporter(standard_reporter)
         config.pluginmanager.unregister(standard_reporter)
-        config.pluginmanager.register(sugar_reporter, 'terminalreporter')
+        config.pluginmanager.register(sugar_reporter, "terminalreporter")
 
 
 def pytest_report_teststatus(report):
@@ -183,27 +195,31 @@ def pytest_report_teststatus(report):
         return
 
     if report.passed:
-        letter = colored(THEME['symbol_passed'], THEME['success'])
+        letter = colored(THEME["symbol_passed"], THEME["success"])
     elif report.skipped:
-        letter = colored(THEME['symbol_skipped'], THEME['skipped'])
+        letter = colored(THEME["symbol_skipped"], THEME["skipped"])
     elif report.failed:
-        letter = colored(THEME['symbol_failed'], THEME['fail'])
+        letter = colored(THEME["symbol_failed"], THEME["fail"])
         if report.when != "call":
-            letter = colored(THEME['symbol_failed_not_call'], THEME['fail'])
-    elif report.outcome == 'rerun':
-        letter = colored(THEME['symbol_rerun'], THEME['rerun'])
+            letter = colored(THEME["symbol_failed_not_call"], THEME["fail"])
+    elif report.outcome == "rerun":
+        letter = colored(THEME["symbol_rerun"], THEME["rerun"])
     else:
-        letter = colored(THEME['symbol_unknown'], THEME['unknown'])
+        letter = colored(THEME["symbol_unknown"], THEME["unknown"])
 
     if hasattr(report, "wasxfail"):
         if report.skipped:
-            return "xfailed", colored(
-                THEME['symbol_xfailed_skipped'], THEME['xfailed']
-            ), "xfail"
+            return (
+                "xfailed",
+                colored(THEME["symbol_xfailed_skipped"], THEME["xfailed"]),
+                "xfail",
+            )
         elif report.passed:
-            return "xpassed", colored(
-                THEME['symbol_xfailed_failed'], THEME['xpassed']
-            ), "XPASS"
+            return (
+                "xpassed",
+                colored(THEME["symbol_xfailed_failed"], THEME["xpassed"]),
+                "XPASS",
+            )
 
     return report.outcome, letter, report.outcome.upper()
 
@@ -230,9 +246,7 @@ class SugarTerminalReporter(TerminalReporter):
     def pytest_collectreport(self, report):
         TerminalReporter.pytest_collectreport(self, report)
         if report.location[0]:
-            self.paths_left.append(
-                os.path.join(os.getcwd(), report.location[0])
-            )
+            self.paths_left.append(os.path.join(os.getcwd(), report.location[0]))
         if report.failed:
             self.rewrite("")
             self.print_failure(report)
@@ -243,12 +257,18 @@ class SugarTerminalReporter(TerminalReporter):
         verinfo = ".".join(map(str, sys.version_info[:3]))
         self.write_line(
             "Test session starts "
-            "(platform: %s, Python %s, pytest %s, pytest-sugar %s)" % (
-                sys.platform, verinfo, pytest.__version__, __version__,
-            ), bold=True
+            "(platform: %s, Python %s, pytest %s, pytest-sugar %s)"
+            % (
+                sys.platform,
+                verinfo,
+                pytest.__version__,
+                __version__,
+            ),
+            bold=True,
         )
         lines = self.config.hook.pytest_report_header(
-            config=self.config, startdir=self.startdir)
+            config=self.config, startdir=self.startdir
+        )
         lines.reverse()
         for line in flatten(lines):
             self.write_line(line)
@@ -260,16 +280,11 @@ class SugarTerminalReporter(TerminalReporter):
         def get_progress_bar():
             length = LEN_PROGRESS_BAR
             if not length:
-                return ''
+                return ""
 
-            p = (
-                float(self.tests_taken) / self.tests_count
-                if self.tests_count else 0
-            )
+            p = float(self.tests_taken) / self.tests_count if self.tests_count else 0
             floored = int(p * length)
-            rem = int(round(
-                (p * length - floored) * (len(PROGRESS_BAR_BLOCKS) - 1)
-            ))
+            rem = int(round((p * length - floored) * (len(PROGRESS_BAR_BLOCKS) - 1)))
             progressbar = "%i%% " % round(p * 100)
             # make sure we only report 100% at the last test
             if progressbar == "100% " and self.tests_taken < self.tests_count:
@@ -278,45 +293,39 @@ class SugarTerminalReporter(TerminalReporter):
             # if at least one block indicates failure,
             # then the percentage should reflect that
             if [1 for block, success in self.progress_blocks if not success]:
-                progressbar = colored(progressbar, THEME['fail'])
+                progressbar = colored(progressbar, THEME["fail"])
             else:
-                progressbar = colored(progressbar, THEME['success'])
+                progressbar = colored(progressbar, THEME["success"])
 
             bar = PROGRESS_BAR_BLOCKS[-1] * floored
             if rem > 0:
                 bar += PROGRESS_BAR_BLOCKS[rem]
-            bar += ' ' * (LEN_PROGRESS_BAR - len(bar))
+            bar += " " * (LEN_PROGRESS_BAR - len(bar))
 
             last = 0
             last_theme = None
 
-            progressbar_background = THEME['progressbar_background']
+            progressbar_background = THEME["progressbar_background"]
             if progressbar_background is None:
                 on_color = None
             else:
-                on_color = 'on_' + progressbar_background
+                on_color = "on_" + progressbar_background
 
             for block, success in self.progress_blocks:
                 if success:
-                    theme = THEME['progressbar']
+                    theme = THEME["progressbar"]
                 else:
-                    theme = THEME['progressbar_fail']
+                    theme = THEME["progressbar_fail"]
 
                 if last < block:
-                    progressbar += colored(bar[last:block],
-                                           last_theme,
-                                           on_color)
+                    progressbar += colored(bar[last:block], last_theme, on_color)
 
-                progressbar += colored(bar[block],
-                                       theme,
-                                       on_color)
+                progressbar += colored(bar[block], theme, on_color)
                 last = block + 1
                 last_theme = theme
 
             if last < len(bar):
-                progressbar += colored(bar[last:len(bar)],
-                                       last_theme,
-                                       on_color)
+                progressbar += colored(bar[last : len(bar)], last_theme, on_color)
 
             return progressbar
 
@@ -328,8 +337,10 @@ class SugarTerminalReporter(TerminalReporter):
 
         console_width = self._tw.fullwidth
         num_spaces = (
-            console_width - real_string_length(current_line) -
-            real_string_length(append_string) - LEN_RIGHT_MARGIN
+            console_width
+            - real_string_length(current_line)
+            - real_string_length(append_string)
+            - LEN_RIGHT_MARGIN
         )
         full_line = current_line + " " * num_spaces
         full_line += append_string
@@ -360,9 +371,10 @@ class SugarTerminalReporter(TerminalReporter):
         path = self.report_key(report)
         self.current_line_num += 1
         if len(report.fspath) > self.get_max_column_for_test_status() - 5:
-            fspath = '...' + report.fspath[
-                -(self.get_max_column_for_test_status() - 5 - 5):
-            ]
+            fspath = (
+                "..."
+                + report.fspath[-(self.get_max_column_for_test_status() - 5 - 5) :]
+            )
         else:
             fspath = report.fspath
         basename = os.path.basename(fspath)
@@ -371,8 +383,8 @@ class SugarTerminalReporter(TerminalReporter):
                 test_location = report.location[0]
                 test_name = report.location[2]
             else:
-                test_location = fspath[0:-len(basename)]
-                test_name = fspath[-len(basename):]
+                test_location = fspath[0 : -len(basename)]
+                test_name = fspath[-len(basename) :]
             if test_location:
                 pass
                 # only replace if test_location is not empty, if it is,
@@ -380,11 +392,11 @@ class SugarTerminalReporter(TerminalReporter):
                 # FIXME: This doesn't work.
                 # test_name = test_name.replace('.', '::')
             self.current_lines[path] = (
-                " " +
-                colored(test_location, THEME['path']) +
-                ("::" if self.verbosity > 0 else "") +
-                colored(test_name, THEME['name']) +
                 " "
+                + colored(test_location, THEME["path"])
+                + ("::" if self.verbosity > 0 else "")
+                + colored(test_name, THEME["name"])
+                + " "
             )
         else:
             self.current_lines[path] = " " * (2 + len(fspath))
@@ -392,8 +404,7 @@ class SugarTerminalReporter(TerminalReporter):
         self.write("\r\n")
 
     def reached_last_column_for_test_status(self, report):
-        len_line = real_string_length(
-            self.current_lines[self.report_key(report)])
+        len_line = real_string_length(self.current_lines[self.report_key(report)])
         return len_line >= self.get_max_column_for_test_status()
 
     def pytest_runtest_logstart(self, nodeid, location):
@@ -418,91 +429,83 @@ class SugarTerminalReporter(TerminalReporter):
         self.stats.setdefault(cat, []).append(report)
 
         if not LEN_PROGRESS_BAR:
-            if LEN_PROGRESS_BAR_SETTING.endswith('%'):
+            if LEN_PROGRESS_BAR_SETTING.endswith("%"):
                 LEN_PROGRESS_BAR = (
-                    self._tw.fullwidth *
-                    int(LEN_PROGRESS_BAR_SETTING[:-1]) // 100
+                    self._tw.fullwidth * int(LEN_PROGRESS_BAR_SETTING[:-1]) // 100
                 )
             else:
                 LEN_PROGRESS_BAR = int(LEN_PROGRESS_BAR_SETTING)
 
         self.reports.append(report)
-        if report.outcome == 'failed':
+        if report.outcome == "failed":
             print("")
             self.print_failure(report)
             # Ignore other reports or it will cause duplicated letters
-        if report.when == 'teardown':
+        if report.when == "teardown":
             self.tests_taken += 1
             self.insert_progress(report)
             path = os.path.join(os.getcwd(), report.location[0])
 
-        if report.when == 'call' or report.skipped:
+        if report.when == "call" or report.skipped:
             path = self.report_key(report)
             if path not in self.current_line_nums:
                 self.begin_new_line(report, print_filename=True)
             elif self.reached_last_column_for_test_status(report):
                 # Print filename if another line was inserted in-between
                 print_filename = (
-                    self.current_line_nums[self.report_key(report)] !=
-                    self.current_line_num)
+                    self.current_line_nums[self.report_key(report)]
+                    != self.current_line_num
+                )
                 self.begin_new_line(report, print_filename)
 
             self.current_lines[path] = self.current_lines[path] + letter
 
             block = int(
                 float(self.tests_taken) * LEN_PROGRESS_BAR / self.tests_count
-                if self.tests_count else 0
+                if self.tests_count
+                else 0
             )
             if report.failed:
-                if (
-                    not self.progress_blocks or
-                    self.progress_blocks[-1][0] != block
-                ):
+                if not self.progress_blocks or self.progress_blocks[-1][0] != block:
                     self.progress_blocks.append([block, False])
-                elif (
-                    self.progress_blocks and
-                    self.progress_blocks[-1][0] == block
-                ):
+                elif self.progress_blocks and self.progress_blocks[-1][0] == block:
                     self.progress_blocks[-1][1] = False
             else:
-                if (
-                    not self.progress_blocks or
-                    self.progress_blocks[-1][0] != block
-                ):
+                if not self.progress_blocks or self.progress_blocks[-1][0] != block:
                     self.progress_blocks.append([block, True])
 
             if not letter and not word:
                 return
             if self.verbosity > 0:
-                markup = {'red': True}
+                markup = {"red": True}
                 if isinstance(word, tuple):
                     word, markup = word
                 else:
                     if report.passed:
-                        markup = {'green': True}
+                        markup = {"green": True}
                     elif report.skipped:
-                        markup = {'yellow': True}
-                    elif (
-                        hasattr(report, "rerun") and
-                        isinstance(report.rerun, int)
-                    ):
-                        markup = {'blue': True}
+                        markup = {"yellow": True}
+                    elif hasattr(report, "rerun") and isinstance(report.rerun, int):
+                        markup = {"blue": True}
                 line = self._locationline(str(report.fspath), *report.location)
-                if hasattr(report, 'node'):
+                if hasattr(report, "node"):
                     self._tw.write("\r\n")
                     self.current_line_num += 1
-                    if hasattr(report, 'node'):
+                    if hasattr(report, "node"):
                         self._tw.write("[%s] " % report.node.gateway.id)
                     self._tw.write(word, **markup)
                     self._tw.write(" " + line)
                     self.currentfspath = -2
 
-    def count(self, key, when=('call',)):
+    def count(self, key, when=("call",)):
         if self.stats.get(key):
-            return len([
-                x for x in self.stats.get(key)
-                if not hasattr(x, 'when') or x.when in when
-            ])
+            return len(
+                [
+                    x
+                    for x in self.stats.get(key)
+                    if not hasattr(x, "when") or x.when in when
+                ]
+            )
         else:
             return 0
 
@@ -510,25 +513,25 @@ class SugarTerminalReporter(TerminalReporter):
         session_duration = time.time() - self._sessionstarttime
 
         print("\nResults (%.2fs):" % round(session_duration, 2))
-        if self.count('passed') > 0:
-            self.write_line(colored(
-                "   % 5d passed" % self.count('passed'),
-                THEME['success']
-            ))
+        if self.count("passed") > 0:
+            self.write_line(
+                colored("   % 5d passed" % self.count("passed"), THEME["success"])
+            )
 
-        if self.count('xpassed') > 0:
-            self.write_line(colored(
-                "   % 5d xpassed" % self.count('xpassed'),
-                THEME['xpassed']
-            ))
+        if self.count("xpassed") > 0:
+            self.write_line(
+                colored("   % 5d xpassed" % self.count("xpassed"), THEME["xpassed"])
+            )
 
-        if self.count('failed', when=['call']) > 0:
-            self.write_line(colored(
-                "   % 5d failed" % self.count('failed', when=['call']),
-                THEME['fail']
-            ))
-            for report in self.stats['failed']:
-                if report.when != 'call':
+        if self.count("failed", when=["call"]) > 0:
+            self.write_line(
+                colored(
+                    "   % 5d failed" % self.count("failed", when=["call"]),
+                    THEME["fail"],
+                )
+            )
+            for report in self.stats["failed"]:
+                if report.when != "call":
                     continue
                 if self.config.option.tb_summary:
                     crashline = self._get_decoded_crashline(report)
@@ -536,59 +539,60 @@ class SugarTerminalReporter(TerminalReporter):
                     path = os.path.dirname(report.location[0])
                     name = os.path.basename(report.location[0])
                     lineno = self._get_lineno_from_report(report)
-                    crashline = '%s%s%s:%s %s' % (
-                        colored(path, THEME['path']),
-                        '/' if path else '',
-                        colored(name, THEME['name']),
-                        lineno if lineno else '?',
-                        colored(report.location[2], THEME['fail'])
+                    crashline = "%s%s%s:%s %s" % (
+                        colored(path, THEME["path"]),
+                        "/" if path else "",
+                        colored(name, THEME["name"]),
+                        lineno if lineno else "?",
+                        colored(report.location[2], THEME["fail"]),
                     )
                 self.write_line("         - %s" % crashline)
 
-        if self.count('failed', when=['setup', 'teardown']) > 0:
-            self.write_line(colored(
-                "   % 5d error" % (
-                    self.count('failed', when=['setup', 'teardown'])
-                ),
-                THEME['error']
-            ))
+        if self.count("failed", when=["setup", "teardown"]) > 0:
+            self.write_line(
+                colored(
+                    "   % 5d error"
+                    % (self.count("failed", when=["setup", "teardown"])),
+                    THEME["error"],
+                )
+            )
 
-        if self.count('xfailed') > 0:
-            self.write_line(colored(
-                "   % 5d xfailed" % self.count('xfailed'),
-                THEME['xfailed']
-            ))
+        if self.count("xfailed") > 0:
+            self.write_line(
+                colored("   % 5d xfailed" % self.count("xfailed"), THEME["xfailed"])
+            )
 
-        if self.count('skipped', when=['call', 'setup', 'teardown']) > 0:
-            self.write_line(colored(
-                "   % 5d skipped" % (
-                    self.count('skipped', when=['call', 'setup', 'teardown'])
-                ),
-                THEME['skipped']
-            ))
+        if self.count("skipped", when=["call", "setup", "teardown"]) > 0:
+            self.write_line(
+                colored(
+                    "   % 5d skipped"
+                    % (self.count("skipped", when=["call", "setup", "teardown"])),
+                    THEME["skipped"],
+                )
+            )
 
-        if self.count('rerun') > 0:
-            self.write_line(colored(
-                "   % 5d rerun" % self.count('rerun'),
-                THEME['rerun']
-            ))
+        if self.count("rerun") > 0:
+            self.write_line(
+                colored("   % 5d rerun" % self.count("rerun"), THEME["rerun"])
+            )
 
-        if self.count('deselected') > 0:
-            self.write_line(colored(
-                "   % 5d deselected" % self.count('deselected'),
-                THEME['warning']
-            ))
+        if self.count("deselected") > 0:
+            self.write_line(
+                colored(
+                    "   % 5d deselected" % self.count("deselected"), THEME["warning"]
+                )
+            )
 
     def _get_decoded_crashline(self, report):
         crashline = self._getcrashline(report)
 
-        if hasattr(crashline, 'decode'):
+        if hasattr(crashline, "decode"):
             encoding = locale.getpreferredencoding()
             try:
                 crashline = crashline.decode(encoding)
             except UnicodeDecodeError:
-                encoding = 'utf-8'
-                crashline = crashline.decode(encoding, errors='replace')
+                encoding = "utf-8"
+                crashline = crashline.decode(encoding, errors="replace")
 
         return crashline
 
@@ -622,7 +626,7 @@ class SugarTerminalReporter(TerminalReporter):
 
     def print_failure(self, report):
         # https://github.com/Frozenball/pytest-sugar/issues/34
-        if hasattr(report, 'wasxfail'):
+        if hasattr(report, "wasxfail"):
             return
 
         if self.config.option.tbstyle != "no":
@@ -639,12 +643,12 @@ class SugarTerminalReporter(TerminalReporter):
                     msg = "ERROR at setup of " + msg
                 elif when == "teardown":
                     msg = "ERROR at teardown of " + msg
-                self.write_line('')
+                self.write_line("")
                 self.write_sep("―", msg)
                 self._outrep_summary(report)
         self.reset_tracked_lines()
 
 
 # On older version of Pytest, allow default progress
-if parse(pytest.__version__) <= parse('3.4'):  # pragma: no cover
+if parse(pytest.__version__) <= parse("3.4"):  # pragma: no cover
     del SugarTerminalReporter.pytest_runtest_logfinish

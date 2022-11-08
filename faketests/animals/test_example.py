@@ -4,8 +4,10 @@
 #     # if function is test_nada:
 #     #     assert 0
 
+
 def test_nada():
     pass
+
 
 def test_zip():
     pass

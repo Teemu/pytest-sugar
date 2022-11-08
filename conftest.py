@@ -1,1 +1,1 @@
-collect_ignore = ['setup.py', 'faketests']
+collect_ignore = ["setup.py", "faketests"]
