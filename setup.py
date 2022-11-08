@@ -1,5 +1,6 @@
-from setuptools import setup
 import codecs
+
+from setuptools import setup
 
 
 # Copied from (and hacked):

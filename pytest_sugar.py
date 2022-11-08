@@ -10,11 +10,13 @@ and feel of pytest (e.g. progressbar, show tests that fail instantly).
 :license: BSD, see LICENSE for more details.
 """
 from __future__ import unicode_literals
+
 import locale
 import os
 import re
 import sys
 import time
+
 from packaging.version import parse
 
 try:
@@ -22,11 +24,9 @@ try:
 except ImportError:
     from ConfigParser import ConfigParser
 
-from termcolor import colored
-
 import pytest
 from _pytest.terminal import TerminalReporter
-
+from termcolor import colored
 
 __version__ = "0.9.6"
 
