@@ -1,8 +1,8 @@
 # pytest-sugar ✨
 
-[![Pypi version](https://img.shields.io/pypi/v/pytest-sugar.svg)](https://pypi.org/project/pytest-sugar/)
+[![PyPI version](https://img.shields.io/pypi/v/pytest-sugar.svg)](https://pypi.org/project/pytest-sugar/)
 
-This plugin extends [pytest](http://pytest.org) by showing failures and errors instantly, adding a progress bar, improving the test results and making the output look better.
+This plugin extends [pytest](http://pytest.org) by showing failures and errors instantly, adding a progress bar, improving the test results, and making the output look better.
 
 ![render1667890332624-min](https://user-images.githubusercontent.com/53298/200600769-7b871b26-a36a-4ae6-ae24-945ee83fb74a.gif)
 
@@ -10,19 +10,19 @@ This plugin extends [pytest](http://pytest.org) by showing failures and errors i
 
 To install pytest-sugar:
 
-    pip install pytest-sugar
+    python -m pip install pytest-sugar
 
-The plugin is activated by activated. Run your tests normally:
+Once installed, the plugin is activated automatically. Run your tests normally:
 
-    $ pytest
+    pytest
 
 If you would like more detailed output (one test per line), then you may use the verbose option:
 
-    $ pytest --verbose
+    pytest --verbose
 
 If you would like to run tests without pytest-sugar, use:
 
-    $ pytest -p no:sugar
+    pytest -p no:sugar
 
 ## Requirements
 
