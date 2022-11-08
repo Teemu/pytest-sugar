@@ -43,6 +43,13 @@ setup(
     include_package_data=True,
     platforms="any",
     install_requires=["pytest>=2.9", "termcolor>=1.1.0", "packaging>=14.1"],
+    extras_require={
+        "dev": [
+            "black",
+            "flake8",
+            "pre-commit",
+        ]
+    },
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
