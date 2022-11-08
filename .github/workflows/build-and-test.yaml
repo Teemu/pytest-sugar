@@ -53,7 +53,7 @@ jobs:
             python: 3.7
           - toxenv: py38-pytest60-supported-xdist
             python: 3.8
-        
+
           - toxenv: qa
             python: 3.8
     steps:

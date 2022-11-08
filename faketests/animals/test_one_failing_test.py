@@ -1,6 +1,3 @@
-import pytest
-
-
 def test_dog1():
     assert True
 
