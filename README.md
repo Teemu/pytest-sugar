@@ -24,6 +24,31 @@ If you would like to run tests without pytest-sugar, use:
 
     pytest -p no:sugar
 
+## How to contribute 👷‍♂️
+
+Make sure to read our [Code of Conduct](https://github.com/Teemu/pytest-sugar/blob/master/CODE_OF_CONDUCT.md). You can get started modifying the codebase with the following commands. Push the changes to your repository & create a pull request.
+
+````
+git clone git@github.com:Teemu/pytest-sugar.git
+cd pytest-sugar
+python -m venv .venv
+source .venv/bin/activate
+echo ".venv" >> .git/info/exclude
+pip install -e .
+````
+
+There are two ways of running tests. We have our proper tests:
+
+````
+pytest .
+````
+
+There are also fake tests that can be used to visualise the output:
+
+````
+pytest faketests
+````
+
 ## Requirements
 
 You will need the following prerequisites in order to use pytest-sugar:
