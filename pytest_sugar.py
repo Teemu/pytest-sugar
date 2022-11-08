@@ -87,7 +87,7 @@ def flatten(seq):
             yield x
 
 
-def pytest_runtestloop(session):
+def pytest_collection_finish(session):
     reporter = session.config.pluginmanager.getplugin("terminalreporter")
     if reporter:
         reporter.tests_count = len(session.items)
