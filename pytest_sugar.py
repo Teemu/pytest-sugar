@@ -163,7 +163,7 @@ def real_string_length(string):
 IS_SUGAR_ENABLED = False
 
 
-@pytest.mark.trylast
+@pytest.hookimpl(trylast=True)
 def pytest_configure(config):
     global IS_SUGAR_ENABLED
 
