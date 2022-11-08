@@ -34,7 +34,8 @@ cd pytest-sugar
 python -m venv .venv
 source .venv/bin/activate
 echo ".venv" >> .git/info/exclude
-pip install -e .
+pip install -e ".[dev]"
+pre-commit install
 ````
 
 There are two ways of running tests. We have our proper tests:
