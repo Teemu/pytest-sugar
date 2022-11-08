@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-import pytest
 import re
+
+import pytest
+
 from pytest_sugar import strip_colors
 
 pytest_plugins = "pytester"
