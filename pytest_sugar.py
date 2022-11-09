@@ -16,13 +16,16 @@ import os
 import re
 import sys
 import time
+from typing import Optional, Union, Any
 
+from _pytest.main import Session
+from _pytest.reports import CollectReport, TestReport
 from packaging.version import parse
 
 try:
-    from configparser import ConfigParser
+    from configparser import ConfigParser  # type: ignore
 except ImportError:
-    from ConfigParser import ConfigParser
+    from ConfigParser import ConfigParser  # type: ignore
 
 import pytest
 from _pytest.terminal import TerminalReporter
@@ -33,7 +36,7 @@ __version__ = "0.9.6"
 LEN_RIGHT_MARGIN = 0
 LEN_PROGRESS_PERCENTAGE = 5
 LEN_PROGRESS_BAR_SETTING = "10"
-LEN_PROGRESS_BAR = None
+LEN_PROGRESS_BAR: Optional[int] = None
 THEME = {
     "header": "magenta",
     "skipped": "blue",
@@ -172,7 +175,7 @@ def pytest_configure(config):
 
     if config.pluginmanager.hasplugin("xdist"):
         try:
-            import xdist
+            import xdist  # type: ignore
         except ImportError:
             pass
         else:
@@ -224,7 +227,7 @@ def pytest_report_teststatus(report):
     return report.outcome, letter, report.outcome.upper()
 
 
-class SugarTerminalReporter(TerminalReporter):
+class SugarTerminalReporter(TerminalReporter):  # type: ignore
     def __init__(self, reporter):
         TerminalReporter.__init__(self, reporter.config)
         self.paths_left = []
@@ -240,7 +243,7 @@ class SugarTerminalReporter(TerminalReporter):
         self.current_line_nums = {}
         self.current_line_num = 0
 
-    def pytest_collectreport(self, report):
+    def pytest_collectreport(self, report: CollectReport) -> None:
         TerminalReporter.pytest_collectreport(self, report)
         if report.location[0]:
             self.paths_left.append(os.path.join(os.getcwd(), report.location[0]))
@@ -248,7 +251,7 @@ class SugarTerminalReporter(TerminalReporter):
             self.rewrite("")
             self.print_failure(report)
 
-    def pytest_sessionstart(self, session):
+    def pytest_sessionstart(self, session: Session) -> None:
         self._session = session
         self._sessionstarttime = time.time()
         verinfo = ".".join(map(str, sys.version_info[:3]))
@@ -264,16 +267,16 @@ class SugarTerminalReporter(TerminalReporter):
             bold=True,
         )
         lines = self.config.hook.pytest_report_header(
-            config=self.config, startdir=self.startdir
+            config=self.config, startdir=self.startpath
         )
         lines.reverse()
         for line in flatten(lines):
             self.write_line(line)
 
-    def write_fspath_result(self, fspath, res):
+    def write_fspath_result(self, nodeid: str, res, **markup: bool) -> None:
         return
 
-    def insert_progress(self, report):
+    def insert_progress(self, report: Union[CollectReport, TestReport]) -> None:
         def get_progress_bar():
             length = LEN_PROGRESS_BAR
             if not length:
@@ -344,7 +347,7 @@ class SugarTerminalReporter(TerminalReporter):
 
         self.overwrite(full_line, self.current_line_num - line_num)
 
-    def overwrite(self, line, rel_line_num):
+    def overwrite(self, line: str, rel_line_num: int) -> None:
         # Move cursor up rel_line_num lines
         if rel_line_num > 0:
             self.write("\033[%dA" % rel_line_num)
@@ -356,7 +359,9 @@ class SugarTerminalReporter(TerminalReporter):
         if rel_line_num > 0:
             self.write("\033[%dB" % rel_line_num)
 
-    def get_max_column_for_test_status(self):
+    def get_max_column_for_test_status(self) -> int:
+        assert LEN_PROGRESS_BAR
+
         return (
             self._tw.fullwidth
             - LEN_PROGRESS_PERCENTAGE
@@ -364,7 +369,9 @@ class SugarTerminalReporter(TerminalReporter):
             - LEN_RIGHT_MARGIN
         )
 
-    def begin_new_line(self, report, print_filename):
+    def begin_new_line(
+        self, report: Union[CollectReport, TestReport], print_filename: bool
+    ) -> None:
         path = self.report_key(report)
         self.current_line_num += 1
         if len(report.fspath) > self.get_max_column_for_test_status() - 5:
@@ -400,25 +407,29 @@ class SugarTerminalReporter(TerminalReporter):
         self.current_line_nums[path] = self.current_line_num
         self.write("\r\n")
 
-    def reached_last_column_for_test_status(self, report):
+    def reached_last_column_for_test_status(
+        self, report: Union[CollectReport, TestReport]
+    ) -> bool:
         len_line = real_string_length(self.current_lines[self.report_key(report)])
         return len_line >= self.get_max_column_for_test_status()
 
-    def pytest_runtest_logstart(self, nodeid, location):
+    def pytest_runtest_logstart(self, nodeid, location) -> None:
         # Prevent locationline from being printed since we already
         # show the module_name & in verbose mode the test name.
         pass
 
-    def pytest_runtest_logfinish(self):
+    def pytest_runtest_logfinish(self, nodeid: str) -> None:
         # prevent the default implementation to try to show
         # pytest's default progress
         pass
 
-    def report_key(self, report):
+    def report_key(self, report: Union[CollectReport, TestReport]) -> Any:
         """Returns a key to identify which line the report should write to."""
-        return report.location if self.showlongtestinfo else report.fspath
+        return (
+            (report.location or "") if self.showlongtestinfo else (report.fspath or "")
+        )
 
-    def pytest_runtest_logreport(self, report):
+    def pytest_runtest_logreport(self, report: TestReport) -> None:
         global LEN_PROGRESS_BAR_SETTING, LEN_PROGRESS_BAR
 
         res = pytest_report_teststatus(report=report)
@@ -494,19 +505,14 @@ class SugarTerminalReporter(TerminalReporter):
                     self._tw.write(" " + line)
                     self.currentfspath = -2
 
-    def count(self, key, when=("call",)):
-        if self.stats.get(key):
-            return len(
-                [
-                    x
-                    for x in self.stats.get(key)
-                    if not hasattr(x, "when") or x.when in when
-                ]
-            )
+    def count(self, key: str, when: tuple = ("call",)) -> int:
+        value = self.stats.get(key)
+        if value:
+            return len([x for x in value if not hasattr(x, "when") or x.when in when])
         else:
             return 0
 
-    def summary_stats(self):
+    def summary_stats(self) -> None:
         session_duration = time.time() - self._sessionstarttime
 
         print("\nResults (%.2fs):" % round(session_duration, 2))
@@ -520,10 +526,10 @@ class SugarTerminalReporter(TerminalReporter):
                 colored("   % 5d xpassed" % self.count("xpassed"), THEME["xpassed"])
             )
 
-        if self.count("failed", when=["call"]) > 0:
+        if self.count("failed", when=("call",)) > 0:
             self.write_line(
                 colored(
-                    "   % 5d failed" % self.count("failed", when=["call"]),
+                    "   % 5d failed" % self.count("failed", when=("call",)),
                     THEME["fail"],
                 )
             )
@@ -545,11 +551,11 @@ class SugarTerminalReporter(TerminalReporter):
                     )
                 self.write_line("         - %s" % crashline)
 
-        if self.count("failed", when=["setup", "teardown"]) > 0:
+        if self.count("failed", when=("setup", "teardown")) > 0:
             self.write_line(
                 colored(
                     "   % 5d error"
-                    % (self.count("failed", when=["setup", "teardown"])),
+                    % (self.count("failed", when=("setup", "teardown"))),
                     THEME["error"],
                 )
             )
@@ -559,11 +565,11 @@ class SugarTerminalReporter(TerminalReporter):
                 colored("   % 5d xfailed" % self.count("xfailed"), THEME["xfailed"])
             )
 
-        if self.count("skipped", when=["call", "setup", "teardown"]) > 0:
+        if self.count("skipped", when=("call", "setup", "teardown")) > 0:
             self.write_line(
                 colored(
                     "   % 5d skipped"
-                    % (self.count("skipped", when=["call", "setup", "teardown"])),
+                    % (self.count("skipped", when=("call", "setup", "teardown"))),
                     THEME["skipped"],
                 )
             )
@@ -580,7 +586,7 @@ class SugarTerminalReporter(TerminalReporter):
                 )
             )
 
-    def _get_decoded_crashline(self, report):
+    def _get_decoded_crashline(self, report: CollectReport) -> str:
         crashline = self._getcrashline(report)
 
         if hasattr(crashline, "decode"):
@@ -593,35 +599,35 @@ class SugarTerminalReporter(TerminalReporter):
 
         return crashline
 
-    def _get_lineno_from_report(self, report):
+    def _get_lineno_from_report(self, report: CollectReport) -> int:
         # Doctest failures in pytest>3.10 are stored in
         # reprlocation_lines, a list of (ReprFileLocation, lines)
         try:
-            location, lines = report.longrepr.reprlocation_lines[0]
+            location, lines = report.longrepr.reprlocation_lines[0]  # type: ignore
             return location.lineno
         except AttributeError:
             pass
         # Doctest failure reports have lineno=None at least up to
         # pytest==3.0.7, but it is available via longrepr object.
         try:
-            return report.longrepr.reprlocation.lineno
+            return report.longrepr.reprlocation.lineno  # type: ignore
         except AttributeError:
             lineno = report.location[1]
             if lineno is not None:
                 lineno += 1
             return lineno
 
-    def summary_failures(self):
+    def summary_failures(self) -> None:
         # Prevent failure summary from being shown since we already
         # show the failure instantly after failure has occurred.
         pass
 
-    def summary_errors(self):
+    def summary_errors(self) -> None:
         # Prevent error summary from being shown since we already
         # show the error instantly after error has occurred.
         pass
 
-    def print_failure(self, report):
+    def print_failure(self, report: Union[CollectReport, TestReport]) -> None:
         # https://github.com/Frozenball/pytest-sugar/issues/34
         if hasattr(report, "wasxfail"):
             return
