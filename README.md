@@ -26,7 +26,7 @@ If you would like to run tests without pytest-sugar, use:
 
 ## How to contribute 👷‍♂️
 
-Make sure to read our [Code of Conduct](https://github.com/Teemu/pytest-sugar/blob/master/CODE_OF_CONDUCT.md). You can get started modifying the codebase with the following commands. Push the changes to your repository & create a pull request.
+Make sure to read our [Code of Conduct](https://github.com/Teemu/pytest-sugar/blob/master/.github/CODE_OF_CONDUCT.md). You can get started modifying the codebase with the following commands. Push the changes to your repository & create a pull request.
 
 ````
 git clone git@github.com:Teemu/pytest-sugar.git
