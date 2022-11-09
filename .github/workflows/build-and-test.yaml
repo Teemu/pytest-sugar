@@ -12,48 +12,20 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false # run all tests anyway
       matrix:
         include:
-          - toxenv: pytest30
-            python: 2.7
-          - toxenv: py27-pytest36-supported-xdist
-            python: 2.7
-          - toxenv: py27-pytest37-unsupported-xdist
-            python: 2.7
-
-          # fixme: not supported by actions/setup-python
-          # - toxenv: py34-pytest38-supported-xdist
-          #   python: 3.4
-
-          - toxenv: py35-pytest39-supported-xdist
-            python: 3.5
-          - toxenv: py36-pytest40-supported-xdist-pinned-attrs
-            python: 3.6
-
-          - toxenv: py37-pytest41-supported-xdist-pinned-attrs
-            python: 3.7
-          - toxenv: py37-pytest42-supported-xdist-pinned-attrs
-            python: 3.7
-          # fixme: hungs build or fails
-          # - toxenv: py37-pytest42-unsupported-xdist-rerunfailures-pinned-attrs
-          #   python: 3.7
-          - toxenv: py37-pytest46-supported-xdist
-            python: 3.7
-
-          - toxenv: py37-pytest54-supported-xdist
-            python: 3.7
-          - toxenv: py38-pytest54-supported-xdist
+          # Python 3.8 && Pytest 6.2
+          - toxenv: py38-pytest62-supported-xdist
             python: 3.8
 
-          # Latest pytest.
-          - toxenv: py37-pytest60-supported-xdist
-            python: 3.7
-          - toxenv: py38-pytest60-supported-xdist
-            python: 3.8
+          # Latest Python & Pytest
+          - toxenv: py311-pytest_latest-supported-xdist
+            python: 3.11
 
+          # QA
           - toxenv: qa
             python: 3.8
     steps:
