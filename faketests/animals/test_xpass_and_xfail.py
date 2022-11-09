@@ -11,12 +11,12 @@ def test_xfail_false():
     assert False
 
 
-@pytest.mark.xpass
+@pytest.mark.xfail
 def test_xpass_true():
     assert True
 
 
-@pytest.mark.xpass
+@pytest.mark.xfail
 def test_xpass_false():
     assert False
 
@@ -31,11 +31,11 @@ def test_strict_xfail_false():
     assert False
 
 
-@pytest.mark.xpass(strict=True)
+@pytest.mark.xfail(strict=True)
 def test_strict_xpass_true():
     assert True
 
 
-@pytest.mark.xpass(strict=False)
+@pytest.mark.xfail(strict=False)
 def test_strict_xpass_false():
     assert False

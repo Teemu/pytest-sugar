@@ -1,7 +1,7 @@
 import pytest
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def fixt():
     yield
     raise Exception
