@@ -17,10 +17,12 @@ import os
 import re
 import sys
 import time
-from typing import Optional, Union, Any
+from typing import Any, Dict, Optional, Sequence, Tuple, Union, List
 
+from _pytest.config.argparsing import Parser
 from _pytest.main import Session
-from _pytest.reports import CollectReport, TestReport
+from _pytest.nodes import Item
+from _pytest.reports import BaseReport, CollectReport, TestReport
 from packaging.version import parse
 
 try:
@@ -55,13 +57,13 @@ class Theme:
     progressbar_background: Optional[str] = "grey"
     path: Optional[str] = "cyan"
     name = None
-    symbol_passed: Optional[str] = "✓"
-    symbol_skipped: Optional[str] = "s"
-    symbol_failed: Optional[str] = "⨯"
-    symbol_failed_not_call: Optional[str] = "ₓ"
-    symbol_xfailed_skipped: Optional[str] = "x"
-    symbol_xfailed_failed: Optional[str] = "X"
-    symbol_unknown: Optional[str] = "?"
+    symbol_passed: str = "✓"
+    symbol_skipped: str = "s"
+    symbol_failed: str = "⨯"
+    symbol_failed_not_call: str = "ₓ"
+    symbol_xfailed_skipped: str = "x"
+    symbol_xfailed_failed: str = "X"
+    symbol_unknown: str = "?"
     unknown: Optional[str] = "blue"
     symbol_rerun: Optional[str] = "R"
     rerun: Optional[str] = "blue"
@@ -71,7 +73,7 @@ class Theme:
 
 
 THEME: Theme = Theme()
-PROGRESS_BAR_BLOCKS: list[str] = [
+PROGRESS_BAR_BLOCKS: List[str] = [
     " ",
     "▏",
     "▎",
@@ -99,7 +101,7 @@ def flatten(seq):
             yield x
 
 
-def pytest_collection_finish(session):
+def pytest_collection_finish(session: Session) -> None:
     reporter = session.config.pluginmanager.getplugin("terminalreporter")
     if reporter:
         reporter.tests_count = len(session.items)
@@ -112,7 +114,7 @@ class DeferredXdistPlugin(object):
             terminal_reporter.tests_count = len(ids)
 
 
-def pytest_deselected(items):
+def pytest_deselected(items: Sequence[Item]) -> None:
     """Update tests_count to not include deselected tests"""
     if len(items) > 0:
         pluginmanager = items[0].config.pluginmanager
@@ -124,7 +126,7 @@ def pytest_deselected(items):
             terminal_reporter.tests_count -= len(items)
 
 
-def pytest_addoption(parser):
+def pytest_addoption(parser: Parser) -> None:
     group = parser.getgroup("terminal reporting", "reporting", after="general")
     group._addoption(
         "--old-summary",
@@ -142,21 +144,21 @@ def pytest_addoption(parser):
     )
 
 
-def pytest_sessionstart(session):
+def pytest_sessionstart(session: Session) -> None:
     global THEME, LEN_PROGRESS_BAR_SETTING
     config = ConfigParser()
     config.read(["pytest-sugar.conf", os.path.expanduser("~/.pytest-sugar.conf")])
 
-    theme_attributes: dict[str : Optional[str]] = {}
-    fields: list[dataclasses.Field] = dataclasses.fields(Theme)
+    theme_attributes: Dict[str, Optional[str]] = {}
+    fields: Tuple[dataclasses.Field, ...] = dataclasses.fields(Theme)
 
     for field in fields:
         key = field.name
         if not config.has_option("theme", key):
             continue
 
-        value = config.get("theme", key)
-        value = value.lower()
+        value_str: str = config.get("theme", key).lower()
+        value: Optional[str] = value_str
         if value in ("", "none"):
             value = None
 
@@ -165,16 +167,16 @@ def pytest_sessionstart(session):
     if config.has_option("sugar", "progressbar_length"):
         LEN_PROGRESS_BAR_SETTING = config.get("sugar", "progressbar_length")
 
-    THEME = Theme(**theme_attributes)
+    THEME = Theme(**theme_attributes)  # type: ignore
 
 
-def strip_colors(text):
+def strip_colors(text: str) -> str:
     ansi_escape = re.compile(r"\x1b[^m]*m")
     stripped = ansi_escape.sub("", text)
     return stripped
 
 
-def real_string_length(string):
+def real_string_length(string: str) -> int:
     return len(strip_colors(string))
 
 
@@ -208,9 +210,9 @@ def pytest_configure(config):
         config.pluginmanager.register(sugar_reporter, "terminalreporter")
 
 
-def pytest_report_teststatus(report):
+def pytest_report_teststatus(report: BaseReport) -> Optional[Tuple[str, str, str]]:
     if not IS_SUGAR_ENABLED:
-        return
+        return None
 
     if report.passed:
         letter = colored(THEME.symbol_passed, THEME.success)
@@ -448,6 +450,7 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
         global LEN_PROGRESS_BAR_SETTING, LEN_PROGRESS_BAR
 
         res = pytest_report_teststatus(report=report)
+        assert res
         cat, letter, word = res
         self.stats.setdefault(cat, []).append(report)
 
