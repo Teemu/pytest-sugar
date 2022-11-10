@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 pytest_sugar
 ~~~~~~~~~~~~
@@ -11,6 +10,7 @@ and feel of pytest (e.g. progressbar, show tests that fail instantly).
 """
 from __future__ import unicode_literals
 
+from configparser import ConfigParser  # type: ignore
 import dataclasses
 import locale
 import os
@@ -23,12 +23,6 @@ from _pytest.config.argparsing import Parser
 from _pytest.main import Session
 from _pytest.nodes import Item
 from _pytest.reports import BaseReport, CollectReport, TestReport
-from packaging.version import parse
-
-try:
-    from configparser import ConfigParser  # type: ignore
-except ImportError:
-    from ConfigParser import ConfigParser  # type: ignore
 
 import pytest
 from _pytest.terminal import TerminalReporter
@@ -664,8 +658,3 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
                 self.write_sep("―", msg)
                 self._outrep_summary(report)
         self.reset_tracked_lines()
-
-
-# On older version of Pytest, allow default progress
-if parse(pytest.__version__) <= parse("3.4"):  # pragma: no cover
-    del SugarTerminalReporter.pytest_runtest_logfinish
