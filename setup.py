@@ -42,7 +42,7 @@ setup(
     zip_safe=False,
     include_package_data=True,
     platforms="any",
-    install_requires=["pytest>=2.9", "termcolor>=1.1.0", "packaging>=14.1"],
+    install_requires=["pytest>=6.2.0", "termcolor>=2.1.0", "packaging>=21.3"],
     extras_require={
         "dev": [
             "black",
@@ -60,11 +60,9 @@ setup(
         "Topic :: Software Development :: Testing",
         "Topic :: Software Development :: Libraries",
         "Topic :: Utilities",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
