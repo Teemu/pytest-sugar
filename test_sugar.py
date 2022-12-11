@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import re
 
 import pytest
@@ -15,8 +14,7 @@ def get_counts(stdout):
         m = re.search(r"\d %s" % x, output)
         if m:
             return m.group()[0]
-        else:
-            return "n/a"
+        return "n/a"
 
     return {
         x: _get(x)
@@ -47,13 +45,13 @@ def assert_count(testdir, *args):
         "Without plugin: %s\n"
         "With plugin: %s\n"
         % (
-            ", ".join("%s %s" % (v, k) for k, v in count_without.items()),
-            ", ".join("%s %s" % (v, k) for k, v in count_with.items()),
+            ", ".join("{} {}".format(v, k) for k, v in count_without.items()),
+            ", ".join("{} {}".format(v, k) for k, v in count_with.items()),
         )
     )
 
 
-class TestTerminalReporter(object):
+class TestTerminalReporter:
     def test_new_summary(self, testdir):
         testdir.makepyfile(
             """
@@ -547,7 +545,7 @@ class TestTerminalReporter(object):
 
         testdir.makepyfile(
             """
-            class ToTest(object):
+            class ToTest():
                 @property
                 def doctest(self):
                     \"\"\"
