@@ -8,23 +8,21 @@ and feel of pytest (e.g. progressbar, show tests that fail instantly).
 :copyright: see LICENSE for details
 :license: BSD, see LICENSE for more details.
 """
-from __future__ import unicode_literals
 
-from configparser import ConfigParser  # type: ignore
 import dataclasses
 import locale
 import os
 import re
 import sys
 import time
-from typing import Any, Dict, Optional, Sequence, Tuple, Union, List
+from configparser import ConfigParser  # type: ignore
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
+import pytest
 from _pytest.config.argparsing import Parser
 from _pytest.main import Session
 from _pytest.nodes import Item
 from _pytest.reports import BaseReport, CollectReport, TestReport
-
-import pytest
 from _pytest.terminal import TerminalReporter
 from termcolor import colored
 
@@ -89,8 +87,7 @@ PROGRESS_BAR_BLOCKS: List[str] = [
 def flatten(seq):
     for x in seq:
         if isinstance(x, (list, tuple)):
-            for y in flatten(x):
-                yield y
+            yield from flatten(x)
         else:
             yield x
 
@@ -101,7 +98,7 @@ def pytest_collection_finish(session: Session) -> None:
         reporter.tests_count = len(session.items)
 
 
-class DeferredXdistPlugin(object):
+class DeferredXdistPlugin:
     def pytest_xdist_node_collection_finished(self, node, ids):
         terminal_reporter = node.config.pluginmanager.getplugin("terminalreporter")
         if terminal_reporter:
@@ -228,7 +225,7 @@ def pytest_report_teststatus(report: BaseReport) -> Optional[Tuple[str, str, str
                 colored(THEME.symbol_xfailed_skipped, THEME.xfailed),
                 "xfail",
             )
-        elif report.passed:
+        if report.passed:
             return (
                 "xpassed",
                 colored(THEME.symbol_xfailed_failed, THEME.xpassed),
@@ -364,7 +361,7 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
             self.write("\033[%dA" % rel_line_num)
 
         # Overwrite the line
-        self.write("\r%s" % line)
+        self.write(f"\r{line}")
 
         # Return cursor to original line
         if rel_line_num > 0:
@@ -512,7 +509,7 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
                     self._tw.write("\r\n")
                     self.current_line_num += 1
                     if hasattr(report, "node"):
-                        self._tw.write("[%s] " % report.node.gateway.id)
+                        self._tw.write(f"[{report.node.gateway.id}] ")
                     self._tw.write(word, **markup)
                     self._tw.write(" " + line)
                     self.currentfspath = -2
@@ -521,13 +518,12 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
         value = self.stats.get(key)
         if value:
             return len([x for x in value if not hasattr(x, "when") or x.when in when])
-        else:
-            return 0
+        return 0
 
     def summary_stats(self) -> None:
         session_duration = time.time() - self._sessionstarttime
 
-        print("\nResults (%.2fs):" % round(session_duration, 2))
+        print(f"\nResults ({round(session_duration, 2):.2f}s):")
         if self.count("passed") > 0:
             self.write_line(
                 colored("   % 5d passed" % self.count("passed"), THEME.success)
@@ -554,14 +550,14 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
                     path = os.path.dirname(report.location[0])
                     name = os.path.basename(report.location[0])
                     lineno = self._get_lineno_from_report(report)
-                    crashline = "%s%s%s:%s %s" % (
+                    crashline = "{}{}{}:{} {}".format(
                         colored(path, THEME.path),
                         "/" if path else "",
                         colored(name, THEME.name),
                         lineno if lineno else "?",
                         colored(report.location[2], THEME.fail),
                     )
-                self.write_line("         - %s" % crashline)
+                self.write_line(f"         - {crashline}")
 
         if self.count("failed", when=("setup", "teardown")) > 0:
             self.write_line(
