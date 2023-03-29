@@ -262,6 +262,8 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
     def pytest_sessionstart(self, session: Session) -> None:
         self._session = session
         self._sessionstarttime = time.time()
+        if self.no_header:
+            return
         verinfo = ".".join(map(str, sys.version_info[:3]))
         self.write_line(
             "Test session starts "
