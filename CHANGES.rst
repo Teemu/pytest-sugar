@@ -1,8 +1,6 @@
 Changelog
 ---------
 
-A list of changes between each release.
-
 0.9.6 (2022-11-5)
 ^^^^^^^^^^^^^^^^^^^
 
