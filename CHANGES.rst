@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+0.9.7 - 2023-04-10
+^^^^^^^^^^^^^^^^^^
+
+- For long-running tests, display minutes and not only seconds (thanks @last-partizan)
+- Add support for Pytest’s ``--header`` option (thanks @wiresv)
+
 0.9.6 (2022-11-5)
 ^^^^^^^^^^^^^^^^^^^
 
