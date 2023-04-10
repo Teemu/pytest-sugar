@@ -23,7 +23,7 @@ from _pytest.config.argparsing import Parser
 from _pytest.main import Session
 from _pytest.nodes import Item
 from _pytest.reports import BaseReport, CollectReport, TestReport
-from _pytest.terminal import TerminalReporter
+from _pytest.terminal import TerminalReporter, format_session_duration
 from termcolor import colored
 
 __version__ = "0.9.6"
@@ -525,7 +525,7 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
     def summary_stats(self) -> None:
         session_duration = time.time() - self._sessionstarttime
 
-        print(f"\nResults ({round(session_duration, 2):.2f}s):")
+        print(f"\nResults ({format_session_duration(session_duration)}):")
         if self.count("passed") > 0:
             self.write_line(
                 colored("   % 5d passed" % self.count("passed"), THEME.success)
