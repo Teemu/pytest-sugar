@@ -44,6 +44,7 @@ changelog-file = "CHANGES.rst"
 changelog-header = "---------"
 version-header = "^"
 version-strings = ["pytest_sugar.py"]
+tag-prefix = "v"
 build-system = "setuptools"
 
 [build-system]
