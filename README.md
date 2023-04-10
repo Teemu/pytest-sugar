@@ -53,6 +53,14 @@ There are also fake tests that can be used to visualise the output:
 pytest faketests
 ````
 
+When submitting a pull request, please add a `RELEASE.md` file in the root of the project that contains the release type (major, minor, patch) and a summary of the changes that will be used as the release changelog entry. For example:
+
+```markdown
+Release type: patch
+
+For long-running tests, display minutes and not only seconds.
+```
+
 ## Requirements
 
 You will need the following prerequisites in order to use pytest-sugar:
