@@ -45,8 +45,8 @@ def assert_count(testdir, *args):
         "Without plugin: %s\n"
         "With plugin: %s\n"
         % (
-            ", ".join("{} {}".format(v, k) for k, v in count_without.items()),
-            ", ".join("{} {}".format(v, k) for k, v in count_with.items()),
+            ", ".join(f"{v} {k}" for k, v in count_without.items()),
+            ", ".join(f"{v} {k}" for k, v in count_with.items()),
         )
     )
 
