@@ -16,7 +16,7 @@ import re
 import sys
 import time
 from configparser import ConfigParser  # type: ignore
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, Generator, List, Optional, Sequence, Tuple, Union
 
 import pytest
 from _pytest.config.argparsing import Parser
@@ -84,7 +84,7 @@ PROGRESS_BAR_BLOCKS: List[str] = [
 ]
 
 
-def flatten(seq):
+def flatten(seq) -> Generator[Any, None, None]:
     for x in seq:
         if isinstance(x, (list, tuple)):
             yield from flatten(x)
@@ -99,7 +99,7 @@ def pytest_collection_finish(session: Session) -> None:
 
 
 class DeferredXdistPlugin:
-    def pytest_xdist_node_collection_finished(self, node, ids):
+    def pytest_xdist_node_collection_finished(self, node, ids) -> None:
         terminal_reporter = node.config.pluginmanager.getplugin("terminalreporter")
         if terminal_reporter:
             terminal_reporter.tests_count = len(ids)
@@ -175,7 +175,7 @@ IS_SUGAR_ENABLED = False
 
 
 @pytest.hookimpl(trylast=True)
-def pytest_configure(config):
+def pytest_configure(config) -> None:
     global IS_SUGAR_ENABLED
 
     if sys.stdout.isatty() or config.getvalue("force_sugar"):
@@ -236,7 +236,7 @@ def pytest_report_teststatus(report: BaseReport) -> Optional[Tuple[str, str, str
 
 
 class SugarTerminalReporter(TerminalReporter):  # type: ignore
-    def __init__(self, reporter):
+    def __init__(self, reporter) -> None:
         TerminalReporter.__init__(self, reporter.config)
         self.paths_left = []
         self.tests_count = 0
@@ -246,7 +246,7 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
         self.progress_blocks = []
         self.reset_tracked_lines()
 
-    def reset_tracked_lines(self):
+    def reset_tracked_lines(self) -> None:
         self.current_lines = {}
         self.current_line_nums = {}
         self.current_line_num = 0
@@ -287,7 +287,7 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
         return
 
     def insert_progress(self, report: Union[CollectReport, TestReport]) -> None:
-        def get_progress_bar():
+        def get_progress_bar() -> str:
             length = LEN_PROGRESS_BAR
             if not length:
                 return ""
