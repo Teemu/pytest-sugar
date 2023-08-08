@@ -3,7 +3,7 @@ name = "pytest-sugar"
 version = "0.9.7"
 description = "Pytest plugin that adds a progress bar and other visual enhancements"
 authors = ["Teemu <orkkiolento@gmail.com>", "Janne Vanhala <janne.vanhala@gmail.com>"]
-license = "BSD"
+license = "BSD 3-Clause"
 readme = "README.md"
 keywords = ["testing", "pytest", "plugin"]
 
