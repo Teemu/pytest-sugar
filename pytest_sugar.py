@@ -276,8 +276,12 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
             ),
             bold=True,
         )
+        if int(pytest.__version__.split(".")[0]) <= 6:
+            hook_call_kwargs = {"startdir": self.startpath}
+        else:
+            hook_call_kwargs = {"start_path": self.startpath}
         lines = self.config.hook.pytest_report_header(
-            config=self.config, startdir=self.startpath
+            config=self.config, **hook_call_kwargs
         )
         lines.reverse()
         for line in flatten(lines):
