@@ -31,9 +31,9 @@ termcolor = ">=2.1.0"
 packaging = ">=21.3"
 
 [tool.poetry.dev-dependencies]
-black = "^23.0"
-flake8 = "^6.0"
-isort = "^5.12"
+black = "^24.0"
+flake8 = "^7.0"
+isort = "^5.13"
 
 [tool.autopub]
 project-name = "pytest-sugar"
