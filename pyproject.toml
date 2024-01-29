@@ -47,5 +47,8 @@ version-strings = ["pytest_sugar.py"]
 tag-prefix = "v"
 build-system = "setuptools"
 
+[tool.isort]
+profile = "black"
+
 [build-system]
 requires = ["setuptools >= 40.6.0", "wheel"]
