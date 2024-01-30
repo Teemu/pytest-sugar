@@ -1,6 +1,9 @@
 # pytest-sugar ✨
 
-[![PyPI version](https://img.shields.io/pypi/v/pytest-sugar.svg)](https://pypi.org/project/pytest-sugar/)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/Teemu/pytest-sugar/build-and-test.yaml?branch=main)](https://github.com/Teemu/pytest-sugar/actions)
+[![PyPI Version](https://img.shields.io/pypi/v/pytest-sugar.svg)](https://pypi.org/project/pytest-sugar/)
+[![Downloads](https://img.shields.io/pypi/dm/pytest-sugar)](https://pypi.org/project/pytest-sugar/)
+![License](https://img.shields.io/pypi/l/pytest-sugar?color=blue)
 
 This plugin extends [pytest](http://pytest.org) by showing failures and errors instantly, adding a progress bar, improving the test results, and making the output look better.
 
@@ -26,8 +29,7 @@ If you would like to run tests without pytest-sugar, use:
 
 ## How to contribute 👷‍♂️
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=master&repo=10950375
-)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=master&repo=10950375)
 
 Make sure to read our [Code of Conduct](https://github.com/Teemu/pytest-sugar/blob/master/.github/CODE_OF_CONDUCT.md). You can get started modifying the codebase with the following commands. Alternatively, you can try Github Codespaces (click the badge above). Push the changes to your repository & create a pull request.
 
