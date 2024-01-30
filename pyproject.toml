@@ -6,9 +6,6 @@ authors = ["Teemu <orkkiolento@gmail.com>", "Janne Vanhala <janne.vanhala@gmail.
 license = "BSD 3-Clause"
 readme = "README.md"
 keywords = ["testing", "pytest", "plugin"]
-
-repository = "https://github.com/Teemu/pytest-sugar"
-
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
@@ -21,7 +18,8 @@ classifiers = [
 ]
 
 [tool.poetry.urls]
-"Tracker" = "https://github.com/Teemu/pytest-sugar/issues"
+Homepage = "https://github.com/Teemu/pytest-sugar"
+"Issue Tracker" = "https://github.com/Teemu/pytest-sugar/issues"
 
 [tool.poetry.dependencies]
 python = ">=3.8.1,<4.0"
