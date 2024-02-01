@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+1.0.0 - 2024-02-01
+^^^^^^^^^^^^^^^^^^
+
+* Add support for pytest 8.x
+* Drop support for Python 3.7
+
+Contributed by [Justin Mayer](https://github.com/justinmayer) via [PR #281](https://github.com/Teemu/pytest-sugar/pull/281/)
+
+
 0.9.7 - 2023-04-10
 ^^^^^^^^^^^^^^^^^^
 
