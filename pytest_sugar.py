@@ -183,15 +183,11 @@ def pytest_configure(config) -> None:
 
     if config.pluginmanager.hasplugin("xdist"):
         try:
-            import xdist  # type: ignore
+            import xdist  # type: ignore # noqa: F401
         except ImportError:
             pass
         else:
-            from packaging import version
-
-            xdist_version = version.Version(xdist.__version__)
-            if xdist_version >= version.Version("1.14"):
-                config.pluginmanager.register(DeferredXdistPlugin())
+            config.pluginmanager.register(DeferredXdistPlugin())
 
     if IS_SUGAR_ENABLED and not getattr(config, "slaveinput", None):
         # Get the standard terminal reporter plugin and replace it with our
