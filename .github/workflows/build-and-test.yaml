@@ -14,8 +14,8 @@ jobs:
             python: 3.8
 
           # Latest Python & Pytest
-          - toxenv: py312-pytest_latest-supported-xdist
-            python: 3.12
+          - toxenv: py313-pytest_latest-supported-xdist
+            python: 3.13
 
           # QA
           - toxenv: qa
