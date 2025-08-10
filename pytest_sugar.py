@@ -656,7 +656,7 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
                 return command_display
             return None
 
-        except Exception:
+        except (OSError, AttributeError):
             return None
 
     def _get_decoded_crashline(self, report: CollectReport) -> str:
