@@ -649,7 +649,7 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
                 )
 
                 # Create a command to open the trace with Playwright for Python
-                view_command = f" playwright show-trace {trace_file_relative}"
+                view_command = f"playwright show-trace {trace_file_relative}"
 
                 # Display unzip command
                 command_display = colored(view_command, THEME.warning)
