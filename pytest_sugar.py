@@ -23,7 +23,7 @@ from _pytest.config.argparsing import Parser
 from _pytest.main import Session
 from _pytest.nodes import Item
 from _pytest.reports import BaseReport, CollectReport, TestReport
-from _pytest.terminal import TerminalReporter, format_session_duration
+from _pytest.terminal import TerminalReporter
 from termcolor import colored
 
 __version__ = "1.0.0"
@@ -537,8 +537,6 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
         return 0
 
     def summary_stats(self) -> None:
-        session_duration = time.time() - self._sessionstarttime
-
         if self.count("passed") > 0:
             self.write_line(
                 colored("   % 5d passed" % self.count("passed"), THEME.success)
@@ -622,16 +620,18 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
             nodeid = report.nodeid
 
             # Convert the nodeid to the expected trace directory name
-            trace_dir_name = (nodeid.replace("/", "-")
-                              .replace("\\", "-")
-                              .replace("::", "-")
-                              .replace("[", "-")
-                              .replace("]", "")
-                              .replace("_", "-")
-                              .replace(".", "-"))
+            trace_dir_name = (
+                nodeid.replace("/", "-")
+                .replace("\\", "-")
+                .replace("::", "-")
+                .replace("[", "-")
+                .replace("]", "")
+                .replace("_", "-")
+                .replace(".", "-")
+            )
             trace_dir_name = trace_dir_name.lower()
 
-            # Construct the expected trace directory path using configurable directory name
+            # Construct the expected trace directory path
             cwd = os.getcwd()
             trace_dir_name_from_config = self.config.option.sugar_trace_dir
             test_results_dir = os.path.join(cwd, trace_dir_name_from_config)
@@ -641,7 +641,9 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
             # Check if the trace file exists
             if os.path.exists(trace_file):
                 # Provide the relative path and a command to view the trace
-                trace_file_relative = os.path.relpath(trace_file, cwd).replace("\\", "/")
+                trace_file_relative = os.path.relpath(trace_file, cwd).replace(
+                    "\\", "/"
+                )
 
                 # Create a command to open the trace with Playwright for Python
                 view_command = f" playwright show-trace {trace_file_relative}"
@@ -651,7 +653,7 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
                 return command_display
             return None
 
-        except Exception as e:
+        except Exception:
             return None
 
     def _get_decoded_crashline(self, report: CollectReport) -> str:
