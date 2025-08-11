@@ -613,7 +613,26 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
             )
 
     def _find_playwright_trace(self, report: TestReport) -> Optional[str]:
-        """Find the Playwright trace.zip file for a failed test report."""
+        """
+        Finds the Playwright trace file associated with a specific test report.
+
+        Identifies the location of the trace file by using the test report's node ID
+        and configuration options.
+        It allows users to locate and optionally view the Playwright trace
+        for failed tests.
+        If Playwright trace finding is specifically disabled, or the trace file
+        does not exist for the given test, no output is returned.
+
+        Parameters:
+        report (TestReport):
+        The test report containing details about the test execution, including
+        the node ID.
+
+        Returns:
+        Optional[str]: A string containing command to view the Playwright trace
+        or
+        None if trace is not enabled, the file does not exist, or an exception occurs.
+        """
         # Check if trace finding is disabled
         if self.config.option.sugar_no_trace:
             return None
@@ -622,17 +641,8 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
             # Extract test information from the report
             nodeid = report.nodeid
 
-            # Convert the nodeid to the expected trace directory name
-            trace_dir_name = (
-                nodeid.replace("/", "-")
-                .replace("\\", "-")
-                .replace("::", "-")
-                .replace("[", "-")
-                .replace("]", "")
-                .replace("_", "-")
-                .replace(".", "-")
-            )
-            trace_dir_name = trace_dir_name.lower()
+            # Handle Node ID conversion to trace name format
+            trace_dir_name = self._convert_node_to_trace_name(nodeid)
 
             # Construct the expected trace directory path
             cwd = os.getcwd()
@@ -658,6 +668,20 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
 
         except Exception:
             return None
+
+    @staticmethod
+    def _convert_node_to_trace_name(nodeid: str) -> str:
+        # Convert the nodeid to the expected trace directory name
+        trace_dir_name = (
+            nodeid.replace("/", "-")
+            .replace("\\", "-")
+            .replace("::", "-")
+            .replace("[", "-")
+            .replace("]", "")
+            .replace("_", "-")
+            .replace(".", "-")
+        )
+        return trace_dir_name.lower()
 
     def _get_decoded_crashline(self, report: CollectReport) -> str:
         crashline = self._getcrashline(report)
