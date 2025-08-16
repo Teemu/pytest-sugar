@@ -1,6 +1,19 @@
 Changelog
 ---------
 
+1.1.0 - 2025-08-16
+^^^^^^^^^^^^^^^^^^
+
+Add Playwright trace file detection and display support for failed tests. This enhancement automatically detects and displays Playwright trace.zip files with viewing commands when tests fail, making debugging easier for Playwright users.
+![Playwright trace.zip](docs/images/playwright-trace-example.png)
+
+New command-line options:
+- `--sugar-trace-dir`: Configure the directory name for Playwright trace files (default: test-results)
+- `--sugar-no-trace`: Disable Playwright trace file detection and display
+
+Contributed by [kie](https://github.com/kiebak3r) via [PR #296](https://github.com/Teemu/pytest-sugar/pull/296/)
+
+
 1.0.0 - 2024-02-01
 ^^^^^^^^^^^^^^^^^^
 

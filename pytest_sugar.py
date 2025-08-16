@@ -26,7 +26,7 @@ from _pytest.reports import BaseReport, CollectReport, TestReport
 from _pytest.terminal import TerminalReporter, format_session_duration
 from termcolor import colored
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 LEN_RIGHT_MARGIN = 0
 LEN_PROGRESS_PERCENTAGE = 5
