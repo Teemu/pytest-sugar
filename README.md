@@ -43,7 +43,7 @@ Useful when running tests in CI systems or other non-interactive environments.
 
 
 Specify the directory where Playwright trace files are stored.
-Defaults to playwright default: "test-results"
+Defaults to Playwright default: "test-results"
 
     --sugar-trace-dir <directory>
 
