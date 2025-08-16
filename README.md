@@ -27,6 +27,32 @@ If you would like to run tests without pytest-sugar, use:
 
     pytest -p no:sugar
 
+## Usage
+pytest-sugar provides several command-line options to customize its output and behavior. These options enhance test reporting and Playwright trace integration:
+
+
+Show detailed test failures instead of one-line tracebacks.
+Use this if you want to see the full failure information instantly.
+
+    --old-summary
+
+Force pytest-sugar output even if pytest doesn’t detect a real terminal.
+Useful when running tests in CI systems or other non-interactive environments.
+
+    --force-sugar
+
+
+Specify the directory where Playwright trace files are stored.
+Defaults to Playwright default: "test-results"
+
+    --sugar-trace-dir <directory>
+
+Disable Playwright trace file detection and output display.
+Use this if you want to turn off trace collection or display entirely.
+
+    --sugar-no-trace
+
+
 ## How to contribute 👷‍♂️
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://github.com/codespaces/new?hide_repo_select=true&ref=master&repo=10950375)

@@ -133,6 +133,20 @@ def pytest_addoption(parser: Parser) -> None:
         default=False,
         help=("Force pytest-sugar output even when not in real terminal"),
     )
+    group._addoption(
+        "--sugar-trace-dir",
+        action="store",
+        dest="sugar_trace_dir",
+        default="test-results",
+        help=("Directory name for Playwright trace files (default: test-results)"),
+    )
+    group._addoption(
+        "--sugar-no-trace",
+        action="store_true",
+        dest="sugar_no_trace",
+        default=False,
+        help=("Disable Playwright trace file detection and display"),
+    )
 
 
 def pytest_sessionstart(session: Session) -> None:
@@ -524,8 +538,8 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
 
     def summary_stats(self) -> None:
         session_duration = time.time() - self._sessionstarttime
-
         print(f"\nResults ({format_session_duration(session_duration)}):")
+
         if self.count("passed") > 0:
             self.write_line(
                 colored("   % 5d passed" % self.count("passed"), THEME.success)
@@ -543,9 +557,10 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
                     THEME.fail,
                 )
             )
-            for report in self.stats["failed"]:
+            for i, report in enumerate(self.stats["failed"]):
                 if report.when != "call":
                     continue
+
                 if self.config.option.tb_summary:
                     crashline = self._get_decoded_crashline(report)
                 else:
@@ -559,6 +574,11 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
                         lineno if lineno else "?",
                         colored(report.location[2], THEME.fail),
                     )
+
+                # Add trace.zip path if it exists
+                trace_path = self._find_playwright_trace(report)
+                if trace_path:
+                    crashline += f"\n           - 🎭 {trace_path}"
                 self.write_line(f"         - {crashline}")
 
         if self.count("failed", when=("setup", "teardown")) > 0:
@@ -591,6 +611,77 @@ class SugarTerminalReporter(TerminalReporter):  # type: ignore
             self.write_line(
                 colored("   % 5d deselected" % self.count("deselected"), THEME.warning)
             )
+
+    def _find_playwright_trace(self, report: TestReport) -> Optional[str]:
+        """
+        Finds the Playwright trace file associated with a specific test report.
+
+        Identifies the location of the trace file by using the test report's node ID
+        and configuration options.
+        It allows users to locate and optionally view the Playwright trace
+        for failed tests.
+        If Playwright trace finding is specifically disabled, or the trace file
+        does not exist for the given test, no output is returned.
+
+        Parameters:
+        report (TestReport):
+        The test report containing details about the test execution, including
+        the node ID.
+
+        Returns:
+        Optional[str]: A string containing command to view the Playwright trace
+        or
+        None if trace is not enabled, the file does not exist, or an exception occurs.
+        """
+        # Check if trace finding is disabled
+        if self.config.option.sugar_no_trace:
+            return None
+
+        try:
+            # Extract test information from the report
+            nodeid = report.nodeid
+
+            # Handle Node ID conversion to trace name format
+            trace_dir_name = self._convert_node_to_trace_name(nodeid)
+
+            # Construct the expected trace directory path
+            cwd = os.getcwd()
+            trace_dir_name_from_config = self.config.option.sugar_trace_dir
+            test_results_dir = os.path.join(cwd, trace_dir_name_from_config)
+            trace_dir = os.path.join(test_results_dir, trace_dir_name)
+            trace_file = os.path.join(trace_dir, "trace.zip")
+
+            # Check if the trace file exists
+            if os.path.exists(trace_file):
+                # Provide the relative path and a command to view the trace
+                trace_file_relative = os.path.relpath(trace_file, cwd).replace(
+                    "\\", "/"
+                )
+
+                # Create a command to open the trace with Playwright for Python
+                view_command = f"playwright show-trace {trace_file_relative}"
+
+                # Display unzip command
+                command_display = colored(view_command, THEME.warning)
+                return command_display
+            return None
+
+        except (OSError, AttributeError):
+            return None
+
+    @staticmethod
+    def _convert_node_to_trace_name(nodeid: str) -> str:
+        # Convert the nodeid to the expected trace directory name
+        trace_dir_name = (
+            nodeid.replace("/", "-")
+            .replace("\\", "-")
+            .replace("::", "-")
+            .replace("[", "-")
+            .replace("]", "")
+            .replace("_", "-")
+            .replace(".", "-")
+        )
+        return trace_dir_name.lower()
 
     def _get_decoded_crashline(self, report: CollectReport) -> str:
         crashline = self._getcrashline(report)
