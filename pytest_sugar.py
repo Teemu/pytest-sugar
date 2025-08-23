@@ -16,9 +16,10 @@ import re
 import sys
 import time
 from configparser import ConfigParser  # type: ignore
-from typing import Any, Dict, Generator, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, Generator, List, Optional, Sequence, TextIO, Tuple, Union
 
 import pytest
+from _pytest.config import Config
 from _pytest.config.argparsing import Parser
 from _pytest.main import Session
 from _pytest.nodes import Item
@@ -206,7 +207,7 @@ def pytest_configure(config) -> None:
     if IS_SUGAR_ENABLED and not getattr(config, "slaveinput", None):
         # Get the standard terminal reporter plugin and replace it with our
         standard_reporter = config.pluginmanager.getplugin("terminalreporter")
-        sugar_reporter = SugarTerminalReporter(standard_reporter)
+        sugar_reporter = SugarTerminalReporter(standard_reporter.config)
         config.pluginmanager.unregister(standard_reporter)
         config.pluginmanager.register(sugar_reporter, "terminalreporter")
 
@@ -245,9 +246,9 @@ def pytest_report_teststatus(report: BaseReport) -> Optional[Tuple[str, str, str
     return report.outcome, letter, report.outcome.upper()
 
 
-class SugarTerminalReporter(TerminalReporter):  # type: ignore
-    def __init__(self, reporter) -> None:
-        TerminalReporter.__init__(self, reporter.config)
+class SugarTerminalReporter(TerminalReporter):
+    def __init__(self, config: Config, file: Union[TextIO, None] = None) -> None:
+        TerminalReporter.__init__(self, config, file)
         self.paths_left = []
         self.tests_count = 0
         self.tests_taken = 0

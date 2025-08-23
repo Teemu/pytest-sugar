@@ -1,8 +1,9 @@
+import io
 import re
 
 import pytest
 
-from pytest_sugar import strip_colors
+from pytest_sugar import SugarTerminalReporter, strip_colors
 
 pytest_plugins = "pytester"
 
@@ -52,6 +53,16 @@ def assert_count(testdir, *args):
 
 
 class TestTerminalReporter:
+    def test_sugar_terminal_reporter_init_signature(self, pytestconfig):
+        terminal_reporter = pytestconfig.pluginmanager.getplugin("terminalreporter")
+        sugar_reporter = SugarTerminalReporter(terminal_reporter.config)
+        assert sugar_reporter.config is terminal_reporter.config
+
+        file_obj = io.StringIO()
+        sugar_reporter = SugarTerminalReporter(terminal_reporter.config, file=file_obj)
+        assert sugar_reporter.config is terminal_reporter.config
+        assert sugar_reporter._tw._file is file_obj
+
     def test_new_summary(self, testdir):
         testdir.makepyfile(
             """
