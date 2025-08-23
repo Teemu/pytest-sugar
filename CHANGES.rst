@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+1.1.1 - 2025-08-23
+^^^^^^^^^^^^^^^^^^
+
+Adjust signature of SugarTerminalReporter to avoid conflicts with other pytest plugins
+
+Contributed by [Daniil](https://github.com/TolstochenkoDaniil) via [PR #297](https://github.com/Teemu/pytest-sugar/pull/297/)
+
+
 1.1.0 - 2025-08-16
 ^^^^^^^^^^^^^^^^^^
 
