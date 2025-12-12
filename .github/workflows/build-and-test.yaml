@@ -57,23 +57,22 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.x"
+          python-version: "3.11"
 
       - name: Check release
         id: check_release
         run: |
-          python -m pip install poetry githubrelease httpx==0.18.2 autopub twine wheel
-          echo "release=$(autopub check)" >> $GITHUB_OUTPUT
+          python -m pip install autopub[github] twine wheel
+          autopub check
 
       - name: Publish
-        if: ${{ steps.check_release.outputs.release=='' }}
+        if: ${{ steps.check_release.outputs.autopub_release=='true' }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TWINE_USERNAME: "__token__"
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
         run: |
-          git remote set-url origin https://$GITHUB_TOKEN@github.com/${{ github.repository }}
           autopub deploy
