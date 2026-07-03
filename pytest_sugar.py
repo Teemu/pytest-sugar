@@ -557,7 +557,7 @@ class SugarTerminalReporter(TerminalReporter):
                     THEME.fail,
                 )
             )
-            for i, report in enumerate(self.stats["failed"]):
+            for _i, report in enumerate(self.stats["failed"]):
                 if report.when != "call":
                     continue
 
