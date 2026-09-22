@@ -41,7 +41,7 @@ setup(
     zip_safe=False,
     include_package_data=True,
     platforms="any",
-    install_requires=["pytest>=7", "termcolor>=2.1.0"],
+    install_requires=["pytest>=7", "termcolor>=2.3.0"],
     extras_require={
         "dev": [
             "black",
