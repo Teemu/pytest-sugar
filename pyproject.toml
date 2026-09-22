@@ -24,7 +24,7 @@ Homepage = "https://github.com/Teemu/pytest-sugar"
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
 pytest = ">=7"
-termcolor = ">=2.1.0"
+termcolor = ">=2.3.0"
 
 [tool.poetry.dev-dependencies]
 black = "^24.0"

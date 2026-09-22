@@ -15,18 +15,18 @@ import os
 import re
 import sys
 import time
-from collections.abc import Generator, Sequence
+from collections.abc import Generator, Iterable, Sequence
 from configparser import ConfigParser  # type: ignore
 from typing import Any, TextIO
 
 import pytest
+import termcolor
 from _pytest.config import Config
 from _pytest.config.argparsing import Parser
 from _pytest.main import Session
 from _pytest.nodes import Item
 from _pytest.reports import BaseReport, CollectReport, TestReport
 from _pytest.terminal import TerminalReporter, format_session_duration
-from termcolor import colored
 
 __version__ = "1.1.1"
 
@@ -177,6 +177,34 @@ def pytest_sessionstart(session: Session) -> None:
     THEME = Theme(**theme_attributes)  # type: ignore
 
 
+COLORS_ENABLED: bool | None = None
+
+
+def colored(
+    text: str,
+    color: str | None = None,
+    on_color: str | None = None,
+    attrs: Iterable[str] | None = None,
+) -> str:
+    """Colorize text, following the color setting pytest was given.
+
+    On its own termcolor decides whether to emit escape codes by looking at
+    ``sys.stdout``, which is not a terminal while pytest captures output. That
+    makes our colors disappear whenever the output is not a plain tty, even
+    though pytest itself still colors its own output (``--color=yes``,
+    ``PY_COLORS``, ``FORCE_COLOR``). Reuse pytest's decision instead, so that
+    both halves of the report are colored the same way.
+    """
+    return termcolor.colored(
+        text,
+        color,
+        on_color,
+        attrs,
+        no_color=COLORS_ENABLED is False,
+        force_color=COLORS_ENABLED is True,
+    )
+
+
 def strip_colors(text: str) -> str:
     ansi_escape = re.compile(r"\x1b[^m]*m")
     stripped = ansi_escape.sub("", text)
@@ -192,10 +220,14 @@ IS_SUGAR_ENABLED = False
 
 @pytest.hookimpl(trylast=True)
 def pytest_configure(config) -> None:
-    global IS_SUGAR_ENABLED
+    global IS_SUGAR_ENABLED, COLORS_ENABLED
 
     if sys.stdout.isatty() or config.getvalue("force_sugar"):
         IS_SUGAR_ENABLED = True
+
+    standard_reporter = config.pluginmanager.getplugin("terminalreporter")
+    if standard_reporter is not None:
+        COLORS_ENABLED = standard_reporter._tw.hasmarkup
 
     if config.pluginmanager.hasplugin("xdist"):
         try:
@@ -206,8 +238,7 @@ def pytest_configure(config) -> None:
             config.pluginmanager.register(DeferredXdistPlugin())
 
     if IS_SUGAR_ENABLED and not getattr(config, "slaveinput", None):
-        # Get the standard terminal reporter plugin and replace it with our
-        standard_reporter = config.pluginmanager.getplugin("terminalreporter")
+        # Replace the standard terminal reporter plugin with our own
         sugar_reporter = SugarTerminalReporter(standard_reporter.config)
         config.pluginmanager.unregister(standard_reporter)
         config.pluginmanager.register(sugar_reporter, "terminalreporter")
@@ -453,6 +484,11 @@ class SugarTerminalReporter(TerminalReporter):
             (report.location or "") if self.showlongtestinfo else (report.fspath or "")
         )
 
+    # Run last: we draw the failure here, while the standard reporter only
+    # draws it at the end of the session. Plugins that amend a report from
+    # this same hook (attaching sections, swapping in a colored `toterminal`)
+    # have to get their turn before we render it.
+    @pytest.hookimpl(trylast=True)
     def pytest_runtest_logreport(self, report: TestReport) -> None:
         global LEN_PROGRESS_BAR
 

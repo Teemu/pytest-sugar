@@ -87,6 +87,60 @@ class TestTerminalReporter:
         output = testdir.runpytest("--force-sugar", "--old-summary").stdout.str()
         assert "test_old_summary.py:4: assert False" in strip_colors(output)
 
+    def test_summary_is_colored_when_color_is_forced(self, testdir):
+        # Output is not a tty here, so termcolor on its own would drop every
+        # color even though pytest was explicitly asked for them.
+        testdir.makepyfile(
+            """
+            def test_sample():
+                assert False
+            """
+        )
+        output = testdir.runpytest("--force-sugar", "--color=yes").stdout.str()
+        assert "\x1b[31m       1 failed\x1b[0m" in output
+        assert "\x1b[31mtest_sample\x1b[0m" in output
+
+    def test_summary_is_not_colored_when_color_is_disabled(self, testdir, monkeypatch):
+        # --color=no wins over FORCE_COLOR, which termcolor would honour on
+        # its own.
+        monkeypatch.setenv("FORCE_COLOR", "1")
+        testdir.makepyfile(
+            """
+            def test_sample():
+                assert False
+            """)
+        output = testdir.runpytest("--force-sugar", "--color=no").stdout.str()
+        assert "1 failed" in output
+        assert "\x1b[31m" not in output
+        assert "\x1b[36m" not in output
+
+    def test_failure_is_drawn_after_other_logreport_hooks(self, testdir):
+        # We draw a failure from pytest_runtest_logreport, where the standard
+        # reporter only draws it once the session is over. Plugins that amend
+        # the report from that same hook must still get their turn first.
+        testdir.makeconftest(
+            """
+            class ColoredDrawing:
+                def __init__(self, longrepr):
+                    self.longrepr = longrepr
+
+                def __call__(self, tw):
+                    type(self.longrepr).toterminal(self.longrepr, tw)
+                    tw.line("\x1b[36mcolored by the plugin\x1b[0m")
+
+
+            def pytest_runtest_logreport(report):
+                if report.failed:
+                    report.longrepr.toterminal = ColoredDrawing(report.longrepr)
+            """)
+        testdir.makepyfile(
+            """
+            def test_sample():
+                assert False
+            """)
+        output = testdir.runpytest("--force-sugar", "--color=yes").stdout.str()
+        assert "\x1b[36mcolored by the plugin\x1b[0m" in output
+
     def test_xfail_true(self, testdir):
         testdir.makepyfile(
             """
