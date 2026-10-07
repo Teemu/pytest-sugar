@@ -50,7 +50,7 @@ class Theme:
     progressbar_fail: str | None = "red"
     progressbar_background: str | None = "grey"
     path: str | None = "cyan"
-    name = None
+    name: str | None = None
     symbol_passed: str = "✓"
     symbol_skipped: str = "s"
     symbol_failed: str = "⨯"

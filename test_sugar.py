@@ -3,6 +3,7 @@ import re
 
 import pytest
 
+import pytest_sugar
 from pytest_sugar import SugarTerminalReporter, strip_colors
 
 pytest_plugins = "pytester"
@@ -618,3 +619,30 @@ class TestTerminalReporter:
         test_counts = get_counts(result.stdout.str())
         assert test_counts["passed"] == "280"
         assert test_counts["failed"] == "1"
+
+    def test_theme_name_from_config(self, testdir, monkeypatch):
+        monkeypatch.setattr(pytest_sugar, "THEME", pytest_sugar.THEME)
+        monkeypatch.setenv("HOME", str(testdir.tmpdir))
+        monkeypatch.setenv("USERPROFILE", str(testdir.tmpdir))
+        testdir.makefile(
+            ".conf",
+            **{
+                "pytest-sugar": """
+                [theme]
+                path=magenta
+                name=blue
+                """
+            },
+        )
+        testdir.makepyfile(
+            """
+            import pytest_sugar
+
+            def test_theme():
+                assert pytest_sugar.THEME.path == "magenta"
+                assert pytest_sugar.THEME.name == "blue"
+            """
+        )
+        result = testdir.runpytest("--force-sugar")
+
+        assert result.ret == 0, result.stdout.str()
