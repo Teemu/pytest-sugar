@@ -2,7 +2,9 @@ import io
 import re
 
 import pytest
+from _pytest.reports import BaseReport, CollectReport, TestReport
 
+import pytest_sugar
 from pytest_sugar import SugarTerminalReporter, strip_colors
 
 pytest_plugins = "pytester"
@@ -53,6 +55,121 @@ def assert_count(testdir, *args):
 
 
 class TestTerminalReporter:
+    @pytest.mark.parametrize(
+        "attributes, expected",
+        [
+            ({"outcome": "passed", "when": "setup"}, ("", "", "")),
+            ({"outcome": "passed", "when": "teardown"}, ("", "", "")),
+            ({"outcome": "passed", "when": "call"}, ("passed", "✓", "PASSED")),
+            ({"outcome": "passed"}, ("passed", "✓", "PASSED")),
+            ({"outcome": "passed", "when": "collect"}, ("passed", "✓", "PASSED")),
+            (
+                {"outcome": "passed", "when": "setup", "wasxfail": "reason"},
+                ("xpassed", "X", "XPASS"),
+            ),
+            (
+                {"outcome": "passed", "when": "teardown", "wasxfail": "reason"},
+                ("xpassed", "X", "XPASS"),
+            ),
+            (
+                {"outcome": "skipped", "when": "setup", "wasxfail": "reason"},
+                ("xfailed", "x", "xfail"),
+            ),
+            ({"outcome": "failed", "when": "setup"}, ("failed", "ₓ", "FAILED")),
+            ({"outcome": "failed", "when": "teardown"}, ("failed", "ₓ", "FAILED")),
+            ({"outcome": "skipped", "when": "teardown"}, ("skipped", "s", "SKIPPED")),
+            ({"outcome": "rerun", "when": "teardown"}, ("rerun", "R", "RERUN")),
+            ({"outcome": "unknown", "when": "setup"}, ("unknown", "?", "UNKNOWN")),
+        ],
+    )
+    def test_report_status(self, monkeypatch, attributes, expected):
+        monkeypatch.setattr(pytest_sugar, "IS_SUGAR_ENABLED", True)
+        monkeypatch.setattr(pytest_sugar, "THEME", pytest_sugar.Theme())
+        report = BaseReport(**attributes)
+        result = pytest_sugar.pytest_report_teststatus(report)
+        assert tuple(strip_colors(value) for value in result) == expected
+
+    @pytest.mark.parametrize("phase", ["setup", "teardown"])
+    def test_disabled_fixture_report_status(self, monkeypatch, phase):
+        report = BaseReport(outcome="passed", when=phase)
+        with monkeypatch.context() as patch:
+            patch.setattr(pytest_sugar, "IS_SUGAR_ENABLED", False)
+            assert pytest_sugar.pytest_report_teststatus(report) is None
+
+    def test_passed_collection_report_status(self, monkeypatch):
+        monkeypatch.setattr(pytest_sugar, "IS_SUGAR_ENABLED", True)
+        report = CollectReport("test_sample.py", "passed", None, [])
+        category, _, word = pytest_sugar.pytest_report_teststatus(report)
+        assert (category, word) == ("passed", "PASSED")
+
+    def test_successful_fixture_reports_are_retained(self, monkeypatch, pytestconfig):
+        monkeypatch.setattr(pytest_sugar, "IS_SUGAR_ENABLED", True)
+        output = io.StringIO()
+        reporter = SugarTerminalReporter(pytestconfig, file=output)
+        reporter.tests_count = 1
+        reports = [
+            TestReport(
+                "test_sample.py::test_sample",
+                ("test_sample.py", 0, "test_sample"),
+                {},
+                "passed",
+                None,
+                phase,
+            )
+            for phase in ("setup", "call", "teardown")
+        ]
+        for report in reports:
+            reporter.pytest_runtest_logreport(report)
+        assert reporter.stats[""] == [reports[0], reports[2]]
+        assert reporter.stats["passed"] == [reports[1]]
+        assert reporter.reports == reports
+        assert reporter.tests_taken == 1
+        assert "100%" in strip_colors(output.getvalue())
+
+    @pytest.mark.parametrize("reportchars", ["-rP", "-rpP"])
+    @pytest.mark.parametrize("distributed", [False, True])
+    def test_passes_summary_retains_fixture_output(
+        self, testdir, reportchars, distributed
+    ):
+        testdir.makepyfile(
+            """
+            import pytest
+
+            @pytest.fixture(autouse=True)
+            def fixture(request):
+                print(f"setup: {request.node.name}")
+                yield
+                print(f"teardown: {request.node.name}")
+
+            def test_pass():
+                print("call: test_pass")
+
+            def test_fail():
+                print("call: test_fail")
+                assert False
+            """
+        )
+        args = ["--force-sugar", reportchars, "--tb=short", "--color=no"]
+        if distributed:
+            pytest.importorskip("xdist")
+            args.extend(["-n2", "-v"])
+        result = testdir.runpytest(*args)
+        assert result.ret == 1
+        output = result.stdout.str()
+        passes = output.split(" PASSES ", 1)[1]
+        for phase in ("setup", "call", "teardown"):
+            assert passes.count(f"{phase}: test_pass") == 1
+            assert f"{phase}: test_fail" not in passes
+        assert get_counts(output)["passed"] == "1"
+        assert get_counts(output)["failed"] == "1"
+        assert "100%" in output
+        if reportchars == "-rpP":
+            passed = [
+                line for line in output.splitlines() if line.startswith("PASSED ")
+            ]
+            assert len(passed) == 1
+            assert passed[0].endswith("::test_pass")
+
     def test_sugar_terminal_reporter_init_signature(self, pytestconfig):
         terminal_reporter = pytestconfig.pluginmanager.getplugin("terminalreporter")
         sugar_reporter = SugarTerminalReporter(terminal_reporter.config)
@@ -86,6 +203,69 @@ class TestTerminalReporter:
         )
         output = testdir.runpytest("--force-sugar", "--old-summary").stdout.str()
         assert "test_old_summary.py:4: assert False" in strip_colors(output)
+
+    @pytest.mark.parametrize(
+        "phase, action",
+        [
+            (None, "fail"),
+            ("call", "fail"),
+            ("setup", "fail"),
+            ("teardown", "fail"),
+            ("call", "skip"),
+            ("setup", "skip"),
+            ("teardown", "skip"),
+        ],
+    )
+    @pytest.mark.parametrize("old_summary", [False, True])
+    @pytest.mark.parametrize("distributed", [False, True])
+    def test_passed_short_summary(
+        self, testdir, phase, action, old_summary, distributed
+    ):
+        testdir.makepyfile(
+            f"""
+            import pytest
+
+            @pytest.fixture(autouse=True)
+            def fixture():
+                if {phase == 'setup'}:
+                    pytest.{action}("setup")
+                yield
+                if {phase == 'teardown'}:
+                    pytest.{action}("teardown")
+
+            def test_sample():
+                if {phase == 'call'}:
+                    pytest.{action}("call")
+            """
+        )
+        args = ["-rp"]
+        if distributed:
+            pytest.importorskip("xdist")
+            args.append("-n2")
+
+        without_plugin = testdir.runpytest("-p", "no:sugar", *args)
+        if old_summary:
+            args.append("--old-summary")
+        with_plugin = testdir.runpytest("--force-sugar", *args)
+
+        expected_exit = 1 if phase is not None and action == "fail" else 0
+        assert with_plugin.ret == without_plugin.ret == expected_exit
+        assert get_counts(with_plugin.stdout.str()) == get_counts(
+            without_plugin.stdout.str()
+        )
+        passed_without = [
+            line
+            for line in strip_colors(without_plugin.stdout.str()).splitlines()
+            if line.startswith("PASSED ")
+        ]
+        passed_with = [
+            line
+            for line in strip_colors(with_plugin.stdout.str()).splitlines()
+            if line.startswith("PASSED ")
+        ]
+        assert len(passed_without) == (phase in (None, "teardown"))
+        assert passed_with == passed_without
+        assert "100%" in strip_colors(with_plugin.stdout.str())
 
     def test_xfail_true(self, testdir):
         testdir.makepyfile(

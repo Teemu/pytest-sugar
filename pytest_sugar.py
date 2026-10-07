@@ -244,6 +244,9 @@ def pytest_report_teststatus(report: BaseReport) -> tuple[str, str, str] | None:
                 "XPASS",
             )
 
+    if report.passed and getattr(report, "when", None) in ("setup", "teardown"):
+        return "", "", ""
+
     return report.outcome, letter, report.outcome.upper()
 
 
