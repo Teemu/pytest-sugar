@@ -480,6 +480,52 @@ class TestTerminalReporter:
         )
         assert_count(testdir, "--verbose")
 
+    def test_verbose_uses_collected_inherited_nodeids(self, testdir):
+        testdir.makepyfile(
+            base="""
+            import pytest
+
+            class Base:
+                @pytest.mark.parametrize("value", [1, 2])
+                def test_inherited(self, value):
+                    assert value
+            """,
+            test_child="""
+            from base import Base
+
+            class TestFirst(Base):
+                pass
+
+            class TestSecond(Base):
+                pass
+
+            class TestOuter:
+                class TestInner(Base):
+                    pass
+            """,
+            test_other="""
+            from base import Base
+
+            class TestFirst(Base):
+                pass
+            """,
+        )
+        result = testdir.runpytest(
+            "--force-sugar", "--verbose", "test_child.py", "test_other.py"
+        )
+        assert get_counts(result.stdout.str())["passed"] == "8"
+        output = strip_colors(result.stdout.str())
+        for cls in ("TestFirst", "TestSecond", "TestOuter::TestInner"):
+            for value in (1, 2):
+                nodeid = f"test_child.py::{cls}::test_inherited[{value}]"
+                assert nodeid in output
+                testdir.runpytest("-p", "no:sugar", nodeid).assert_outcomes(passed=1)
+        for value in (1, 2):
+            nodeid = f"test_other.py::TestFirst::test_inherited[{value}]"
+            assert nodeid in output
+            testdir.runpytest("-p", "no:sugar", nodeid).assert_outcomes(passed=1)
+        assert "base.py::" not in output
+
     def test_verbose_has_double_colon(self, testdir):
         testdir.makepyfile(
             """
