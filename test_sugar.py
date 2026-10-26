@@ -87,6 +87,24 @@ class TestTerminalReporter:
         output = testdir.runpytest("--force-sugar", "--old-summary").stdout.str()
         assert "test_old_summary.py:4: assert False" in strip_colors(output)
 
+    @pytest.mark.parametrize("passed", [True, False])
+    @pytest.mark.parametrize("old_summary", [True, False])
+    def test_passed_summary_only_lists_test_calls(self, testdir, passed, old_summary):
+        testdir.makepyfile(test_sample=f"def test_sample():\n    assert {passed}")
+        args = ["--force-sugar", "--color=no", "-rp"]
+        if old_summary:
+            args.append("--old-summary")
+
+        result = testdir.runpytest(*args)
+        assert result.ret == int(not passed)
+        passed_lines = [
+            line
+            for line in strip_colors(result.stdout.str()).splitlines()
+            if line.startswith("PASSED ")
+        ]
+        expected = ["PASSED test_sample.py::test_sample"] if passed else []
+        assert passed_lines == expected
+
     def test_xfail_true(self, testdir):
         testdir.makepyfile(
             """
