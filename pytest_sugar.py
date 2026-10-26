@@ -540,6 +540,9 @@ class SugarTerminalReporter(TerminalReporter):
         session_duration = time.time() - self._sessionstarttime
         print(f"\nResults ({format_session_duration(session_duration)}):")
 
+        if self.config.option.collectonly:
+            self.write_line("   % 5d selected" % self.tests_count)
+
         if self.count("passed") > 0:
             self.write_line(
                 colored("   % 5d passed" % self.count("passed"), THEME.success)

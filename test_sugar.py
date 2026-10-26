@@ -451,6 +451,51 @@ class TestTerminalReporter:
             ]
         )
 
+    @pytest.mark.parametrize(
+        "expression, selected, deselected, exit_code",
+        [(None, 2, 0, 0), ("test_one", 1, 1, 0), ("missing", 0, 2, 5)],
+    )
+    def test_collect_only_summary_counts(
+        self, testdir, expression, selected, deselected, exit_code
+    ):
+        testdir.makepyfile(
+            """
+            def test_one():
+                assert False
+
+            def test_two():
+                assert False
+            """
+        )
+        args = ["--force-sugar", "--collect-only"]
+        if expression:
+            args.extend(["-k", expression])
+
+        result = testdir.runpytest(*args)
+        assert result.ret == exit_code
+        summary = strip_colors(result.stdout.str()).rsplit("Results (", 1)[1]
+        lines = [line.strip() for line in summary.splitlines()]
+        assert f"{selected} selected" in lines
+        if deselected:
+            assert f"{deselected} deselected" in lines
+        assert "passed" not in summary
+        assert "failed" not in summary
+
+    def test_collect_only_summary_with_no_tests(self, testdir):
+        testdir.makepyfile("value = 1")
+        result = testdir.runpytest("--force-sugar", "--collect-only")
+        assert result.ret == 5
+        summary = strip_colors(result.stdout.str()).rsplit("Results (", 1)[1]
+        assert "0 selected" in summary
+
+    def test_running_tests_does_not_add_selected_summary(self, testdir):
+        testdir.makepyfile("def test_one(): pass")
+        result = testdir.runpytest("--force-sugar")
+        assert result.ret == 0
+        summary = strip_colors(result.stdout.str()).rsplit("Results (", 1)[1]
+        assert "1 passed" in summary
+        assert "selected" not in summary
+
     def test_verbose(self, testdir):
         testdir.makepyfile(
             """
