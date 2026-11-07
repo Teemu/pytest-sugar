@@ -64,121 +64,100 @@ class TestTerminalReporter:
         assert sugar_reporter._tw._file is file_obj
 
     def test_new_summary(self, testdir):
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             import pytest
 
             def test_sample():
                 assert False
-            """
-        )
+            """)
         output = testdir.runpytest("--force-sugar").stdout.str()
         assert "test_new_summary.py:3 test_sample" in strip_colors(output)
 
     def test_old_summary(self, testdir):
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             import pytest
 
             def test_sample():
                 assert False
-            """
-        )
+            """)
         output = testdir.runpytest("--force-sugar", "--old-summary").stdout.str()
         assert "test_old_summary.py:4: assert False" in strip_colors(output)
 
     def test_xfail_true(self, testdir):
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             import pytest
 
             @pytest.mark.xfail
             def test_sample():
                 assert True
-            """
-        )
+            """)
         assert_count(testdir)
 
     def test_xfail_false(self, testdir):
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             import pytest
 
             @pytest.mark.xfail
             def test_sample():
                 assert False
-            """
-        )
+            """)
         assert_count(testdir)
 
     def test_report_header(self, testdir):
-        testdir.makeconftest(
-            """
+        testdir.makeconftest("""
             def pytest_report_header(start_path):
                 pass
-            """
-        )
-        testdir.makepyfile(
-            """
+            """)
+        testdir.makepyfile("""
             def test():
                 pass
-            """
-        )
+            """)
         result = testdir.runpytest("--force-sugar")
         assert result.ret == 0, result.stderr.str()
 
     def test_xfail_strict_true(self, testdir):
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             import pytest
 
             @pytest.mark.xfail(strict=True)
             def test_sample():
                 assert True
-            """
-        )
+            """)
         assert_count(testdir)
 
     def test_xfail_strict_false(self, testdir):
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             import pytest
 
             @pytest.mark.xfail(strict=True)
             def test_sample():
                 assert False
-            """
-        )
+            """)
         assert_count(testdir)
 
     def test_xpass_true(self, testdir):
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             import pytest
 
             @pytest.mark.xpass
             def test_sample():
                 assert True
-            """
-        )
+            """)
         assert_count(testdir)
 
     def test_xpass_false(self, testdir):
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             import pytest
 
             @pytest.mark.xpass
             def test_sample():
                 assert False
-            """
-        )
+            """)
         assert_count(testdir)
 
     def test_flaky_test(self, testdir):
         pytest.importorskip("pytest_rerunfailures")
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             import pytest
 
             COUNT = 0
@@ -188,20 +167,17 @@ class TestTerminalReporter:
                 global COUNT
                 COUNT += 1
                 assert COUNT >= 7
-            """
-        )
+            """)
         assert_count(testdir)
 
     def test_xpass_strict(self, testdir):
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             import pytest
 
             @pytest.mark.xfail(strict=True)
             def test_xpass():
                 assert True
-            """
-        )
+            """)
         result = testdir.runpytest("--force-sugar")
         result.stdout.fnmatch_lines(
             [
@@ -212,8 +188,7 @@ class TestTerminalReporter:
         )
 
     def test_teardown_errors(self, testdir):
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             import pytest
             @pytest.yield_fixture
             def fixt():
@@ -222,8 +197,7 @@ class TestTerminalReporter:
 
             def test_foo(fixt):
                 pass
-            """
-        )
+            """)
         assert_count(testdir)
 
         result = testdir.runpytest("--force-sugar")
@@ -232,19 +206,16 @@ class TestTerminalReporter:
         )
 
     def test_skipping_tests(self, testdir):
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             import pytest
             @pytest.mark.skipif(True, reason='This must be skipped.')
             def test_skip_this_if():
                 assert True
-            """
-        )
+            """)
         assert_count(testdir)
 
     def test_deselecting_tests(self, testdir):
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             import pytest
             @pytest.mark.example
             def test_func():
@@ -252,30 +223,25 @@ class TestTerminalReporter:
 
             def test_should_be():
                 assert False
-            """
-        )
+            """)
         assert_count(testdir)
 
     def test_item_count_after_pytest_collection_modifyitems(self, testdir):
-        testdir.makeconftest(
-            """
+        testdir.makeconftest("""
             import pytest
 
             @pytest.hookimpl(hookwrapper=True, tryfirst=True)
             def pytest_collection_modifyitems(config, items):
                 yield
                 items[:] = [x for x in items if x.name == 'test_one']
-            """
-        )
-        testdir.makepyfile(
-            """
+            """)
+        testdir.makepyfile("""
             def test_one():
                 print('test_one_passed')
 
             def test_ignored():
                 assert 0
-            """
-        )
+            """)
         result = testdir.runpytest("-s")
         result.stdout.fnmatch_lines(
             [
@@ -286,13 +252,11 @@ class TestTerminalReporter:
         assert result.ret == 0
 
     def test_fail(self, testdir):
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             import pytest
             def test_func():
                 assert 0
-            """
-        )
+            """)
         result = testdir.runpytest("--force-sugar")
         result.stdout.fnmatch_lines(
             [
@@ -304,14 +268,12 @@ class TestTerminalReporter:
         )
 
     def test_fail_unicode_crashline(self, testdir):
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             # -*- coding: utf-8 -*-
             import pytest
             def test_func():
                 assert b'hello' == b'Bj\\xc3\\xb6rk Gu\\xc3\\xb0mundsd'
-            """
-        )
+            """)
         result = testdir.runpytest("--force-sugar")
         result.stdout.fnmatch_lines(
             [
@@ -323,8 +285,7 @@ class TestTerminalReporter:
         )
 
     def test_fail_in_fixture_and_test(self, testdir):
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             import pytest
             def test_func():
                 assert False
@@ -338,22 +299,19 @@ class TestTerminalReporter:
 
             def test_lol(failure):
                 assert True
-            """
-        )
+            """)
         assert_count(testdir)
         output = strip_colors(testdir.runpytest("--force-sugar").stdout.str())
         assert output.count("         -") == 2
 
     def test_fail_fail(self, testdir):
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             import pytest
             def test_func():
                 assert 0
             def test_func2():
                 assert 0
-            """
-        )
+            """)
         assert_count(testdir)
         result = testdir.runpytest("--force-sugar")
         result.stdout.fnmatch_lines(
@@ -370,8 +328,7 @@ class TestTerminalReporter:
         )
 
     def test_error_in_setup_then_pass(self, testdir):
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             def setup_function(function):
                 print ("setup func")
                 if function is test_nada:
@@ -380,8 +337,7 @@ class TestTerminalReporter:
                 pass
             def test_zip():
                 pass
-            """
-        )
+            """)
         assert_count(testdir)
         result = testdir.runpytest("--force-sugar")
 
@@ -404,8 +360,7 @@ class TestTerminalReporter:
         assert result.ret != 0
 
     def test_error_in_teardown_then_pass(self, testdir):
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             def teardown_function(function):
                 print ("teardown func")
                 if function is test_nada:
@@ -414,8 +369,7 @@ class TestTerminalReporter:
                 pass
             def test_zip():
                 pass
-            """
-        )
+            """)
         assert_count(testdir)
         result = testdir.runpytest("--force-sugar")
 
@@ -452,8 +406,7 @@ class TestTerminalReporter:
         )
 
     def test_verbose(self, testdir):
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             import pytest
 
             def test_true():
@@ -476,8 +429,7 @@ class TestTerminalReporter:
             @pytest.mark.xfail
             def test_xfail():
                 assert True
-            """
-        )
+            """)
         assert_count(testdir, "--verbose")
 
     def test_verbose_uses_collected_inherited_nodeids(self, testdir):
@@ -527,12 +479,10 @@ class TestTerminalReporter:
         assert "base.py::" not in output
 
     def test_verbose_has_double_colon(self, testdir):
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             def test_true():
                 assert True
-            """
-        )
+            """)
         output = testdir.runpytest("--force-sugar", "--verbose").stdout.str()
         assert "test_verbose_has_double_colon.py::test_true" in strip_colors(output)
 
@@ -571,28 +521,24 @@ class TestTerminalReporter:
 
     def test_xdist(self, testdir):
         pytest.importorskip("xdist")
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             def test_nada():
                 pass
             def test_zip():
                 pass
-            """
-        )
+            """)
         result = testdir.runpytest("--force-sugar", "-n2")
 
         assert result.ret == 0, result.stderr.str()
 
     def test_xdist_verbose(self, testdir):
         pytest.importorskip("xdist")
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             def test_nada():
                 pass
             def test_zip():
                 pass
-            """
-        )
+            """)
         result = testdir.runpytest("--force-sugar", "-n2", "-v")
 
         assert result.ret == 0, result.stderr.str()
@@ -600,16 +546,14 @@ class TestTerminalReporter:
     def test_doctest(self, testdir):
         """Test doctest-modules"""
 
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             class ToTest():
                 @property
                 def doctest(self):
                     \"\"\"
                         >>> Invalid doctest
                     \"\"\"
-            """
-        )
+            """)
         result = testdir.runpytest("--force-sugar", "--doctest-modules")
 
         assert result.ret == 1, result.stderr.str()
@@ -617,15 +561,13 @@ class TestTerminalReporter:
     def test_doctest_lineno(self, testdir):
         """Test location reported for doctest-modules"""
 
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             def foobar():
                 '''
                 >>> foobar()
                 '''
                 raise NotImplementedError
-            """
-        )
+            """)
         result = testdir.runpytest("--force-sugar", "--doctest-modules")
 
         assert result.ret == 1, result.stderr.str()
@@ -640,8 +582,7 @@ class TestTerminalReporter:
 
     def test_flaky_rerun(self, testdir):
         pytest.importorskip("flaky")
-        testdir.makepyfile(
-            """
+        testdir.makepyfile("""
             import pytest
             from flaky import flaky
 
@@ -656,8 +597,7 @@ class TestTerminalReporter:
             @pytest.mark.parametrize("x", range(80))
             def test_lots2(x):
                 assert True
-            """
-        )
+            """)
         result = testdir.runpytest("--force-sugar", "--no-flaky-report")
 
         assert result.ret == 1, result.stderr.str()
