@@ -520,7 +520,8 @@ class SugarTerminalReporter(TerminalReporter):
                         markup = {"yellow": True}
                     elif hasattr(report, "rerun") and isinstance(report.rerun, int):
                         markup = {"blue": True}
-                line = self._locationline(str(report.fspath), *report.location)
+                nodeid = getattr(report, "id", str(report.fspath))
+                line = self._locationline(nodeid, *report.location)
                 if hasattr(report, "node"):
                     self._tw.write("\r\n")
                     self.current_line_num += 1

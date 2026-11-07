@@ -490,6 +490,28 @@ class TestTerminalReporter:
         output = testdir.runpytest("--force-sugar", "--verbose").stdout.str()
         assert "test_verbose_has_double_colon.py::test_true" in strip_colors(output)
 
+    @pytest.mark.parametrize("verbosity", ["-v", "-vv"])
+    @pytest.mark.parametrize("distributed", [False, True])
+    @pytest.mark.parametrize("rootdir", [".", ".."])
+    def test_verbose_report_location(self, testdir, verbosity, distributed, rootdir):
+        if distributed:
+            pytest.importorskip("xdist")
+        testdir.makepyfile(
+            """
+            def test_first():
+                pass
+
+            def test_second():
+                pass
+            """
+        )
+        args = ["--force-sugar", verbosity, f"--rootdir={rootdir}"]
+        if distributed:
+            args.append("-n2")
+        result = testdir.runpytest_subprocess(*args)
+        assert result.ret == 0, result.stdout.str()
+        assert get_counts(result.stdout.str())["passed"] == "2"
+
     # def test_verbose_has_double_colon_with_class(self, testdir):
     #     testdir.makepyfile(
     #         """
