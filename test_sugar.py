@@ -618,3 +618,92 @@ class TestTerminalReporter:
         test_counts = get_counts(result.stdout.str())
         assert test_counts["passed"] == "280"
         assert test_counts["failed"] == "1"
+
+
+class TestThemeConfiguration:
+    @pytest.fixture(autouse=True)
+    def isolate_theme(self, tmp_path, monkeypatch):
+        import pytest_sugar
+
+        monkeypatch.chdir(tmp_path)
+        monkeypatch.setenv("HOME", str(tmp_path))
+        monkeypatch.setenv("USERPROFILE", str(tmp_path))
+        monkeypatch.setattr(pytest_sugar, "THEME", pytest_sugar.THEME)
+        monkeypatch.setattr(pytest_sugar, "IS_SUGAR_ENABLED", False)
+
+    @pytest.mark.parametrize(
+        "key",
+        [
+            "symbol_passed",
+            "symbol_skipped",
+            "symbol_failed",
+            "symbol_failed_not_call",
+            "symbol_xfailed_skipped",
+            "symbol_xfailed_failed",
+            "symbol_unknown",
+            "symbol_rerun",
+        ],
+    )
+    @pytest.mark.parametrize("symbol", ["X", "PaSs", "ÄΩ"])
+    def test_symbol_case(self, tmp_path, key, symbol):
+        import pytest_sugar
+
+        (tmp_path / "pytest-sugar.conf").write_text(
+            f"[theme]\n{key} = {symbol}\n", encoding="utf-8"
+        )
+        pytest_sugar.pytest_sessionstart(None)
+        assert getattr(pytest_sugar.THEME, key) == symbol
+
+    @pytest.mark.parametrize("key", ["success", "symbol_passed"])
+    @pytest.mark.parametrize("value", ["", "none", "NoNe", "NONE"])
+    def test_disabled_value(self, tmp_path, key, value):
+        import pytest_sugar
+
+        (tmp_path / "pytest-sugar.conf").write_text(f"[theme]\n{key} = {value}\n")
+        pytest_sugar.pytest_sessionstart(None)
+        assert getattr(pytest_sugar.THEME, key) is None
+
+    def test_color_normalization(self, tmp_path):
+        import dataclasses
+
+        import pytest_sugar
+
+        keys = [
+            field.name
+            for field in dataclasses.fields(pytest_sugar.Theme)
+            if not field.name.startswith("symbol_")
+        ]
+        (tmp_path / "pytest-sugar.conf").write_text(
+            "[theme]\n" + "\n".join(f"{key} = GrEeN" for key in keys)
+        )
+        pytest_sugar.pytest_sessionstart(None)
+        for key in keys:
+            assert getattr(pytest_sugar.THEME, key) == "green"
+
+    def test_configured_xpass_and_xfail_output(self, testdir):
+        testdir.makefile(
+            ".conf",
+            **{
+                "pytest-sugar": "[theme]\nsymbol_xfailed_failed = X\n"
+                "symbol_xfailed_skipped = x\n"
+            },
+        )
+        testdir.makepyfile(
+            """
+            import pytest
+
+            @pytest.mark.xfail(reason="synthetic expected failure")
+            def test_xpass():
+                assert True
+
+            @pytest.mark.xfail(reason="synthetic expected failure")
+            def test_xfail():
+                assert False
+            """
+        )
+        result = testdir.runpytest_subprocess("--force-sugar", "--color=no")
+        assert result.ret == 0
+        counts = get_counts(result.stdout.str())
+        assert counts["xpassed"] == "1"
+        assert counts["xfailed"] == "1"
+        assert re.search(r"\.py\s+Xx", strip_colors(result.stdout.str()))
