@@ -164,9 +164,11 @@ def pytest_sessionstart(session: Session) -> None:
         if not config.has_option("theme", key):
             continue
 
-        value_str: str = config.get("theme", key).lower()
+        value_str: str = config.get("theme", key)
+        if not key.startswith("symbol_"):
+            value_str = value_str.lower()
         value: str | None = value_str
-        if value in ("", "none"):
+        if value.lower() in ("", "none"):
             value = None
 
         theme_attributes[key] = value
