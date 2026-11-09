@@ -194,6 +194,11 @@ IS_SUGAR_ENABLED = False
 def pytest_configure(config) -> None:
     global IS_SUGAR_ENABLED
 
+    standard_reporter = config.pluginmanager.getplugin("terminalreporter")
+    if standard_reporter is None:
+        IS_SUGAR_ENABLED = False
+        return
+
     if sys.stdout.isatty() or config.getvalue("force_sugar"):
         IS_SUGAR_ENABLED = True
 
@@ -207,7 +212,6 @@ def pytest_configure(config) -> None:
 
     if IS_SUGAR_ENABLED and not getattr(config, "slaveinput", None):
         # Get the standard terminal reporter plugin and replace it with our
-        standard_reporter = config.pluginmanager.getplugin("terminalreporter")
         sugar_reporter = SugarTerminalReporter(standard_reporter.config)
         config.pluginmanager.unregister(standard_reporter)
         config.pluginmanager.register(sugar_reporter, "terminalreporter")
