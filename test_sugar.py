@@ -618,3 +618,50 @@ class TestTerminalReporter:
         test_counts = get_counts(result.stdout.str())
         assert test_counts["passed"] == "280"
         assert test_counts["failed"] == "1"
+
+
+@pytest.mark.parametrize(
+    "is_tty, force_sugar", [(True, False), (False, True), (False, False)]
+)
+@pytest.mark.parametrize("passes", [True, False])
+@pytest.mark.parametrize("was_enabled", [True, False])
+def test_disabled_terminal(testdir, is_tty, force_sugar, passes, was_enabled):
+    testdir.makeconftest(
+        f"""
+        import sys
+
+        import pytest
+        import pytest_sugar
+
+        patch = pytest.MonkeyPatch()
+
+        @pytest.hookimpl(tryfirst=True)
+        def pytest_configure(config):
+            patch.setattr(sys.stdout, "isatty", lambda: {is_tty!r})
+            # A previous in-process invocation may have enabled sugar.
+            patch.setattr(pytest_sugar, "IS_SUGAR_ENABLED", {was_enabled!r})
+
+        def pytest_sessionstart(session):
+            assert session.config.pluginmanager.getplugin("terminalreporter") is None
+            assert not pytest_sugar.IS_SUGAR_ENABLED
+
+        def pytest_unconfigure(config):
+            patch.undo()
+        """
+    )
+    testdir.makepyfile(
+        f"""
+        from pathlib import Path
+
+        def test_sample():
+            Path("ran.txt").write_text("executed")
+            assert {passes!r}
+        """
+    )
+    args = ["-p", "no:terminal"]
+    if force_sugar:
+        args.append("--force-sugar")
+    result = testdir.runpytest(*args)
+    assert result.ret == (0 if passes else 1)
+    assert testdir.tmpdir.join("ran.txt").read() == "executed"
+    assert "INTERNALERROR" not in result.stderr.str()
